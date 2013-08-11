@@ -1,0 +1,51 @@
+<project name="gdx GLES 2.0" default="run" basedir=".">
+    <description>
+        ant build/run file
+    </description>
+
+    <!-- set global properties for this build -->
+    <property name="src" location="src"/>
+	<property name="bin" location="bin"/>
+    
+    <target
+        name="clean"
+        description="removes all classes" >
+        <delete>
+            <fileset dir="${bin}" includes="**/*.class"/>
+        </delete>
+    </target>
+
+    <target 
+        name="compile"
+        description="compile the source " >
+			<mkdir dir="${bin}"/>
+            <fileset dir="${src}" includes="**/*.class"/>
+        <javac 
+            destdir="${bin}"
+            classpath="../sprite-placer/libs/gdx.jar:libs/gdx-backend-lwjgl.jar"
+            includeantruntime="false"
+			debug="on"
+			debuglevel="lines,vars,source"
+        >
+			<src path="${src}" />
+			<src path="../sprite-placer/src" />
+			
+            <compilerarg value="-Xlint:all" />
+            <compilerarg value="-Werror" />
+            
+        </javac>
+    </target>
+    
+    <target
+        name="run"
+        depends="compile"
+        description="runs the project compiling if needed" >
+        <java
+            fork="true"
+            classname="uk.co.bedroomcoders.placer.Main"
+            classpath="bin:../sprite-placer/libs/gdx.jar:libs/gdx-backend-lwjgl.jar:libs/gdx-backend-lwjgl-natives.jar:libs/gdx-natives.jar"
+        />
+    </target>
+
+
+</project>
