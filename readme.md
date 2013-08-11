@@ -3,7 +3,7 @@ SpritePlacer
 an editor for arbitrarily placing a collection of sprites
 loads and saves to xml.
 
-(C) Mr C Camacho 2013 (codifies@gmail.com) - all rights reserved
+(C) Mr C Camacho 2013 - all rights reserved
 
 I hereby grant free use of this work, providing you agree to abide by
 the following:
