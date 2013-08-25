@@ -312,9 +312,6 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	
 	public boolean touchUp(int screenX, int screenY, int pointer, int button)
  	{
-		// TODO "select" the nearest pixy here, should take acount of pixy 
-		// rotation and do a box select instead...
-		// see unprojecting in sprite class
 		// TODO whats the best way to change selection if same coord clicked 
 		// multiple times where there are multiple pixies in same place.
 		Vector3 cursor = new Vector3(screenX,screenY,0);
@@ -327,28 +324,40 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		{
 			Pixy p = itr.next();
 			tmp.set(cursor);
-			tmp.x -= p.x; tmp.y -= p.y;
-			if ( tmp.len() < dist )
-			{
-				dist = tmp.len();
-				Nearest = p;
-			}
+			if (p.pointIntersects(tmp)) Nearest = p; 
 		}	
 
-		nameEd.setText(Nearest.name);
-		xEd.setText(""+Nearest.x);
-		yEd.setText(""+Nearest.y);
-		sxEd.setText(""+Nearest.scaleX);
-		syEd.setText(""+Nearest.scaleY);
-		angEd.setText(""+Nearest.angle);
-		oxEd.setText(""+Nearest.textureOffsetX);
-		oyEd.setText(""+Nearest.textureOffsetY);
-		wEd.setText(""+Nearest.width);
-		hEd.setText(""+Nearest.height);
-		textureEd.setText(Nearest.textureFileName);
+		if (Nearest!=null)
+		{
+			nameEd.setText(Nearest.name);
+			xEd.setText(""+Nearest.x);
+			yEd.setText(""+Nearest.y);
+			sxEd.setText(""+Nearest.scaleX);
+			syEd.setText(""+Nearest.scaleY);
+			angEd.setText(""+Nearest.angle);
+			oxEd.setText(""+Nearest.textureOffsetX);
+			oyEd.setText(""+Nearest.textureOffsetY);
+			wEd.setText(""+Nearest.width);
+			hEd.setText(""+Nearest.height);
+			textureEd.setText(Nearest.textureFileName);
 
-		CurrentPixy = Nearest;
-		
+			CurrentPixy = Nearest;
+		} else {
+			nameEd.setText("");
+			xEd.setText("");
+			yEd.setText("");
+			sxEd.setText("");
+			syEd.setText("");
+			angEd.setText("");
+			oxEd.setText("");
+			oyEd.setText("");
+			wEd.setText("");
+			hEd.setText("");
+			textureEd.setText("");
+			
+			CurrentPixy = null;
+		}
+	
 		return true;
 	}
 

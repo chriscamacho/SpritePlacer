@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 
+import com.badlogic.gdx.math.Vector3;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -83,4 +85,19 @@ public class Pixy
 		return s;
 	}
 
+	public boolean pointIntersects(Vector3 p)
+	{
+		float c = (float)Math.cos(-angle*(Math.PI/180.0f));
+		float s = (float)Math.sin(-angle*(Math.PI/180.0f));
+		float rtx = x + c * (p.x - x) - s * (p.y - y);
+		float rty = y + s * (p.x - x) + c * (p.y - y);
+		float wid = (width / 2) * scaleX;
+		float hgt = (height / 2) * scaleY;
+		float lx = x - wid;
+		float rx = x + wid;
+		float ty = y - hgt;
+		float by = y + hgt;
+		
+		return lx <= rtx && rtx <= rx && ty <= rty && rty <= by;
+	}
 }
