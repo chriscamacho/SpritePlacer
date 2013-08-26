@@ -41,7 +41,7 @@ public class LevelLoader
 	public class levelDefaultHandler extends DefaultHandler 
 	{
 		float x,y,sx=1,sy=1,angle;
-		int ox,oy,width,height;
+		int ox,oy,width,height,wx,wy;
 		String texture,name;
 		
 		public void startElement(String uri, String localName, String qName, Attributes attributes)
@@ -71,6 +71,10 @@ public class LevelLoader
 					texture = attributes.getValue(i);
 				if (attributes.getQName(i).equalsIgnoreCase("name"))
 					name = attributes.getValue(i);
+				if (attributes.getQName(i).equalsIgnoreCase("xwrap"))
+					wx = Integer.valueOf(attributes.getValue(i)).intValue();
+				if (attributes.getQName(i).equalsIgnoreCase("ywrap"))
+					wy = Integer.valueOf(attributes.getValue(i)).intValue();
 			}
 			//if(qName.equalsIgnoreCase("level")) levelScript=script;
 		}
@@ -82,10 +86,10 @@ public class LevelLoader
 			Pixy px=null;
 			if(qName.equalsIgnoreCase("pixy")) 
 			{
-				px=new Pixy(x,y,ox,oy,width,height,sx,sy,angle,texture,name);
+				px=new Pixy(x,y,ox,oy,width,height,sx,sy,angle,texture,name,wx,wy);
 			}
 			// MUST reset to default values here
-			x=0;y=0;ox=0;oy=0;angle=0;width=0;height=0;texture="";name="";sx=1;sy=1;
+			x=0;y=0;ox=0;oy=0;angle=0;width=0;height=0;texture="";name="";sx=1;sy=1;wx=0;wy=0;
 		}
 
 		public void characters(char ch[], int start, int length)

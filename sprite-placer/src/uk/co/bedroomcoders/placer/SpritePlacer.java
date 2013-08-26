@@ -16,6 +16,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Widget;
+import com.esotericsoftware.tablelayout.Cell;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
 
@@ -46,11 +52,16 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	private OrthographicCamera camera;
 	private TextButton upButton,downButton,leftButton,rightButton,newButton,saveButton;
 	private TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd,textureEd;
+	private SelectBox xwrapEd,ywrapEd;
 	private Window win,butWin;
+	private ScrollPane sPane;
+	private Table table;
 	public Stage stage;
 	private Skin skin;
 	private Pixy CurrentPixy=null;
-	
+	private String wraps[] = new String[] { "Mirror", "Clamp", "Repeat" };
+	//clamp-1 mirror-0 repeat-2
+
 	@Override
 	public void create() {		
 		
@@ -82,46 +93,69 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		leftButton = addButton(butWin,10,33,"Left");
 		rightButton = addButton(butWin,95,33,"Right");
 		downButton = addButton(butWin,52,8,"Down");
+
+		newButton = addButton(butWin,95,8,"New");
+		saveButton = addButton(butWin,8,8,"Save");
 				
-		win = new Window("Props",skin);
-		win.setSize(200,344);
+		win = new Window("Properties",skin);
+		win.setSize(210,150);
+		table = new Table(skin);
+		table.setWidth(200);
+
+		sPane = new ScrollPane(table);
+		sPane.setSize(210,130); // same size as window minus title height
+		sPane.setPosition(0,0);
+		win.addActor(sPane);
 		
-		nameEd = addPropItem(11,"Name");
-		nameEd.setWidth(120);
-		xEd = addPropItem(10,"Xpos");
-		yEd = addPropItem(9,"Ypos");
-		wEd = addPropItem(8,"width");
-		hEd = addPropItem(7,"height");
-		angEd = addPropItem(6,"angle");
-		oxEd = addPropItem(5,"offsetX");
-		oyEd = addPropItem(4,"offsetY");
-		sxEd = addPropItem(3,"scaleX");
-		syEd = addPropItem(2,"scaleY");
-		textureEd = addPropItem(1,"texture");
-		textureEd.setWidth(120);
-		
-		newButton = addButton(win,4,8,"new.");
-		saveButton = addButton(win,52,8,"save");
-		
-		
+		table.add(new Label("drag to scroll",skin)).colspan(2);
+		table.row();
+		nameEd = addTextCell(new TextField("",skin),"Name");
+		xEd = addTextCell(new TextField("",skin),"Xpos");
+		yEd = addTextCell(new TextField("",skin),"Ypos");
+		wEd = addTextCell(new TextField("",skin),"width");
+		hEd = addTextCell(new TextField("",skin),"height");
+		angEd = addTextCell(new TextField("",skin),"angle");
+		oxEd = addTextCell(new TextField("",skin),"offsetX");
+		oyEd = addTextCell(new TextField("",skin),"offsetY");
+		sxEd = addTextCell(new TextField("",skin),"scaleX");
+		syEd = addTextCell(new TextField("",skin),"scaleY");
+		textureEd = addTextCell(new TextField("",skin),"texure");
+		xwrapEd = addSelect(new SelectBox(wraps,skin), "Xwrap");
+		ywrapEd = addSelect(new SelectBox(wraps,skin), "Ywrap");
+				
 		stage.addActor(win);
 		win.setPosition(8,110);
 		stage.addActor(butWin);
 		butWin.setPosition(8,8);
 	}
 
-	private TextField addPropItem(int y, String ltxt)
+	private SelectBox addSelect(SelectBox w,String label)
 	{
-		y = y * 26 + 8;
-		Label l = new Label(ltxt,skin);
-		win.addActor(l);
-		l.setPosition(8,y);
-		TextField tf = new TextField("",skin);
-		tf.addListener(this);
-		win.addActor(tf);
-		tf.setPosition(60,y);
-		tf.setWidth(60);
-		return tf;
+		Label nameLabel = new Label(label, skin);
+		table.add(nameLabel).width(60);
+		table.add(w).width(120);
+		w.addListener(this);
+		table.row();
+		return w;
+	}
+/*
+	private TextButton addTableButton(Table parent, String txt)
+	{
+		TextButton button = new TextButton(txt,skin);
+		parent.add(button).width(100);
+		button.addListener(this);
+		return button;
+	}
+*/
+
+	private TextField addTextCell(TextField w,String label)
+	{
+		Label nameLabel = new Label(label, skin);
+		table.add(nameLabel).width(60);
+		table.add(w).width(120);
+		w.addListener(this);
+		table.row();
+		return w;
 	}
 
 	private TextButton addButton(Group parent, int x, int y, String txt)
@@ -155,7 +189,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		return f;
 	}
 
-	// updates if enter of focus lost
+	// updates if enter or focus lost
 	private void updateProperty( Event event)
 	{
 		if (event.getTarget() == nameEd) CurrentPixy.name = nameEd.getText();
@@ -191,9 +225,37 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 				textureEd.setText("missing!");
 			}
 		}
-
+		
+		if (event.getTarget() == xwrapEd)
+		{
+			int s = xwrapEd.getSelectionIndex();
+			if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
+					CurrentPixy.xWrap = Texture.TextureWrap.ClampToEdge.ordinal(); 
+			if ( s == Texture.TextureWrap.Repeat.ordinal() )
+					CurrentPixy.xWrap = Texture.TextureWrap.Repeat.ordinal(); 
+			if ( s == Texture.TextureWrap.MirroredRepeat.ordinal() )
+					CurrentPixy.xWrap = Texture.TextureWrap.MirroredRepeat.ordinal(); 
+		}
+		
+		if (event.getTarget() == ywrapEd)
+		{
+			int s = ywrapEd.getSelectionIndex();
+			if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
+					CurrentPixy.yWrap = Texture.TextureWrap.ClampToEdge.ordinal(); 
+			if ( s == Texture.TextureWrap.Repeat.ordinal() )
+					CurrentPixy.yWrap = Texture.TextureWrap.Repeat.ordinal(); 
+			if ( s == Texture.TextureWrap.MirroredRepeat.ordinal() )
+					CurrentPixy.yWrap = Texture.TextureWrap.MirroredRepeat.ordinal(); 
+		}
+		
+		if (event.getTarget() == ywrapEd || event.getTarget() == xwrapEd)
+		{
+			CurrentPixy.texture.setWrap(
+					Texture.TextureWrap.values()[CurrentPixy.xWrap],
+					Texture.TextureWrap.values()[CurrentPixy.yWrap]
+				);
+		}
 	}
-	
 	
 	// TODO can events be handled in just one place (so you know where they
 	// all are) without having to rely on runtime cast failure...
@@ -201,6 +263,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	@Override
 	public boolean handle(Event event) 
 	{
+		//System.out.println(event);
 		if (CurrentPixy!=null) {
 			if (event.toString().equals("keyUp"))
 			{
@@ -225,7 +288,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		{
 			if (event.getTarget() == newButton) 
 			{
-				CurrentPixy = new Pixy(0,0,0,0,32,32,1,1,0,"missing.png","new");
+				CurrentPixy = new Pixy(0,0,0,0,32,32,1,1,0,"missing.png","new",0,0);
 				// setting gui done is 2 places should really only be done in one place
 				// and called in 2 places....
 				nameEd.setText(CurrentPixy.name);
@@ -239,6 +302,9 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 				wEd.setText(""+CurrentPixy.width);
 				hEd.setText(""+CurrentPixy.height);
 				textureEd.setText(CurrentPixy.textureFileName);
+				// TODO - shouldn't assume I have same order as enum...
+				xwrapEd.setSelection(CurrentPixy.xWrap);
+				ywrapEd.setSelection(CurrentPixy.yWrap);
 			}
 			// TODO prefs variable step amount
 			if (event.getTarget() == downButton) ty=-16;
@@ -249,6 +315,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			{
 				saveLevel();
 			}
+			if (event.getTarget()==xwrapEd || event.getTarget()==ywrapEd)
+				updateProperty(event);
 			camera.translate(tx,ty,0);
 			return true;
 		}
@@ -321,7 +389,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		float dist = 1000000.0f;
 		Pixy Nearest = null;
 		while(itr.hasNext())
-		{
+		{   // TODO make a list of all selected if currently selected is in 
+			// the list find its position and goto the next in the list (or first)
 			Pixy p = itr.next();
 			tmp.set(cursor);
 			if (p.pointIntersects(tmp)) Nearest = p; 
@@ -340,7 +409,10 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			wEd.setText(""+Nearest.width);
 			hEd.setText(""+Nearest.height);
 			textureEd.setText(Nearest.textureFileName);
-
+			// TODO - shouldn't assume I have same order as enum...
+			xwrapEd.setSelection(Nearest.xWrap);
+			ywrapEd.setSelection(Nearest.yWrap);
+				
 			CurrentPixy = Nearest;
 		} else {
 			nameEd.setText("");
@@ -354,6 +426,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			wEd.setText("");
 			hEd.setText("");
 			textureEd.setText("");
+			xwrapEd.setSelection(0);
+			ywrapEd.setSelection(0);
 			
 			CurrentPixy = null;
 		}

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <level>
-    <pixy name="cross" x="0.0" y="0.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="cursor.png" angle="0.0" width="16" height="16" />
-    <pixy name="logo1" x="100.0" y="200.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="libgdx.png" angle="225.0" width="64" height="64" />
-    <pixy name="logo2" x="200.0" y="200.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="libgdx.png" angle="135.0" width="64" height="64" />
-    <pixy name="smile1" x="200.0" y="100.0" ox="64" oy="0" sx="1.0" sy="1.0" texture="libgdx.png" angle="45.0" width="64" height="64" />
-    <pixy name="smile2" x="100.0" y="100.0" ox="64" oy="0" sx="1.0" sy="1.0" texture="libgdx.png" angle="315.0" width="64" height="64" />
-    <pixy name="ufo" x="-100.0" y="-100.0" ox="0" oy="64" sx="1.0" sy="1.0" texture="libgdx.png" angle="15.0" width="128" height="64" />
-    <pixy name="small ufo" x="-50.0" y="50.0" ox="0" oy="64" sx="0.5" sy="0.5" texture="libgdx.png" angle="-15.0" width="128" height="64" />
-    <pixy name="new" x="100.0" y="-50.0" ox="0" oy="0" sx="4.0" sy="0.5" texture="missing.png" angle="45.0" width="32" height="32" />
+    <pixy name="cross" x="0.0" y="0.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="cursor.png" angle="0.0" width="16" height="16" xwrap="0" ywrap="0"  />
+    <pixy name="logo1" x="100.0" y="200.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="libgdx.png" angle="225.0" width="64" height="64" xwrap="0" ywrap="0"  />
+    <pixy name="logo2" x="200.0" y="200.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="libgdx.png" angle="135.0" width="64" height="64" xwrap="0" ywrap="0"  />
+    <pixy name="smile1" x="200.0" y="100.0" ox="64" oy="0" sx="1.0" sy="1.0" texture="libgdx.png" angle="45.0" width="64" height="64" xwrap="0" ywrap="0"  />
+    <pixy name="smile2" x="100.0" y="100.0" ox="64" oy="0" sx="1.0" sy="1.0" texture="libgdx.png" angle="315.0" width="64" height="64" xwrap="0" ywrap="0"  />
+    <pixy name="ufo" x="-100.0" y="-100.0" ox="0" oy="64" sx="1.0" sy="1.0" texture="libgdx.png" angle="15.0" width="128" height="64" xwrap="0" ywrap="0"  />
+    <pixy name="small ufo" x="-50.0" y="50.0" ox="0" oy="64" sx="0.5" sy="0.5" texture="libgdx.png" angle="-15.0" width="128" height="64" xwrap="0" ywrap="0"  />
+    <pixy name="new" x="100.0" y="-50.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="missing.png" angle="5.0" width="64" height="64" xwrap="1" ywrap="0"  />
 </level>

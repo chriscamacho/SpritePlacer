@@ -27,20 +27,24 @@ public class Pixy
 	public String textureFileName;
 	public int width,height;
 	public String name="";
+	public int xWrap;
+	public int yWrap;
 
 	public static ArrayList<Pixy> pixies = new ArrayList<Pixy>();
 	
 	public static Texture brokenTexture = new Texture(Gdx.files.internal("data/missing.png"));
 	
 	Pixy(float px, float py, int ox, int oy, int w, int h,
-			float sx, float sy, float a, String textureName, String Name)
+			float sx, float sy, float a, String textureName, String Name,int wx,int wy)
 	{
 		name=Name;
 		textureOffsetX=ox;textureOffsetY=oy;
 		width=w;height=h;
 		textureFileName=textureName;
 		texture = new Texture(Gdx.files.internal("data/"+textureName));
-		
+		texture.setWrap(Texture.TextureWrap.values()[wx], Texture.TextureWrap.values()[wy]);
+		xWrap = wx;
+		yWrap = wy;
 		originX = width/2;
 		originY = height/2;
 		x=px;y=py;
@@ -80,8 +84,10 @@ public class Pixy
 		s+="texture=\""+textureFileName+"\" ";
 		s+="angle=\""+angle+"\" ";
 		s+="width=\""+width+"\" ";
-		s+="height=\""+height+"\" />\n";
-		
+		s+="height=\""+height+"\" ";
+		s+="xwrap=\""+xWrap+"\" ";
+		s+="ywrap=\""+yWrap+"\" ";
+		s+=" />\n";
 		return s;
 	}
 
