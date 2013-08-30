@@ -43,7 +43,7 @@
         <java
             fork="true"
             classname="uk.co.bedroomcoders.placer.Main"
-            classpath="bin:../sprite-placer/libs/gdx.jar:libs/gdx-backend-lwjgl.jar:libs/gdx-backend-lwjgl-natives.jar:libs/gdx-natives.jar"
+            classpath="bin:../sprite-placer/libs/gdx.jar:libs/gdx-backend-lwjgl.jar:libs/gdx-backend-lwjgl-natives.jar:../sprite-placer/libs/gdx-natives.jar"
         />
     </target>
 

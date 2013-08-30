@@ -29,13 +29,14 @@ public class Pixy
 	public String name="";
 	public int xWrap;
 	public int yWrap;
+	public int textureWidth,textureHeight;
 
 	public static ArrayList<Pixy> pixies = new ArrayList<Pixy>();
 	
 	public static Texture brokenTexture = new Texture(Gdx.files.internal("data/missing.png"));
 	
 	Pixy(float px, float py, int ox, int oy, int w, int h,
-			float sx, float sy, float a, String textureName, String Name,int wx,int wy)
+			float sx, float sy, float a, String textureName, String Name,int wx,int wy,int tw,int th)
 	{
 		name=Name;
 		textureOffsetX=ox;textureOffsetY=oy;
@@ -50,13 +51,16 @@ public class Pixy
 		x=px;y=py;
 		angle=a;
 		scaleX=sx;scaleY=sy;
+		textureWidth=tw;
+		textureHeight=th;
 		pixies.add(this);
 	}
 
 	public void draw(SpriteBatch sb)
 	{
 		sb.draw(texture, x-originX, y-originY, originX, originY, width, height,
-					scaleX, scaleY, angle, textureOffsetX, textureOffsetY, width, height, false, false);
+					scaleX, scaleY, angle, textureOffsetX, textureOffsetY, textureWidth, textureHeight, false, false);
+					
 	}
 	
 	public static void drawAll(SpriteBatch sb)
@@ -87,6 +91,8 @@ public class Pixy
 		s+="height=\""+height+"\" ";
 		s+="xwrap=\""+xWrap+"\" ";
 		s+="ywrap=\""+yWrap+"\" ";
+		s+="twidth=\""+textureWidth+"\" ";
+		s+="theight=\""+textureHeight+"\" ";
 		s+=" />\n";
 		return s;
 	}

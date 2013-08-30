@@ -51,7 +51,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
 	private TextButton upButton,downButton,leftButton,rightButton,newButton,saveButton;
-	private TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd,textureEd;
+	private TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd,textureEd,twEd,thEd;
 	private SelectBox xwrapEd,ywrapEd;
 	private Window win,butWin;
 	private ScrollPane sPane;
@@ -117,6 +117,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		angEd = addTextCell(new TextField("",skin),"angle");
 		oxEd = addTextCell(new TextField("",skin),"offsetX");
 		oyEd = addTextCell(new TextField("",skin),"offsetY");
+		twEd = addTextCell(new TextField("",skin), "tex width");
+		thEd = addTextCell(new TextField("",skin), "tex Height");
 		sxEd = addTextCell(new TextField("",skin),"scaleX");
 		syEd = addTextCell(new TextField("",skin),"scaleY");
 		textureEd = addTextCell(new TextField("",skin),"texure");
@@ -193,6 +195,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	private void updateProperty( Event event)
 	{
 		if (event.getTarget() == nameEd) CurrentPixy.name = nameEd.getText();
+		if (event.getTarget() == twEd) CurrentPixy.textureWidth = (int)parseFloatString(twEd,CurrentPixy.textureWidth);
+		if (event.getTarget() == thEd) CurrentPixy.textureHeight = (int)parseFloatString(thEd,CurrentPixy.textureHeight);
 		if (event.getTarget() == xEd) CurrentPixy.x = parseFloatString(xEd,CurrentPixy.x);
 		if (event.getTarget() == yEd) CurrentPixy.y = parseFloatString(yEd,CurrentPixy.y);
 		if (event.getTarget() == sxEd) CurrentPixy.scaleX = parseFloatString(sxEd,CurrentPixy.scaleX);
@@ -288,7 +292,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		{
 			if (event.getTarget() == newButton) 
 			{
-				CurrentPixy = new Pixy(0,0,0,0,32,32,1,1,0,"missing.png","new",0,0);
+				CurrentPixy = new Pixy(0,0,0,0,32,32,1,1,0,"missing.png","new",0,0,32,32);
 				// setting gui done is 2 places should really only be done in one place
 				// and called in 2 places....
 				nameEd.setText(CurrentPixy.name);
@@ -299,6 +303,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 				angEd.setText(""+CurrentPixy.angle);
 				oxEd.setText(""+CurrentPixy.textureOffsetX);
 				oyEd.setText(""+CurrentPixy.textureOffsetY);
+				thEd.setText(""+CurrentPixy.textureWidth);
+				twEd.setText(""+CurrentPixy.textureHeight);
 				wEd.setText(""+CurrentPixy.width);
 				hEd.setText(""+CurrentPixy.height);
 				textureEd.setText(CurrentPixy.textureFileName);
@@ -408,6 +414,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			oyEd.setText(""+Nearest.textureOffsetY);
 			wEd.setText(""+Nearest.width);
 			hEd.setText(""+Nearest.height);
+			twEd.setText(""+Nearest.textureWidth);
+			thEd.setText(""+Nearest.textureHeight);
 			textureEd.setText(Nearest.textureFileName);
 			// TODO - shouldn't assume I have same order as enum...
 			xwrapEd.setSelection(Nearest.xWrap);
@@ -425,6 +433,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			oyEd.setText("");
 			wEd.setText("");
 			hEd.setText("");
+			twEd.setText("");
+			thEd.setText("");
 			textureEd.setText("");
 			xwrapEd.setSelection(0);
 			ywrapEd.setSelection(0);

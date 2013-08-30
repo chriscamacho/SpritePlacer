@@ -2,6 +2,4 @@ place the following here...
 
 gdx-backend-lwjgl.jar
 gdx-backend-lwjgl-natives.jar
-gdx-backend-lwjgl-sources.jar
-gdx-natives.jar
 
