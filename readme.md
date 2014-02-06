@@ -31,7 +31,7 @@ Allows the following manipulations on individual sprites
 
 The current sprite is selected with the mouse (or touch) 
 
-In addition to manipulating individual sprites the view can be moved using the for buttons marked up, down, left & right. Sprites and where the camera is looking can be moved by "dragging"
+In addition to manipulating individual sprites the view can be moved using the four buttons marked up, down, left & right. Sprites and where the camera is looking can be moved by "dragging"
 
 As there is currently no save dialogue the level is always saved to the file “data/level1.xml”
 
