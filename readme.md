@@ -31,17 +31,14 @@ Allows the following manipulations on individual sprites
 
 The current sprite is selected with the mouse (or touch) 
 
-In addition to manipulating individual sprites the view can be moved using the for buttons marked up, down, left & right.
+In addition to manipulating individual sprites the view can be moved using the for buttons marked up, down, left & right. Sprites and where the camera is looking can be moved by "dragging"
 
 As there is currently no save dialogue the level is always saved to the file “data/level1.xml”
 
-Although sprites can be added with the “add” button they cannot be deleted, if you cannot reuse a sprite the xml structure is sufficiently simple that it can be easily edited with a text editor (to make it even easier change the sprites name to “DELETEME!” ;) )
+New sprites can be added with the “add” button, they can be deleted with the remove button once selected
 
 TODO
 
-* add box2d integration.
-* add rectilinear shapes for box2d objects (draw vertices to pop up enlarged texture).
-* add box2dlights.
 * add button to create box office smash game.
 
 I'm open to sensible suggestions, but do contact me before diving into massive code changes, as depending on what I'm doing next I might not be able to use them...
