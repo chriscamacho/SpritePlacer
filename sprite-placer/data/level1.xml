@@ -5,8 +5,7 @@
     <pixy name="logo2" x="200.0" y="200.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="libgdx.png" angle="135.0" width="64" height="64" xwrap="0" ywrap="0" twidth="64" theight="64"  />
     <pixy name="smile1" x="200.0" y="100.0" ox="64" oy="0" sx="1.0" sy="1.0" texture="libgdx.png" angle="45.0" width="64" height="64" xwrap="0" ywrap="0" twidth="64" theight="64"  />
     <pixy name="smile2" x="100.0" y="100.0" ox="64" oy="0" sx="1.0" sy="1.0" texture="libgdx.png" angle="315.0" width="64" height="64" xwrap="0" ywrap="0" twidth="64" theight="64"  />
-    <pixy name="new" x="42.0" y="-140.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="wall.png" angle="0.0" width="256" height="32" xwrap="2" ywrap="0" twidth="256" theight="32"  />
-    <pixy name="new" x="64.0" y="-60.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="ladder.png" angle="0.0" width="32" height="128" xwrap="0" ywrap="2" twidth="32" theight="128"  />
-    <pixy name="new" x="64.0" y="0.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="ladderwall.png" angle="0.0" width="64" height="32" xwrap="1" ywrap="1" twidth="64" theight="32"  />
-    <pixy name="new" x="0.0" y="0.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="wall.png" angle="0.0" width="64" height="32" xwrap="2" ywrap="0" twidth="64" theight="32"  />
+    <pixy name="new" x="64.0" y="-256.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="gantry.png" angle="0.0" width="512" height="64" xwrap="2" ywrap="0" twidth="512" theight="64"  />
+    <pixy name="new" x="-160.0" y="32.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="gantry.png" angle="90.0" width="512" height="64" xwrap="2" ywrap="0" twidth="512" theight="64"  />
+    <pixy name="new" x="320.0" y="320.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="gantry.png" angle="0.0" width="1024" height="64" xwrap="2" ywrap="0" twidth="1024" theight="64"  />
 </level>
