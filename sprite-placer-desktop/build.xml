@@ -1,4 +1,4 @@
-<project name="gdx GLES 2.0" default="run" basedir=".">
+<project name="Sprite Placer" default="run" basedir=".">
     <description>
         ant build/run file
     </description>
@@ -32,7 +32,8 @@
 			
             <compilerarg value="-Xlint:all" />
             <compilerarg value="-Werror" />
-            
+            <compilerarg value="-Xmaxerrs" />
+            <compilerarg value="1" />
         </javac>
     </target>
     

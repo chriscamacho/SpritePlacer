@@ -2,7 +2,7 @@ package uk.co.bedroomcoders.placer;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -21,7 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
-import com.esotericsoftware.tablelayout.Cell;
+//import com.esotericsoftware.tablelayout.Cell;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
 
@@ -52,8 +52,9 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
 	private TextButton upButton,downButton,leftButton,rightButton,newButton,saveButton,removeButton;
+	private TextButton loadButton;
 	private TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd,textureEd,twEd,thEd;
-	private SelectBox xwrapEd,ywrapEd;
+	private SelectBox<String> xwrapEd,ywrapEd;
 	private Window win,butWin;
 	private ScrollPane sPane;
 	private Table table;
@@ -79,7 +80,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		
 		skin = new Skin(Gdx.files.internal("data/uiskin.json"));
 		
-		stage = new Stage(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		stage = new Stage();//Stage(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
 		Gdx.input.setInputProcessor(stage);
 
 		InputMultiplexer multiplexer = new InputMultiplexer();
@@ -98,6 +99,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		newButton = addButton(butWin,95,8,"New");
 		saveButton = addButton(butWin,8,8,"Save");
 		removeButton = addButton(butWin,95,58,"Remove");
+		loadButton = addButton(butWin,8,58,"Load");
 				
 		win = new Window("Properties",skin);
 		win.setSize(210,150);
@@ -124,8 +126,9 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		sxEd = addTextCell(new TextField("",skin),"scaleX");
 		syEd = addTextCell(new TextField("",skin),"scaleY");
 		textureEd = addTextCell(new TextField("",skin),"texure");
-		xwrapEd = addSelect(new SelectBox(wraps,skin), "Xwrap");
-		ywrapEd = addSelect(new SelectBox(wraps,skin), "Ywrap");
+        
+		xwrapEd = addSelect(new SelectBox<String>(skin), wraps, "Xwrap");
+		ywrapEd = addSelect(new SelectBox<String>(skin), wraps, "Ywrap");
 				
 		stage.addActor(win);
 		win.setPosition(8,110);
@@ -133,12 +136,13 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		butWin.setPosition(8,8);
 	}
 
-	private SelectBox addSelect(SelectBox w,String label)
+	private SelectBox<String> addSelect(SelectBox<String> w, String[] list,String label)
 	{
 		Label nameLabel = new Label(label, skin);
 		table.add(nameLabel).width(60);
 		table.add(w).width(120);
 		w.addListener(this);
+        w.setItems(list);
 		table.row();
 		return w;
 	}
@@ -235,7 +239,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			
 			if (event.getTarget() == xwrapEd)
 			{
-				int s = xwrapEd.getSelectionIndex();
+				int s = xwrapEd.getSelectedIndex();
 				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
 						CurrentPixy.xWrap = Texture.TextureWrap.ClampToEdge.ordinal(); 
 				if ( s == Texture.TextureWrap.Repeat.ordinal() )
@@ -246,7 +250,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			
 			if (event.getTarget() == ywrapEd)
 			{
-				int s = ywrapEd.getSelectionIndex();
+				int s = ywrapEd.getSelectedIndex();
 				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
 						CurrentPixy.yWrap = Texture.TextureWrap.ClampToEdge.ordinal(); 
 				if ( s == Texture.TextureWrap.Repeat.ordinal() )
@@ -313,8 +317,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 				hEd.setText(""+CurrentPixy.height);
 				textureEd.setText(CurrentPixy.textureFileName);
 				// TODO - shouldn't assume I have same order as enum...
-				xwrapEd.setSelection(CurrentPixy.xWrap);
-				ywrapEd.setSelection(CurrentPixy.yWrap);
+				xwrapEd.setSelectedIndex(CurrentPixy.xWrap);
+				ywrapEd.setSelectedIndex(CurrentPixy.yWrap);
 			}
 			// TODO prefs variable step amount
 			if (event.getTarget() == downButton) ty=-16;
@@ -425,8 +429,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			twEd.setText("");
 			thEd.setText("");
 			textureEd.setText("");
-			xwrapEd.setSelection(0);
-			ywrapEd.setSelection(0);
+			xwrapEd.setSelectedIndex(0);
+			ywrapEd.setSelectedIndex(0);
 			
 			CurrentPixy = null;
 		}
@@ -456,8 +460,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		thEd.setText(""+CurrentPixy.textureHeight);
 		textureEd.setText(CurrentPixy.textureFileName);
 		// TODO - shouldn't assume I have same order as enum...
-		xwrapEd.setSelection(CurrentPixy.xWrap);
-		ywrapEd.setSelection(CurrentPixy.yWrap);		
+		xwrapEd.setSelectedIndex(CurrentPixy.xWrap);
+		ywrapEd.setSelectedIndex(CurrentPixy.yWrap);		
 	}
 	
 	Vector2 dragDelta=new Vector2();
@@ -499,7 +503,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	@Override
 	public void render() {
 		Gdx.gl.glClearColor(1, .5f, .25f, 1);
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
