@@ -69,6 +69,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	//clamp-1 mirror-0 repeat-2
 
     private fileDialog fd=null;
+    private boolean saveMode;
 
 	@Override
 	public void create() {		
@@ -81,8 +82,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		batch = new SpriteBatch();
 		
 		// TODO libgdx compatible file dialog - ie no swing on android.		
-		LevelLoader ll = new LevelLoader("data/level1.xml");
-		ll = null;
+		//LevelLoader ll = new LevelLoader("data/level1.xml");
+		//ll = null;
 		
 		skin = new Skin(Gdx.files.internal("data/uiskin.json"));
 		
@@ -305,9 +306,13 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		{
             if (fd!=null) {
                 if (event.getTarget() == fd.ok) {
-                    System.out.println("chosen is "+fd.getChosen());
-                    System.out.println("TODO actuall call save and integrate load button with fileDialog ");
-                    
+                    //System.out.println("chosen is "+fd.getChosen());
+                    //System.out.println("TODO actuall call save and integrate load button with fileDialog ");
+                    if (saveMode) {
+                        saveLevel(fd.getChosen());
+                    } else {
+                        LevelLoader ll = new LevelLoader(fd.getChosen());
+                    }
                 }
                 fd=null; // ok done or cancel
             }
@@ -339,13 +344,19 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			if (event.getTarget() == upButton) ty=16;
 			if (event.getTarget() == leftButton) tx=-16;
 			if (event.getTarget() == rightButton) tx=16;
-			if (event.getTarget() == saveButton)
-			{
-                fd = new fileDialog("Select file", "data/", skin);
+			if (event.getTarget() == saveButton) {
+                fd = new fileDialog("Select file to save", "data/", skin);
                 stage.addActor(fd);
                 fd.addListener(this);
-				//saveLevel();
+                saveMode=true;
 			}
+            if (event.getTarget() == loadButton) {
+                fd = new fileDialog("Select file to load", "data/", skin);
+                stage.addActor(fd);
+                fd.addListener(this);
+                saveMode=false;
+            }
+            
 			if (event.getTarget()==xwrapEd || event.getTarget()==ywrapEd)
 				updateProperty(event);
 			
@@ -376,9 +387,9 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		return false;
 	}
 	
-	private void saveLevel()
+	private void saveLevel(String fname)
 	{
-		OutputStream os = Gdx.files.local("data/level1.xml").write(false);
+		OutputStream os = Gdx.files.local(fname).write(false);
 		try 
 		{
 			os.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<level>\n".getBytes());
