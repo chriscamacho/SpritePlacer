@@ -4,7 +4,6 @@
     </description>
 
     <!-- set global properties for this build -->
-    <property name="src" location="src"/>
 	<property name="bin" location="bin"/>
     
     <target
@@ -19,16 +18,16 @@
         name="compile"
         description="compile the source " >
 			<mkdir dir="${bin}"/>
-            <fileset dir="${src}" includes="**/*.class"/>
         <javac 
             destdir="${bin}"
-            classpath="../sprite-placer/libs/gdx.jar:libs/gdx-backend-lwjgl.jar"
+            classpath="libs/gdx.jar:libs/gdx-backend-lwjgl.jar"
             includeantruntime="false"
 			debug="on"
 			debuglevel="lines,vars,source"
         >
-			<src path="${src}" />
-			<src path="../sprite-placer/src" />
+			<src path="sprite-placer-desktop/src" />
+			<src path="sprite-placer/src" />
+			<src path="file-dialog/src" />
 			
             <compilerarg value="-Xlint:all" />
             <compilerarg value="-Werror" />
@@ -44,9 +43,23 @@
         <java
             fork="true"
             classname="uk.co.bedroomcoders.placer.Main"
-            classpath="bin:../sprite-placer/libs/gdx.jar:libs/gdx-backend-lwjgl.jar:libs/gdx-backend-lwjgl-natives.jar:../sprite-placer/libs/gdx-natives.jar"
+            classpath="bin:libs/gdx.jar:libs/gdx-natives.jar:libs/gdx-backend-lwjgl.jar:libs/gdx-backend-lwjgl-natives.jar"
         />
     </target>
 
+    <target
+        name="edit"
+        description="loads all source into an editor" >
+
+        <exec executable="/bin/bash" spawn="true"> <!-- to allow wild card expansion -->
+            <arg value="-c"/>
+            <arg value="geany -i
+sprite-placer-desktop/src/uk/co/bedroomcoders/placer/*.java
+sprite-placer/src/uk/co/bedroomcoders/placer/*.java
+file-dialog/src/uk/co/bedroomcoders/fileDialog/*.java
+            "/>
+        </exec>
+    </target>
+    
 
 </project>

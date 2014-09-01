@@ -1,5 +1,0 @@
-place the following here...
-
-gdx-backend-lwjgl.jar
-gdx-backend-lwjgl-natives.jar
-

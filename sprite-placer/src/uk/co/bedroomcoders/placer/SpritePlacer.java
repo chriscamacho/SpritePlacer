@@ -21,7 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
-//import com.esotericsoftware.tablelayout.Cell;
+
 
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
 
@@ -34,6 +34,7 @@ import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener.FocusEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input.Keys;
@@ -46,6 +47,8 @@ import java.util.Iterator;
 
 import java.io.OutputStream;
 import java.io.BufferedOutputStream;
+
+import uk.co.bedroomcoders.fileDialog.fileDialog;
 
 public class SpritePlacer implements ApplicationListener, EventListener, InputProcessor {
 
@@ -61,8 +64,11 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	public Stage stage;
 	private Skin skin;
 	private Pixy CurrentPixy=null;
+    // TODO make proper emum opject that associates Mirror=0, Clamp=1, Repeat=2
 	private String wraps[] = new String[] { "Mirror", "Clamp", "Repeat" };
 	//clamp-1 mirror-0 repeat-2
+
+    private fileDialog fd=null;
 
 	@Override
 	public void create() {		
@@ -134,6 +140,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		win.setPosition(8,110);
 		stage.addActor(butWin);
 		butWin.setPosition(8,8);
+
+        
 	}
 
 	private SelectBox<String> addSelect(SelectBox<String> w, String[] list,String label)
@@ -275,7 +283,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	@Override
 	public boolean handle(Event event) 
 	{
-		//System.out.println(event);
+		
 		if (CurrentPixy!=null) {
 			if (event.toString().equals("keyUp"))
 			{
@@ -287,18 +295,24 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		}
 
 		ChangeEvent ie=null;
-		try{
-			ie = (ChangeEvent)event; // change events toString behaves differently...
-		} 
-		catch(Exception e) 
-		{
-			// cast exception - so its not a change event
-		}
+
+        if (event.getClass().equals(ChangeEvent.class)) {  // its a change event!
+            ie = (ChangeEvent)event;
+        }
 		
 		float tx=0,ty=0;
 		if (ie!=null) // ie its only a changeEvent ? - TODO clicked event ??
 		{
-			if (event.getTarget() == newButton) 
+            if (fd!=null) {
+                if (event.getTarget() == fd.ok) {
+                    System.out.println("chosen is "+fd.getChosen());
+                    System.out.println("TODO actuall call save and integrate load button with fileDialog ");
+                    
+                }
+                fd=null; // ok done or cancel
+            }
+
+            if (event.getTarget() == newButton) 
 			{
 				CurrentPixy = new Pixy(0,0,0,0,32,32,1,1,0,"missing.png","new",0,0,32,32);
 				// setting gui done is 2 places should really only be done in one place
@@ -327,7 +341,10 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			if (event.getTarget() == rightButton) tx=16;
 			if (event.getTarget() == saveButton)
 			{
-				saveLevel();
+                fd = new fileDialog("Select file", "data/", skin);
+                stage.addActor(fd);
+                fd.addListener(this);
+				//saveLevel();
 			}
 			if (event.getTarget()==xwrapEd || event.getTarget()==ywrapEd)
 				updateProperty(event);

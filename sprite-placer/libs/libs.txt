@@ -1,4 +1,0 @@
-place the following here...
-
-gdx.jar
-gdx-natives.jar 
