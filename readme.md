@@ -1,6 +1,6 @@
 SpritePlacer
 
-an editor for arbitrarily placing a collection of sprites loads and saves to xml.
+an editor for arbitrarily placing a collection of sprites - loads and saves to xml.
 
 (see below for longer description)
 
@@ -33,7 +33,7 @@ The current sprite is selected with the mouse (or touch)
 
 In addition to manipulating individual sprites the view can be moved using the four buttons marked up, down, left & right. Sprites and where the camera is looking can be moved by "dragging"
 
-As there is currently no save dialogue the level is always saved to the file “data/level1.xml”
+There is a (somewhat rudimentry) file dialog to assist with loading and saving "levels"
 
 New sprites can be added with the “add” button, they can be deleted with the remove button once selected
 
@@ -42,3 +42,7 @@ TODO
 * add button to create box office smash game.
 
 I'm open to sensible suggestions, but do contact me before diving into massive code changes, as depending on what I'm doing next I might not be able to use them...
+
+hopefully spambots may have trouble with this...
+bedroomcoders co uk
+codifies with
