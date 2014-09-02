@@ -53,13 +53,12 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
-	private TextButton upButton,downButton,leftButton,rightButton,newButton,saveButton,removeButton;
-	private TextButton loadButton;
+	private TextButton loadButton,saveButton,removeButton,newButton;;
 	private TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd,textureEd,twEd,thEd;
 	private SelectBox<String> xwrapEd,ywrapEd;
 	private Window win,butWin;
 	private ScrollPane sPane;
-	private Table table;
+	private Table propTable;
 	public Stage stage;
 	private Skin skin;
 	private Pixy CurrentPixy=null;
@@ -95,30 +94,25 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		Gdx.input.setInputProcessor(multiplexer);
 
 		butWin = new Window("",skin);
-		butWin.setSize(150,100);
+        butWin.pad(2);
 
-		upButton = addButton(butWin,52,58," Up ");
-		leftButton = addButton(butWin,10,33,"Left");
-		rightButton = addButton(butWin,95,33,"Right");
-		downButton = addButton(butWin,52,8,"Down");
-
-		newButton = addButton(butWin,95,8,"New");
-		saveButton = addButton(butWin,8,8,"Save");
-		removeButton = addButton(butWin,95,58,"Remove");
-		loadButton = addButton(butWin,8,58,"Load");
+		newButton = addButton(butWin,false,"New");
+		saveButton = addButton(butWin,true,"Save");
+		removeButton = addButton(butWin,false,"Remove");
+		loadButton = addButton(butWin,true,"Load");
 				
 		win = new Window("Properties",skin);
 		win.setSize(210,150);
-		table = new Table(skin);
-		table.setWidth(200);
+		propTable = new Table(skin);
+		propTable.setWidth(200);
 
-		sPane = new ScrollPane(table);
+		sPane = new ScrollPane(propTable);
 		sPane.setSize(210,130); // same size as window minus title height
 		sPane.setPosition(0,0);
 		win.addActor(sPane);
 		
-		table.add(new Label("drag to scroll",skin)).colspan(2);
-		table.row();
+		propTable.add(new Label("drag to scroll",skin)).colspan(2);
+		propTable.row();
 		nameEd = addTextCell(new TextField("",skin),"Name");
 		xEd = addTextCell(new TextField("",skin),"Xpos");
 		yEd = addTextCell(new TextField("",skin),"Ypos");
@@ -143,47 +137,40 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	}
 
     /* 
-     *      convenience functions to add widgets
+     *      convenience functions to add widgets (for properties)
      */
     
 	private SelectBox<String> addSelect(SelectBox<String> w, String[] list,String label)
 	{
 		Label nameLabel = new Label(label, skin);
-		table.add(nameLabel).width(60);
-		table.add(w).width(120);
+		propTable.add(nameLabel).width(60);
+		propTable.add(w).width(120);
 		w.addListener(this);
         w.setItems(list);
-		table.row();
+		propTable.row();
 		return w;
 	}
-/*
-	private TextButton addTableButton(Table parent, String txt)
-	{
-		TextButton button = new TextButton(txt,skin);
-		parent.add(button).width(100);
-		button.addListener(this);
-		return button;
-	}
-*/
 
 	private TextField addTextCell(TextField w,String label)
 	{
 		Label nameLabel = new Label(label, skin);
-		table.add(nameLabel).width(60);
-		table.add(w).width(120);
+		propTable.add(nameLabel).width(60);
+		propTable.add(w).width(120);
 		w.addListener(this);
-		table.row();
+		propTable.row();
 		return w;
 	}
 
-	private TextButton addButton(Group parent, int x, int y, String txt)
-	{
-		TextButton button = new TextButton(txt,skin);
-		parent.addActor(button);
-		button.setPosition(x,y);
-		button.addListener(this);
-		return button;
-	}
+    /*
+     *	add a text button to a table/window
+     */
+    private TextButton addButton(Table parent, boolean row, String text) {
+        TextButton button = new TextButton(text, skin);
+        parent.add(button).width(60);
+        if (row) parent.row();
+        button.addListener(this);
+        return button;
+    }
 
 	@Override
 	public void dispose() {
@@ -326,22 +313,17 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 				wEd.setText(""+CurrentPixy.width);
 				hEd.setText(""+CurrentPixy.height);
 				textureEd.setText(CurrentPixy.textureFileName);
-				// TODO - shouldn't assume I have same order as enum...
 				xwrapEd.setSelectedIndex(CurrentPixy.xWrap);
 				ywrapEd.setSelectedIndex(CurrentPixy.yWrap);
 			}
-			// TODO prefs variable step amount, shift or similar for fine movement?
-			if (event.getTarget() == downButton) ty=-16;
-			if (event.getTarget() == upButton) ty=16;
-			if (event.getTarget() == leftButton) tx=-16;
-			if (event.getTarget() == rightButton) tx=16;
-            
+
 			if (event.getTarget() == saveButton) {
                 fd = new fileDialog("Select file to save", "data/", skin);
                 stage.addActor(fd);
                 fd.addListener(this);
                 saveMode=true;
 			}
+            
             if (event.getTarget() == loadButton) {
                 fd = new fileDialog("Select file to load", "data/", skin);
                 stage.addActor(fd);
@@ -475,7 +457,6 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		twEd.setText(""+CurrentPixy.textureWidth);
 		thEd.setText(""+CurrentPixy.textureHeight);
 		textureEd.setText(CurrentPixy.textureFileName);
-		// TODO - shouldn't assume I have same order as enum...
 		xwrapEd.setSelectedIndex(CurrentPixy.xWrap);
 		ywrapEd.setSelectedIndex(CurrentPixy.yWrap);		
 	}
