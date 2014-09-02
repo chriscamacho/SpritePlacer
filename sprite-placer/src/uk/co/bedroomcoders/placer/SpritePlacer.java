@@ -318,14 +318,14 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			}
 
 			if (event.getTarget() == saveButton) {
-                fd = new fileDialog("Select file to save", "data/", skin);
+                fd = new fileDialog("Select file to save", "data/", stage, skin);
                 stage.addActor(fd);
                 fd.addListener(this);
                 saveMode=true;
 			}
             
             if (event.getTarget() == loadButton) {
-                fd = new fileDialog("Select file to load", "data/", skin);
+                fd = new fileDialog("Select file to load", "data/", stage, skin);
                 stage.addActor(fd);
                 fd.addListener(this);
                 saveMode=false;

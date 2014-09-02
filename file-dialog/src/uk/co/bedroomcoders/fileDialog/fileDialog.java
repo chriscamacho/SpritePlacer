@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.Input.Keys;
 
@@ -16,6 +17,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 
+/**
+ *  fileDialog class an extension of Dialog to provide
+ *  a rudimentary file selector
+ *
+ * @author codifies
+ */
 public class fileDialog extends Dialog {
 
     private String chosen;
@@ -24,17 +31,22 @@ public class fileDialog extends Dialog {
     private TextField tf;
     private Skin skin;
     private String path;
-    public TextButton ok,cancel;
+    /** The ok button is left public so that external listeners can
+     *  conveniently check which button was pressed */
+    public TextButton ok;
+    /** The cancel button is left public so that external listeners can
+     *  conveniently check which button was pressed */
+    public TextButton cancel;
 
-    public String getChosen() {
-        chosen="";
-        if (!tf.getText().equals("")) {
-            chosen = path  + tf.getText();
-        }
-        return chosen;
-    }
-    
-    public fileDialog(String title , String p, Skin s) {
+    /** constructs a fileDialog object, once created you need to
+    *   add it to your scene and add your own listener
+    * 
+    * @param title			A title for the dialog title bar
+    * @param p		    	The initial file path for the dialog 
+    * @param st			    The stage you intend to add the fileDialog to, only used for positioning
+    * @param s			    The skin to use
+    */
+    public fileDialog(String title , String p, Stage st, Skin s) {
         super(title, s);
         skin = s;
         path = p;
@@ -56,9 +68,11 @@ public class fileDialog extends Dialog {
         key(Keys.ENTER, true);
         key(Keys.ESCAPE, false);
 
+        setPosition((st.getWidth()/2)-(getWidth()/2),(st.getHeight()/2)-(getHeight()/2));
     }
 
-    protected void cd(String p) {
+    // used by the dialog to change directory when a user click a directory
+    private void cd(String p) {
         tf.setText("");
         path = p;
         fileTab.clearChildren();
@@ -86,6 +100,7 @@ public class fileDialog extends Dialog {
 
     }
 
+    // used by the dialog to add a file/directory into the list
     private void addEntry(String name, boolean isDir) {
         if (isDir) { name = name+"/"; }
         Label l=new Label(name,skin);
@@ -108,5 +123,16 @@ public class fileDialog extends Dialog {
         }
     }
 
+    /** getChosen allows you to get the chosen path/file
+    *   @return     a string of the relative path (from the initial path) and file selected
+    *               NB depending on navigation the path could traverse up and down the hiarchy
+    */ 
+    public String getChosen() {
+        chosen="";
+        if (!tf.getText().equals("")) {
+            chosen = path  + tf.getText();
+        }
+        return chosen;
+    }
 
 }
