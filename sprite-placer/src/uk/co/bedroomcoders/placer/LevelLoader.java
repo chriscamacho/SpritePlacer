@@ -20,14 +20,14 @@ import java.lang.Integer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-
+// level loader parses xml into a new pixy which
+// adds it to the static pixy list.
 public class LevelLoader
 {
 	static XMLReader xmlReader;
 	static SAXParser sp;
 	
-	LevelLoader(final String pAssetFilePath) 
-	{
+	LevelLoader(final String pAssetFilePath) {
 		final SAXParserFactory spf = SAXParserFactory.newInstance();
 		try {
 			sp = spf.newSAXParser();
@@ -38,8 +38,7 @@ public class LevelLoader
 
 	}
 	
-	public class levelDefaultHandler extends DefaultHandler 
-	{
+	public class levelDefaultHandler extends DefaultHandler {
 		float x,y,sx=1,sy=1,angle;
 		int ox,oy,width,height,wx,wy,tw,th;
 		String texture,name;

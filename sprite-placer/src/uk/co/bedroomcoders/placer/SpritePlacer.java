@@ -22,7 +22,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 
-
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -64,16 +63,20 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	public Stage stage;
 	private Skin skin;
 	private Pixy CurrentPixy=null;
-    // TODO make proper emum opject that associates Mirror=0, Clamp=1, Repeat=2
-	private String wraps[] = new String[] { "Mirror", "Clamp", "Repeat" };
-	//clamp-1 mirror-0 repeat-2
+
+	private String wraps[] = new String[3];
 
     private fileDialog fd=null;
     private boolean saveMode;
 
 	@Override
-	public void create() {		
-		
+	public void create() {
+        // provide a textual version of wrap types
+        wraps[Texture.TextureWrap.MirroredRepeat.ordinal()]="Mirror";
+        wraps[Texture.TextureWrap.Repeat.ordinal()]="Repeat";
+        wraps[Texture.TextureWrap.ClampToEdge.ordinal()]="Clamp";
+        
+		// sets up UI controls
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 
@@ -81,13 +84,9 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		
 		batch = new SpriteBatch();
 		
-		// TODO libgdx compatible file dialog - ie no swing on android.		
-		//LevelLoader ll = new LevelLoader("data/level1.xml");
-		//ll = null;
-		
 		skin = new Skin(Gdx.files.internal("data/uiskin.json"));
 		
-		stage = new Stage();//Stage(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+		stage = new Stage();
 		Gdx.input.setInputProcessor(stage);
 
 		InputMultiplexer multiplexer = new InputMultiplexer();
@@ -140,11 +139,13 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		stage.addActor(win);
 		win.setPosition(8,110);
 		stage.addActor(butWin);
-		butWin.setPosition(8,8);
-
-        
+		butWin.setPosition(8,8);       
 	}
 
+    /* 
+     *      convenience functions to add widgets
+     */
+    
 	private SelectBox<String> addSelect(SelectBox<String> w, String[] list,String label)
 	{
 		Label nameLabel = new Label(label, skin);
@@ -206,10 +207,10 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		return f;
 	}
 
-	// updates if enter or focus lost
+	// updates pixy properties depending on current UI widget
 	private void updateProperty( Event event)
 	{
-		if (CurrentPixy!=null) {
+		if (CurrentPixy!=null) { // only if selected
 			if (event.getTarget() == nameEd) CurrentPixy.name = nameEd.getText();
 			if (event.getTarget() == twEd) CurrentPixy.textureWidth = (int)parseFloatString(twEd,CurrentPixy.textureWidth);
 			if (event.getTarget() == thEd) CurrentPixy.textureHeight = (int)parseFloatString(thEd,CurrentPixy.textureHeight);
@@ -218,22 +219,21 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			if (event.getTarget() == sxEd) CurrentPixy.scaleX = parseFloatString(sxEd,CurrentPixy.scaleX);
 			if (event.getTarget() == syEd) CurrentPixy.scaleY = parseFloatString(syEd,CurrentPixy.scaleY);
 			if (event.getTarget() == angEd) CurrentPixy.angle = parseFloatString(angEd,CurrentPixy.angle);
-			if (event.getTarget() == wEd)
-			{
+			if (event.getTarget() == wEd) {
 				CurrentPixy.width = (int)parseFloatString(wEd,CurrentPixy.width);
 				CurrentPixy.originX = CurrentPixy.width / 2;
 			}
-			if (event.getTarget() == hEd) 
-			{
+			if (event.getTarget() == hEd) {
 				CurrentPixy.height = (int)parseFloatString(hEd,CurrentPixy.height);
 				CurrentPixy.originY = CurrentPixy.height / 2;
 			}
-			if (event.getTarget() == oxEd) 
+			if (event.getTarget() == oxEd) {
 				CurrentPixy.textureOffsetX = (int)parseFloatString(oxEd,CurrentPixy.textureOffsetX);
-			if (event.getTarget() == oyEd) 
+            }
+			if (event.getTarget() == oyEd) {
 				CurrentPixy.textureOffsetY = (int)parseFloatString(oyEd,CurrentPixy.textureOffsetX);
-			if (event.getTarget() == textureEd)
-			{
+            }
+			if (event.getTarget() == textureEd) {
 				CurrentPixy.textureFileName = textureEd.getText();
 				try
 				{
@@ -245,7 +245,6 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 					textureEd.setText("missing!");
 				}
 			}
-			
 			if (event.getTarget() == xwrapEd)
 			{
 				int s = xwrapEd.getSelectedIndex();
@@ -277,19 +276,15 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			}
 		}
 	}
-	
-	// TODO can events be handled in just one place (so you know where they
-	// all are) without having to rely on runtime cast failure...
+
 	 
 	@Override
 	public boolean handle(Event event) 
 	{
 		
 		if (CurrentPixy!=null) {
-			if (event.toString().equals("keyUp"))
-			{
-				if (((InputEvent)event).getKeyCode() == Keys.ENTER)
-				{
+			if (event.toString().equals("keyUp")) {  // enter key updates pixy property
+				if (((InputEvent)event).getKeyCode() == Keys.ENTER) {
 					updateProperty(event);
 				}
 			}
@@ -302,13 +297,10 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
         }
 		
 		float tx=0,ty=0;
-		if (ie!=null) // ie its only a changeEvent ? - TODO clicked event ??
-		{
+		if (ie!=null) { // deal with change event
             if (fd!=null) {
                 if (event.getTarget() == fd.ok) {
-                    //System.out.println("chosen is "+fd.getChosen());
-                    //System.out.println("TODO actuall call save and integrate load button with fileDialog ");
-                    if (saveMode) {
+                    if (saveMode) { // the ok button on a dialog is either save or load
                         saveLevel(fd.getChosen());
                     } else {
                         LevelLoader ll = new LevelLoader(fd.getChosen());
@@ -317,8 +309,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
                 fd=null; // ok done or cancel
             }
 
-            if (event.getTarget() == newButton) 
-			{
+            if (event.getTarget() == newButton) { // create a new pixy with default values
 				CurrentPixy = new Pixy(0,0,0,0,32,32,1,1,0,"missing.png","new",0,0,32,32);
 				// setting gui done is 2 places should really only be done in one place
 				// and called in 2 places....
@@ -339,11 +330,12 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 				xwrapEd.setSelectedIndex(CurrentPixy.xWrap);
 				ywrapEd.setSelectedIndex(CurrentPixy.yWrap);
 			}
-			// TODO prefs variable step amount
+			// TODO prefs variable step amount, shift or similar for fine movement?
 			if (event.getTarget() == downButton) ty=-16;
 			if (event.getTarget() == upButton) ty=16;
 			if (event.getTarget() == leftButton) tx=-16;
 			if (event.getTarget() == rightButton) tx=16;
+            
 			if (event.getTarget() == saveButton) {
                 fd = new fileDialog("Select file to save", "data/", skin);
                 stage.addActor(fd);
@@ -357,8 +349,9 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
                 saveMode=false;
             }
             
-			if (event.getTarget()==xwrapEd || event.getTarget()==ywrapEd)
+			if (event.getTarget()==xwrapEd || event.getTarget()==ywrapEd) {
 				updateProperty(event);
+            }
 			
 			if (event.getTarget() == removeButton) {
 				if (CurrentPixy!=null) {
@@ -371,22 +364,15 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			return true;
 		}
 				
-		FocusEvent fe=null;
-		try
-		{
-			fe=(FocusEvent)event;
-		} 
-		catch(Exception e) {  }
-		
-		if (fe!=null)
-		{
+		if (event.getClass().equals(FocusEvent.class)) {
 			updateProperty(event);
 			return true;
 		}
 		
 		return false;
 	}
-	
+
+    // iterate all pixies making them dump themselves to xml
 	private void saveLevel(String fname)
 	{
 		OutputStream os = Gdx.files.local(fname).write(false);
@@ -419,7 +405,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	}
 	
 	private Vector2 dragStart=new Vector2(),screenDragStart=new Vector2();
-	
+
+    // handles selection and drag start
 	public boolean touchDown(int screenX, int screenY, int pointer, int button)
 	{
 		
@@ -464,7 +451,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		}
 		
 		dragStart.x=screenX-Gdx.graphics.getWidth()/2;dragStart.y=screenY-Gdx.graphics.getHeight()/2;
-		if (CurrentPixy==null) {
+		if (CurrentPixy==null) { // drag the screen or selected pixy
 			screenDragStart.x=camera.position.x;screenDragStart.y=camera.position.y;
 		} else {
 			screenDragStart.x=CurrentPixy.x;screenDragStart.y=CurrentPixy.y;
@@ -472,7 +459,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		
 		return false;
 	}
-	
+
+    // updates the gui controls from a pixy
 	private void updateGui() {
 		nameEd.setText(CurrentPixy.name);
 		xEd.setText(""+CurrentPixy.x);
@@ -491,7 +479,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		xwrapEd.setSelectedIndex(CurrentPixy.xWrap);
 		ywrapEd.setSelectedIndex(CurrentPixy.yWrap);		
 	}
-	
+
+    // update positions because of drag
 	Vector2 dragDelta=new Vector2();
 	public boolean touchDragged(int screenX, int screenY, int pointer)
 	{

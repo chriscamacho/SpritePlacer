@@ -72,9 +72,11 @@ public class Pixy
 			p.draw(sb);
 		}	
 	}
-	
+
+    // dumps a sprite and its extra properties to an xml node
 	public String toXml()
 	{
+    // example output
 	//	<pixy name="small ufo" x="-50" y="50" oy="64" sx="0.5" sy="0.5" texture="libgdx.png" angle="-15" width="128" height="64" />
 		String s = "";
 		
