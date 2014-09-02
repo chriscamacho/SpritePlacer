@@ -44,5 +44,7 @@ TODO
 I'm open to sensible suggestions, but do contact me before diving into massive code changes, as depending on what I'm doing next I might not be able to use them...
 
 hopefully spambots may have trouble with this...
+
 bedroomcoders co uk
+
 codifies with
