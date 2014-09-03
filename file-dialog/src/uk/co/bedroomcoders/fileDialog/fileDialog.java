@@ -52,12 +52,15 @@ public class fileDialog extends Dialog {
         path = p;
 
         chosen = "<selecting>";
+
+        setSize(240,200);
         fileTab = new Table();
         sPane = new ScrollPane(fileTab,skin);
+        sPane.setScrollingDisabled(true,false);
         tf = new TextField("",skin);
         cd(path);
-        
-        getContentTable().add(sPane).row();
+        getContentTable().add(sPane).expand().fill();
+        getContentTable().row();
         getContentTable().add(tf);
 
         ok = new TextButton("Ok", skin);
@@ -69,6 +72,7 @@ public class fileDialog extends Dialog {
         key(Keys.ESCAPE, false);
 
         setPosition((st.getWidth()/2)-(getWidth()/2),(st.getHeight()/2)-(getHeight()/2));
+        
     }
 
     // used by the dialog to change directory when a user click a directory
