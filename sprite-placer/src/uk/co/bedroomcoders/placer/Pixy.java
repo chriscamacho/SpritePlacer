@@ -34,7 +34,8 @@ public class Pixy
 	public static ArrayList<Pixy> pixies = new ArrayList<Pixy>();
 	
 	public static Texture brokenTexture = new Texture(Gdx.files.internal("data/missing.png"));
-	
+
+    // TODO this is a monster constructor...
 	Pixy(float px, float py, int ox, int oy, int w, int h,
 			float sx, float sy, float a, String textureName, String Name,int wx,int wy,int tw,int th)
 	{

@@ -53,7 +53,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
-	private TextButton loadButton,saveButton,removeButton,newButton;;
+	private TextButton loadButton,saveButton,removeButton,newButton,cloneButton;
 	private TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd,textureEd,twEd,thEd;
 	private SelectBox<String> xwrapEd,ywrapEd;
 	private Window win,butWin;
@@ -93,13 +93,16 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		multiplexer.addProcessor(this);
 		Gdx.input.setInputProcessor(multiplexer);
 
-		butWin = new Window("",skin);
-        butWin.pad(2);
+		butWin = new Window("Functions",skin);
+        butWin.pad(6);
+        butWin.padTop(24);
 
 		newButton = addButton(butWin,false,"New");
-		saveButton = addButton(butWin,true,"Save");
-		removeButton = addButton(butWin,false,"Remove");
-		loadButton = addButton(butWin,true,"Load");
+        cloneButton = addButton(butWin,false,"Clone");
+		removeButton = addButton(butWin,true,"Remove");
+		loadButton = addButton(butWin,false,"Load");
+		saveButton = addButton(butWin,false,"Save");
+        butWin.pack();
 				
 		win = new Window("Properties",skin);
 		win.setSize(210,150);
@@ -316,6 +319,19 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 				xwrapEd.setSelectedIndex(CurrentPixy.xWrap);
 				ywrapEd.setSelectedIndex(CurrentPixy.yWrap);
 			}
+
+            if (event.getTarget() == cloneButton) {
+                if (CurrentPixy!=null) {
+                    Pixy c = CurrentPixy;
+                    Pixy p = new Pixy(c.x+8f,c.y+8f,c.textureOffsetX,c.textureOffsetY,
+                                        c.width,c.height,c.scaleX,c.scaleY,c.angle,
+                                        c.textureFileName,c.name+"_clone",
+                                        c.xWrap,c.yWrap,c.textureWidth,c.textureHeight);
+                    CurrentPixy = p;
+                    xEd.setText(""+CurrentPixy.x);
+                    yEd.setText(""+CurrentPixy.y);
+                }               
+            }
 
 			if (event.getTarget() == saveButton) {
                 fd = new fileDialog("Select file to save", "data/", stage, skin);
