@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
+import com.badlogic.gdx.scenes.scene2d.utils.Align;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
 
@@ -76,6 +77,9 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
                                                 Color.PURPLE }; 
     private int selCol = 0;
     private int coltick = 0;
+
+    private Vector2 tmpV2 = new Vector2();
+    private Vector3 tmpV3 = new Vector3();
     
 	@Override
 	public void create() {
@@ -115,14 +119,12 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
         butWin.pack();
 				
 		win = new Window("Properties",skin);
-		win.setSize(210,150);
-		propTable = new Table(skin);
-		propTable.setWidth(200);
-
+        win.setWidth(160);
+		win.setResizeBorder(8);
+        propTable = new Table(skin);
 		sPane = new ScrollPane(propTable);
-		sPane.setSize(210,130); // same size as window minus title height
-		sPane.setPosition(0,0);
-		win.addActor(sPane);
+        sPane.setFillParent(true);
+        win.add(sPane).fill().expand();
 		
 		propTable.add(new Label("drag to scroll",skin)).colspan(2);
 		propTable.row();
@@ -138,11 +140,15 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		thEd = addTextCell(new TextField("",skin), "tex Height");
 		sxEd = addTextCell(new TextField("",skin),"scaleX");
 		syEd = addTextCell(new TextField("",skin),"scaleY");
+        // TODO uses fileDialog for texture selection
 		textureEd = addTextCell(new TextField("",skin),"texure");
         
 		xwrapEd = addSelect(new SelectBox<String>(skin), wraps, "Xwrap");
 		ywrapEd = addSelect(new SelectBox<String>(skin), wraps, "Ywrap");
-				
+
+        propTable.padTop(24);
+        win.setResizable(true);
+        		
 		stage.addActor(win);
 		win.setPosition(8,110);
 		stage.addActor(butWin);
@@ -365,6 +371,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 				if (selected!=null) {
 					Pixy.pixies.remove(selected);
 					selected=null;
+                    clearPropsGui();
 				}
 			}
 			
@@ -414,61 +421,16 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	
 	private Vector2 dragStart=new Vector2(),screenDragStart=new Vector2();
 
-    // handles selection and drag start
+    // handles drag start
 	public boolean touchDown(int screenX, int screenY, int pointer, int button)
 	{
-        // find all pixies intersecting selection point
-		Vector3 cursor = new Vector3(screenX,screenY,0);
-		camera.unproject(cursor);
-		Iterator<Pixy> itr = Pixy.pixies.iterator();
-        ArrayList<Pixy> stack = new ArrayList<Pixy>();
-		Pixy Sel = null;
-		while(itr.hasNext()) {
-			Pixy p = itr.next();
-			if (p.pointIntersects(cursor)) {
-                stack.add(p);
-            }
-		}
 
-        // loop through the stack when you get to the selected item
-        // choose the next one if no selected item or end of list choose first
-        if (stack.size()!=0) {
-            Iterator<Pixy> si = stack.iterator();
-            while(si.hasNext()) {
-                Pixy sp = si.next();
-                if (selected==sp) {
-                    if (si.hasNext()) Sel=si.next();
-                }
-            }
-            if (Sel==null) Sel = stack.iterator().next();
+        // first double check the selection is still valid
+        if (!selected.pointIntersects(tmpV2.set((float)screenX,(float)screenY))) {
+            selected=null;
+            clearPropsGui();
         }
 
-        // if a selection found actually select it and update the gui
-        // or select nothing and update the gui
-		if (Sel!=null) {
-			selected = Sel;
-			updateGui();
-		} else {
-			nameEd.setText("");
-			xEd.setText("");
-			yEd.setText("");
-			sxEd.setText("");
-			syEd.setText("");
-			angEd.setText("");
-			oxEd.setText("");
-			oyEd.setText("");
-			wEd.setText("");
-			hEd.setText("");
-			twEd.setText("");
-			thEd.setText("");
-			textureEd.setText("");
-			xwrapEd.setSelectedIndex(0);
-			ywrapEd.setSelectedIndex(0);
-			
-			selected = null;
-		}
-
-        // nothing selected drags the screen
 		dragStart.x=screenX-Gdx.graphics.getWidth()/2;dragStart.y=screenY-Gdx.graphics.getHeight()/2;
 		if (selected==null) { // drag the screen or selected pixy
 			screenDragStart.x=camera.position.x;screenDragStart.y=camera.position.y;
@@ -514,11 +476,68 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		
 		return false;
 	}
-	
-	public boolean touchUp(int screenX, int screenY, int pointer, int button)
+
+    // selection including selecting differnet sprites in a stack via
+    // repeated selection
+    public boolean touchUp(int screenX, int screenY, int pointer, int button)
  	{
+        // find all pixies intersecting selection point
+        // has to be vector3 for unproject...
+		final Vector3 cursor = new Vector3();
+        cursor.set(screenX,screenY,0);
+		camera.unproject(cursor);
+		Iterator<Pixy> itr = Pixy.pixies.iterator();
+        ArrayList<Pixy> stack = new ArrayList<Pixy>();
+		Pixy Sel = null;
+		while(itr.hasNext()) {
+			Pixy p = itr.next();
+			if (p.pointIntersects(tmpV2.set(cursor.x,cursor.y))) {
+                stack.add(p);
+            }
+		}
+
+        // loop through the stack when you get to the selected item
+        // choose the next one if no selected item or end of list choose first
+        if (stack.size()!=0) {
+            Iterator<Pixy> si = stack.iterator();
+            while(si.hasNext()) {
+                Pixy sp = si.next();
+                if (selected==sp) {
+                    if (si.hasNext()) Sel=si.next();
+                }
+            }
+            if (Sel==null) Sel = stack.iterator().next();
+        }
+
+        // if a selection found actually select it and update the gui
+        // or select nothing and update the gui
+		if (Sel!=null) {
+			selected = Sel;
+			updateGui();
+		} else {
+            clearPropsGui();
+			selected = null;
+		}
 		return true;
 	}
+
+    public void clearPropsGui() {
+        	nameEd.setText("");
+			xEd.setText("");
+			yEd.setText("");
+			sxEd.setText("");
+			syEd.setText("");
+			angEd.setText("");
+			oxEd.setText("");
+			oyEd.setText("");
+			wEd.setText("");
+			hEd.setText("");
+			twEd.setText("");
+			thEd.setText("");
+			textureEd.setText("");
+			xwrapEd.setSelectedIndex(0);
+			ywrapEd.setSelectedIndex(0);
+    }
 
 	public boolean keyUp(int keycode)
 	{
@@ -557,6 +576,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
             shapes.setProjectionMatrix(camera.combined);
             shapes.begin(ShapeType.Line);
             shapes.setColor(selCols[selCol]);
+            // see pixy draw - offset / x,y is done this way to decouple
+            // offset from position so it only works with texture...
             shapes.rect(selected.x-selected.originX, selected.y-selected.originY,
                         selected.originX, selected.originY,
                         selected.width, selected.height,

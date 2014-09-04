@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -102,7 +102,7 @@ public class Pixy
 
     // TODO at some point make faster
     // Can't use box2d as some sprites will be decorative only
-	public boolean pointIntersects(Vector3 p)
+	public boolean pointIntersects(Vector2 p)
 	{
 		float c = (float)Math.cos(-angle*(Math.PI/180.0f));
 		float s = (float)Math.sin(-angle*(Math.PI/180.0f));
