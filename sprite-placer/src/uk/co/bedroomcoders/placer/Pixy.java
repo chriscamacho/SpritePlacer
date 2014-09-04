@@ -100,6 +100,8 @@ public class Pixy
 		return s;
 	}
 
+    // TODO at some point make faster
+    // Can't use box2d as some sprites will be decorative only
 	public boolean pointIntersects(Vector3 p)
 	{
 		float c = (float)Math.cos(-angle*(Math.PI/180.0f));

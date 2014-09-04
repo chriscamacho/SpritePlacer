@@ -7,8 +7,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -61,13 +63,20 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	private Table propTable;
 	public Stage stage;
 	private Skin skin;
-	private Pixy CurrentPixy=null;
+	private Pixy selected=null;
+    private ShapeRenderer shapes; // selection hilight
 
 	private String wraps[] = new String[3];
 
     private fileDialog fd=null;
     private boolean saveMode;
 
+    private static final Color selCols[] = { Color.RED, Color.GREEN, Color.BLUE,
+                                                Color.WHITE, Color.BLACK, Color.YELLOW,
+                                                Color.PURPLE }; 
+    private int selCol = 0;
+    private int coltick = 0;
+    
 	@Override
 	public void create() {
         // provide a textual version of wrap types
@@ -82,6 +91,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		camera = new OrthographicCamera(w,h);
 		
 		batch = new SpriteBatch();
+        shapes = new ShapeRenderer();
 		
 		skin = new Skin(Gdx.files.internal("data/uiskin.json"));
 		
@@ -200,38 +210,38 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	// updates pixy properties depending on current UI widget
 	private void updateProperty( Event event)
 	{
-		if (CurrentPixy!=null) { // only if selected
-			if (event.getTarget() == nameEd) CurrentPixy.name = nameEd.getText();
-			if (event.getTarget() == twEd) CurrentPixy.textureWidth = (int)parseFloatString(twEd,CurrentPixy.textureWidth);
-			if (event.getTarget() == thEd) CurrentPixy.textureHeight = (int)parseFloatString(thEd,CurrentPixy.textureHeight);
-			if (event.getTarget() == xEd) CurrentPixy.x = parseFloatString(xEd,CurrentPixy.x);
-			if (event.getTarget() == yEd) CurrentPixy.y = parseFloatString(yEd,CurrentPixy.y);
-			if (event.getTarget() == sxEd) CurrentPixy.scaleX = parseFloatString(sxEd,CurrentPixy.scaleX);
-			if (event.getTarget() == syEd) CurrentPixy.scaleY = parseFloatString(syEd,CurrentPixy.scaleY);
-			if (event.getTarget() == angEd) CurrentPixy.angle = parseFloatString(angEd,CurrentPixy.angle);
+		if (selected!=null) { // only if selected
+			if (event.getTarget() == nameEd) selected.name = nameEd.getText();
+			if (event.getTarget() == twEd) selected.textureWidth = (int)parseFloatString(twEd,selected.textureWidth);
+			if (event.getTarget() == thEd) selected.textureHeight = (int)parseFloatString(thEd,selected.textureHeight);
+			if (event.getTarget() == xEd) selected.x = parseFloatString(xEd,selected.x);
+			if (event.getTarget() == yEd) selected.y = parseFloatString(yEd,selected.y);
+			if (event.getTarget() == sxEd) selected.scaleX = parseFloatString(sxEd,selected.scaleX);
+			if (event.getTarget() == syEd) selected.scaleY = parseFloatString(syEd,selected.scaleY);
+			if (event.getTarget() == angEd) selected.angle = parseFloatString(angEd,selected.angle);
 			if (event.getTarget() == wEd) {
-				CurrentPixy.width = (int)parseFloatString(wEd,CurrentPixy.width);
-				CurrentPixy.originX = CurrentPixy.width / 2;
+				selected.width = (int)parseFloatString(wEd,selected.width);
+				selected.originX = selected.width / 2;
 			}
 			if (event.getTarget() == hEd) {
-				CurrentPixy.height = (int)parseFloatString(hEd,CurrentPixy.height);
-				CurrentPixy.originY = CurrentPixy.height / 2;
+				selected.height = (int)parseFloatString(hEd,selected.height);
+				selected.originY = selected.height / 2;
 			}
 			if (event.getTarget() == oxEd) {
-				CurrentPixy.textureOffsetX = (int)parseFloatString(oxEd,CurrentPixy.textureOffsetX);
+				selected.textureOffsetX = (int)parseFloatString(oxEd,selected.textureOffsetX);
             }
 			if (event.getTarget() == oyEd) {
-				CurrentPixy.textureOffsetY = (int)parseFloatString(oyEd,CurrentPixy.textureOffsetX);
+				selected.textureOffsetY = (int)parseFloatString(oyEd,selected.textureOffsetX);
             }
 			if (event.getTarget() == textureEd) {
-				CurrentPixy.textureFileName = textureEd.getText();
+				selected.textureFileName = textureEd.getText();
 				try
 				{
-					CurrentPixy.texture = new Texture(Gdx.files.internal("data/"+CurrentPixy.textureFileName));
+					selected.texture = new Texture(Gdx.files.internal("data/"+selected.textureFileName));
 				} 
 				catch (Exception e)
 				{
-					CurrentPixy.texture = Pixy.brokenTexture;
+					selected.texture = Pixy.brokenTexture;
 					textureEd.setText("missing!");
 				}
 			}
@@ -239,29 +249,29 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			{
 				int s = xwrapEd.getSelectedIndex();
 				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
-						CurrentPixy.xWrap = Texture.TextureWrap.ClampToEdge.ordinal(); 
+						selected.xWrap = Texture.TextureWrap.ClampToEdge.ordinal(); 
 				if ( s == Texture.TextureWrap.Repeat.ordinal() )
-						CurrentPixy.xWrap = Texture.TextureWrap.Repeat.ordinal(); 
+						selected.xWrap = Texture.TextureWrap.Repeat.ordinal(); 
 				if ( s == Texture.TextureWrap.MirroredRepeat.ordinal() )
-						CurrentPixy.xWrap = Texture.TextureWrap.MirroredRepeat.ordinal(); 
+						selected.xWrap = Texture.TextureWrap.MirroredRepeat.ordinal(); 
 			}
 			
 			if (event.getTarget() == ywrapEd)
 			{
 				int s = ywrapEd.getSelectedIndex();
 				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
-						CurrentPixy.yWrap = Texture.TextureWrap.ClampToEdge.ordinal(); 
+						selected.yWrap = Texture.TextureWrap.ClampToEdge.ordinal(); 
 				if ( s == Texture.TextureWrap.Repeat.ordinal() )
-						CurrentPixy.yWrap = Texture.TextureWrap.Repeat.ordinal(); 
+						selected.yWrap = Texture.TextureWrap.Repeat.ordinal(); 
 				if ( s == Texture.TextureWrap.MirroredRepeat.ordinal() )
-						CurrentPixy.yWrap = Texture.TextureWrap.MirroredRepeat.ordinal(); 
+						selected.yWrap = Texture.TextureWrap.MirroredRepeat.ordinal(); 
 			}
 			
 			if (event.getTarget() == ywrapEd || event.getTarget() == xwrapEd)
 			{
-				CurrentPixy.texture.setWrap(
-						Texture.TextureWrap.values()[CurrentPixy.xWrap],
-						Texture.TextureWrap.values()[CurrentPixy.yWrap]
+				selected.texture.setWrap(
+						Texture.TextureWrap.values()[selected.xWrap],
+						Texture.TextureWrap.values()[selected.yWrap]
 					);
 			}
 		}
@@ -272,7 +282,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	public boolean handle(Event event) 
 	{
 		
-		if (CurrentPixy!=null) {
+		if (selected!=null) {
 			if (event.toString().equals("keyUp")) {  // enter key updates pixy property
 				if (((InputEvent)event).getKeyCode() == Keys.ENTER) {
 					updateProperty(event);
@@ -300,36 +310,36 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
             }
 
             if (event.getTarget() == newButton) { // create a new pixy with default values
-				CurrentPixy = new Pixy(0,0,0,0,32,32,1,1,0,"missing.png","new",0,0,32,32);
+				selected = new Pixy(0,0,0,0,32,32,1,1,0,"missing.png","new",0,0,32,32);
 				// setting gui done is 2 places should really only be done in one place
 				// and called in 2 places....
-				nameEd.setText(CurrentPixy.name);
-				xEd.setText(""+CurrentPixy.x);
-				yEd.setText(""+CurrentPixy.y);
-				sxEd.setText(""+CurrentPixy.scaleX);
-				syEd.setText(""+CurrentPixy.scaleY);
-				angEd.setText(""+CurrentPixy.angle);
-				oxEd.setText(""+CurrentPixy.textureOffsetX);
-				oyEd.setText(""+CurrentPixy.textureOffsetY);
-				thEd.setText(""+CurrentPixy.textureWidth);
-				twEd.setText(""+CurrentPixy.textureHeight);
-				wEd.setText(""+CurrentPixy.width);
-				hEd.setText(""+CurrentPixy.height);
-				textureEd.setText(CurrentPixy.textureFileName);
-				xwrapEd.setSelectedIndex(CurrentPixy.xWrap);
-				ywrapEd.setSelectedIndex(CurrentPixy.yWrap);
+				nameEd.setText(selected.name);
+				xEd.setText(""+selected.x);
+				yEd.setText(""+selected.y);
+				sxEd.setText(""+selected.scaleX);
+				syEd.setText(""+selected.scaleY);
+				angEd.setText(""+selected.angle);
+				oxEd.setText(""+selected.textureOffsetX);
+				oyEd.setText(""+selected.textureOffsetY);
+				thEd.setText(""+selected.textureWidth);
+				twEd.setText(""+selected.textureHeight);
+				wEd.setText(""+selected.width);
+				hEd.setText(""+selected.height);
+				textureEd.setText(selected.textureFileName);
+				xwrapEd.setSelectedIndex(selected.xWrap);
+				ywrapEd.setSelectedIndex(selected.yWrap);
 			}
 
             if (event.getTarget() == cloneButton) {
-                if (CurrentPixy!=null) {
-                    Pixy c = CurrentPixy;
+                if (selected!=null) {
+                    Pixy c = selected;
                     Pixy p = new Pixy(c.x+8f,c.y+8f,c.textureOffsetX,c.textureOffsetY,
                                         c.width,c.height,c.scaleX,c.scaleY,c.angle,
                                         c.textureFileName,c.name+"_clone",
                                         c.xWrap,c.yWrap,c.textureWidth,c.textureHeight);
-                    CurrentPixy = p;
-                    xEd.setText(""+CurrentPixy.x);
-                    yEd.setText(""+CurrentPixy.y);
+                    selected = p;
+                    xEd.setText(""+selected.x);
+                    yEd.setText(""+selected.y);
                 }               
             }
 
@@ -352,9 +362,9 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
             }
 			
 			if (event.getTarget() == removeButton) {
-				if (CurrentPixy!=null) {
-					Pixy.pixies.remove(CurrentPixy);
-					CurrentPixy=null;
+				if (selected!=null) {
+					Pixy.pixies.remove(selected);
+					selected=null;
 				}
 			}
 			
@@ -407,26 +417,36 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
     // handles selection and drag start
 	public boolean touchDown(int screenX, int screenY, int pointer, int button)
 	{
-		
-		// TODO whats the best way to change selection if same coord clicked 
-		// multiple times where there are multiple pixies in same place.
+        // find all pixies intersecting selection point
 		Vector3 cursor = new Vector3(screenX,screenY,0);
 		camera.unproject(cursor);
-		Vector3 tmp = new Vector3();
 		Iterator<Pixy> itr = Pixy.pixies.iterator();
-		float dist = 1000000.0f;
-		Pixy Nearest = null;
-		while(itr.hasNext())
-		{   // TODO make a list of all selected if currently selected is in 
-			// the list find its position and goto the next in the list (or first)
+        ArrayList<Pixy> stack = new ArrayList<Pixy>();
+		Pixy Sel = null;
+		while(itr.hasNext()) {
 			Pixy p = itr.next();
-			tmp.set(cursor);
-			if (p.pointIntersects(tmp)) Nearest = p; 
-		}	
+			if (p.pointIntersects(cursor)) {
+                stack.add(p);
+            }
+		}
 
-		if (Nearest!=null)
-		{
-			CurrentPixy = Nearest;
+        // loop through the stack when you get to the selected item
+        // choose the next one if no selected item or end of list choose first
+        if (stack.size()!=0) {
+            Iterator<Pixy> si = stack.iterator();
+            while(si.hasNext()) {
+                Pixy sp = si.next();
+                if (selected==sp) {
+                    if (si.hasNext()) Sel=si.next();
+                }
+            }
+            if (Sel==null) Sel = stack.iterator().next();
+        }
+
+        // if a selection found actually select it and update the gui
+        // or select nothing and update the gui
+		if (Sel!=null) {
+			selected = Sel;
 			updateGui();
 		} else {
 			nameEd.setText("");
@@ -445,14 +465,15 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			xwrapEd.setSelectedIndex(0);
 			ywrapEd.setSelectedIndex(0);
 			
-			CurrentPixy = null;
+			selected = null;
 		}
-		
+
+        // nothing selected drags the screen
 		dragStart.x=screenX-Gdx.graphics.getWidth()/2;dragStart.y=screenY-Gdx.graphics.getHeight()/2;
-		if (CurrentPixy==null) { // drag the screen or selected pixy
+		if (selected==null) { // drag the screen or selected pixy
 			screenDragStart.x=camera.position.x;screenDragStart.y=camera.position.y;
 		} else {
-			screenDragStart.x=CurrentPixy.x;screenDragStart.y=CurrentPixy.y;
+			screenDragStart.x=selected.x;screenDragStart.y=selected.y;
 		}
 		
 		return false;
@@ -460,21 +481,21 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 
     // updates the gui controls from a pixy
 	private void updateGui() {
-		nameEd.setText(CurrentPixy.name);
-		xEd.setText(""+CurrentPixy.x);
-		yEd.setText(""+CurrentPixy.y);
-		sxEd.setText(""+CurrentPixy.scaleX);
-		syEd.setText(""+CurrentPixy.scaleY);
-		angEd.setText(""+CurrentPixy.angle);
-		oxEd.setText(""+CurrentPixy.textureOffsetX);
-		oyEd.setText(""+CurrentPixy.textureOffsetY);
-		wEd.setText(""+CurrentPixy.width);
-		hEd.setText(""+CurrentPixy.height);
-		twEd.setText(""+CurrentPixy.textureWidth);
-		thEd.setText(""+CurrentPixy.textureHeight);
-		textureEd.setText(CurrentPixy.textureFileName);
-		xwrapEd.setSelectedIndex(CurrentPixy.xWrap);
-		ywrapEd.setSelectedIndex(CurrentPixy.yWrap);		
+		nameEd.setText(selected.name);
+		xEd.setText(""+selected.x);
+		yEd.setText(""+selected.y);
+		sxEd.setText(""+selected.scaleX);
+		syEd.setText(""+selected.scaleY);
+		angEd.setText(""+selected.angle);
+		oxEd.setText(""+selected.textureOffsetX);
+		oyEd.setText(""+selected.textureOffsetY);
+		wEd.setText(""+selected.width);
+		hEd.setText(""+selected.height);
+		twEd.setText(""+selected.textureWidth);
+		thEd.setText(""+selected.textureHeight);
+		textureEd.setText(selected.textureFileName);
+		xwrapEd.setSelectedIndex(selected.xWrap);
+		ywrapEd.setSelectedIndex(selected.yWrap);		
 	}
 
     // update positions because of drag
@@ -483,11 +504,11 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	{
 		dragDelta.x=dragStart.x-(screenX-Gdx.graphics.getWidth()/2);dragDelta.y=dragStart.y-(screenY-Gdx.graphics.getHeight()/2);
 
-		if (CurrentPixy==null) {	
+		if (selected==null) {	
 			camera.position.x=screenDragStart.x+dragDelta.x;camera.position.y=screenDragStart.y-dragDelta.y;
 			camera.update();
 		} else {
-			CurrentPixy.x=screenDragStart.x-dragDelta.x;CurrentPixy.y=screenDragStart.y+dragDelta.y;
+			selected.x=screenDragStart.x-dragDelta.x;selected.y=screenDragStart.y+dragDelta.y;
 			updateGui();
 		}
 		
@@ -525,6 +546,24 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		batch.begin();
 		Pixy.drawAll(batch);
 		batch.end();
+
+        coltick++;
+        if (coltick>5) {
+            coltick=0;
+            selCol++;
+            if (selCol==selCols.length) selCol=0;
+        }
+        if (selected!=null) {
+            shapes.setProjectionMatrix(camera.combined);
+            shapes.begin(ShapeType.Line);
+            shapes.setColor(selCols[selCol]);
+            shapes.rect(selected.x-selected.originX, selected.y-selected.originY,
+                        selected.originX, selected.originY,
+                        selected.width, selected.height,
+                        selected.scaleX, selected.scaleY,
+                        selected.angle);
+            shapes.end();
+        }
 
 		stage.act();
 		stage.draw();
