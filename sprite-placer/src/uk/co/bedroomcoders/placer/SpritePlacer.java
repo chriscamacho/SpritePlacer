@@ -57,7 +57,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
 	private TextButton loadButton,saveButton,removeButton,newButton,cloneButton;
-	private TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd,textureEd,twEd,thEd;
+	private TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd;
+    private TextField textureEd,twEd,thEd;
 	private SelectBox<String> xwrapEd,ywrapEd;
 	private Window win,butWin;
 	private ScrollPane sPane;
@@ -143,6 +144,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		syEd = addTextCell(new TextField("",skin),"scaleY");
         // TODO uses fileDialog for texture selection
 		textureEd = addTextCell(new TextField("",skin),"texure");
+
         
 		xwrapEd = addSelect(new SelectBox<String>(skin), wraps, "Xwrap");
 		ywrapEd = addSelect(new SelectBox<String>(skin), wraps, "Ywrap");
@@ -242,7 +244,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 				selected.textureFileName = textureEd.getText();
 				try
 				{
-					selected.texture = new Texture(Gdx.files.internal("data/"+selected.textureFileName));
+                    selected.texture = new Texture(Gdx.files.internal(selected.textureFileName));
 				} 
 				catch (Exception e)
 				{
@@ -286,8 +288,19 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	@Override
 	public boolean handle(Event event) 
 	{
-		System.out.println(event);
+		//System.out.println(event+" "+event.getTarget().toString());
+
+        if (event.getClass().equals(FocusEvent.class)) {
+            if (event.getTarget() == textureEd && ((FocusEvent)event).isFocused()) {
+                fd = new fileDialog("Select texture", "data/", stage, skin);
+                stage.addActor(fd);
+                fd.addListener(this);
+                dialogMode = dialogModes.TEXLOAD;
+            }
+        }
+        
 		if (selected!=null) {
+            // no event object in keyup method.....
 			if (event.toString().equals("keyUp")) {  // enter key updates pixy property
 				if (((InputEvent)event).getKeyCode() == Keys.ENTER) {
 					updateProperty(event);
@@ -313,8 +326,10 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
                             saveLevel(fd.getChosen());
                             break;
                         case TEXLOAD:
-
-                        
+                            textureEd.setText(fd.getChosen());
+                            event.setTarget(textureEd);
+                            updateProperty(event);
+                            break;
                     } 
                 }
                 fd=null; 

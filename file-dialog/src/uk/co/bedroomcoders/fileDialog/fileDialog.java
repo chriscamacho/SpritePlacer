@@ -28,7 +28,7 @@ public class fileDialog extends Dialog {
     private String chosen;
     private Table fileTab;
     private ScrollPane sPane;
-    private TextField tf;
+    private TextField textField;
     private Skin skin;
     private String path;
     /** The ok button is left public so that external listeners can
@@ -57,11 +57,11 @@ public class fileDialog extends Dialog {
         fileTab = new Table();
         sPane = new ScrollPane(fileTab,skin);
         sPane.setScrollingDisabled(true,false);
-        tf = new TextField("",skin);
+        textField = new TextField("",skin);
         cd(path);
         getContentTable().add(sPane).expand().fill();
         getContentTable().row();
-        getContentTable().add(tf);
+        getContentTable().add(textField);
 
         ok = new TextButton("Ok", skin);
         button(ok, true);
@@ -72,12 +72,12 @@ public class fileDialog extends Dialog {
         key(Keys.ESCAPE, false);
 
         setPosition((st.getWidth()/2)-(getWidth()/2),(st.getHeight()/2)-(getHeight()/2));
-        
+        st.setKeyboardFocus(textField);
     }
 
     // used by the dialog to change directory when a user click a directory
     private void cd(String p) {
-        tf.setText("");
+        textField.setText("");
         path = p;
         fileTab.clearChildren();
         FileHandle dirHandle = Gdx.files.internal(path);
@@ -114,7 +114,7 @@ public class fileDialog extends Dialog {
         if (!isDir) {
             l.addListener(new ClickListener() {
                 public void clicked (InputEvent event, float x, float y) {
-                    tf.setText(((Label)event.getTarget()).getText().toString());
+                    textField.setText(((Label)event.getTarget()).getText().toString());
                 }
             });
         } else {
@@ -133,8 +133,8 @@ public class fileDialog extends Dialog {
     */ 
     public String getChosen() {
         chosen="";
-        if (!tf.getText().equals("")) {
-            chosen = path  + tf.getText();
+        if (!textField.getText().equals("")) {
+            chosen = path  + textField.getText();
         }
         return chosen;
     }
