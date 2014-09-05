@@ -70,7 +70,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	private String wraps[] = new String[3];
 
     private fileDialog fd=null;
-    private boolean saveMode;
+    private enum dialogModes { LEVLOAD, LEVSAVE, TEXLOAD };
+    private dialogModes dialogMode;
 
     private static final Color selCols[] = { Color.RED, Color.GREEN, Color.BLUE,
                                                 Color.WHITE, Color.BLACK, Color.YELLOW,
@@ -119,7 +120,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
         butWin.pack();
 				
 		win = new Window("Properties",skin);
-        win.setWidth(160);
+        win.setWidth(190);
 		win.setResizeBorder(8);
         propTable = new Table(skin);
 		sPane = new ScrollPane(propTable);
@@ -181,7 +182,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	}
 
     /*
-     *	add a text button to a table/window
+     *	add a text button to a table/window used for the functions window
      */
     private TextButton addButton(Table parent, boolean row, String text) {
         TextButton button = new TextButton(text, skin);
@@ -201,12 +202,10 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	float parseFloatString(TextField tf, float v)
 	{
 		float f;
-		try
-		{
+		try {
 			f = Float.parseFloat(tf.getText());
 		}
-		catch (Exception e)
-		{
+		catch (Exception e) {
 			f = v;
 			tf.setText(Float.toString(v));
 		}
@@ -287,7 +286,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	@Override
 	public boolean handle(Event event) 
 	{
-		
+		System.out.println(event);
 		if (selected!=null) {
 			if (event.toString().equals("keyUp")) {  // enter key updates pixy property
 				if (((InputEvent)event).getKeyCode() == Keys.ENTER) {
@@ -306,13 +305,19 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		if (ie!=null) { // deal with change event
             if (fd!=null) {
                 if (event.getTarget() == fd.ok) {
-                    if (saveMode) { // the ok button on a dialog is either save or load
-                        saveLevel(fd.getChosen());
-                    } else {
-                        LevelLoader ll = new LevelLoader(fd.getChosen());
-                    }
+                    switch(dialogMode) {
+                        case LEVLOAD:
+                            LevelLoader ll = new LevelLoader(fd.getChosen());
+                            break;
+                        case LEVSAVE:
+                            saveLevel(fd.getChosen());
+                            break;
+                        case TEXLOAD:
+
+                        
+                    } 
                 }
-                fd=null; // ok done or cancel
+                fd=null; 
             }
 
             if (event.getTarget() == newButton) { // create a new pixy with default values
@@ -353,14 +358,14 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
                 fd = new fileDialog("Select file to save", "data/", stage, skin);
                 stage.addActor(fd);
                 fd.addListener(this);
-                saveMode=true;
+                dialogMode = dialogModes.LEVSAVE;
 			}
             
             if (event.getTarget() == loadButton) {
                 fd = new fileDialog("Select file to load", "data/", stage, skin);
                 stage.addActor(fd);
                 fd.addListener(this);
-                saveMode=false;
+                dialogMode = dialogModes.LEVLOAD;
             }
             
 			if (event.getTarget()==xwrapEd || event.getTarget()==ywrapEd) {
@@ -422,14 +427,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	private Vector2 dragStart=new Vector2(),screenDragStart=new Vector2();
 
     // handles drag start
-	public boolean touchDown(int screenX, int screenY, int pointer, int button)
-	{
-
-        // first double check the selection is still valid
-        if (!selected.pointIntersects(tmpV2.set((float)screenX,(float)screenY))) {
-            selected=null;
-            clearPropsGui();
-        }
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
 		dragStart.x=screenX-Gdx.graphics.getWidth()/2;dragStart.y=screenY-Gdx.graphics.getHeight()/2;
 		if (selected==null) { // drag the screen or selected pixy
@@ -464,6 +462,19 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	Vector2 dragDelta=new Vector2();
 	public boolean touchDragged(int screenX, int screenY, int pointer)
 	{
+        // first double check the selection is still valid
+        if (selected!=null) {
+            tmpV3.set((float)screenX,(float)screenY,0);
+            camera.unproject(tmpV3);
+            tmpV2.set(tmpV3.x,tmpV3.y);
+            if (!selected.pointIntersects(tmpV2)) {
+                selected=null;
+                clearPropsGui();
+                touchDown(screenX,screenY,0,0);
+                return true;
+            }
+        }
+
 		dragDelta.x=dragStart.x-(screenX-Gdx.graphics.getWidth()/2);dragDelta.y=dragStart.y-(screenY-Gdx.graphics.getHeight()/2);
 
 		if (selected==null) {	
@@ -474,7 +485,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			updateGui();
 		}
 		
-		return false;
+		return true;
 	}
 
     // selection including selecting differnet sprites in a stack via
@@ -588,6 +599,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 
 		stage.act();
 		stage.draw();
+
 	}
 
 	@Override

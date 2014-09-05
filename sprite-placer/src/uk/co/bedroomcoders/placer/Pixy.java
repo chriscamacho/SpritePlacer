@@ -100,12 +100,13 @@ public class Pixy
 		return s;
 	}
 
-    // TODO at some point make faster
+    // NB the point must unprojected if using coordinates from the
+    // screen - ie from events
     // Can't use box2d as some sprites will be decorative only
 	public boolean pointIntersects(Vector2 p)
 	{
-		float c = (float)Math.cos(-angle*(Math.PI/180.0f));
-		float s = (float)Math.sin(-angle*(Math.PI/180.0f));
+		float c = (float)Math.cos(-angle*Const.PI180);
+		float s = (float)Math.sin(-angle*Const.PI180);
 		float rtx = x + c * (p.x - x) - s * (p.y - y);
 		float rty = y + s * (p.x - x) + c * (p.y - y);
 		float wid = (width / 2) * scaleX;
