@@ -5,6 +5,12 @@
 
     <!-- set global properties for this build -->
 	<property name="bin" location="bin"/>
+
+    <!-- the run time classpath is also used to compile -->
+    <path id="classpath">
+        <pathelement location="bin" />
+        <fileset dir="libs" includes="**/*.jar"/>
+    </path>
     
     <target
         name="clean"
@@ -20,7 +26,6 @@
 			<mkdir dir="${bin}"/>
         <javac 
             destdir="${bin}"
-            classpath="libs/gdx.jar:libs/gdx-backend-lwjgl.jar"
             includeantruntime="false"
 			debug="on"
 			debuglevel="lines,vars,source"
@@ -33,6 +38,8 @@
             <compilerarg value="-Werror" />
             <compilerarg value="-Xmaxerrs" />
             <compilerarg value="1" />
+
+            <classpath refid="classpath"/>
         </javac>
     </target>
     
@@ -43,7 +50,7 @@
         <java
             fork="true"
             classname="uk.co.bedroomcoders.placer.Main"
-            classpath="bin:libs/gdx.jar:libs/gdx-natives.jar:libs/gdx-backend-lwjgl.jar:libs/gdx-backend-lwjgl-natives.jar"
+            classpathref="classpath"
         />
     </target>
 
