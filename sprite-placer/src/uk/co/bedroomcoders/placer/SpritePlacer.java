@@ -20,68 +20,42 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
-import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Widget;
-import com.badlogic.gdx.scenes.scene2d.utils.Align;
-
-import com.badlogic.gdx.scenes.scene2d.ui.Button.ButtonStyle;
-
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 
-import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.FocusListener.FocusEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Input.Keys;
-
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import java.io.OutputStream;
-import java.io.BufferedOutputStream;
 
-import uk.co.bedroomcoders.fileDialog.fileDialog;
 
-public class SpritePlacer implements ApplicationListener, EventListener, InputProcessor {
+public class SpritePlacer implements ApplicationListener { 
 
 	private SpriteBatch batch;
-	private OrthographicCamera camera;
-	private TextButton loadButton,saveButton,removeButton,newButton,cloneButton;
-	private TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd;
-    private TextField textureEd,twEd,thEd;
-	private SelectBox<String> xwrapEd,ywrapEd;
+	protected OrthographicCamera camera;
+	protected TextButton loadButton,saveButton,removeButton,newButton,cloneButton;
+	protected TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd;
+    protected TextField textureEd,twEd,thEd;
+	protected SelectBox<String> xwrapEd,ywrapEd;
 	private Window win,butWin;
 	private ScrollPane sPane;
 	private Table propTable;
-	public Stage stage;
-	private Skin skin;
-	private Pixy selected=null;
+	protected Stage stage;
+	protected Skin skin;
+	protected Pixy selected=null;
     private ShapeRenderer shapes; // selection hilight
 
 	private String wraps[] = new String[3];
-
-    private fileDialog fd=null;
-    private enum dialogModes { LEVLOAD, LEVSAVE, TEXLOAD };
-    private dialogModes dialogMode;
-
     private static final Color selCols[] = { Color.RED, Color.GREEN, Color.BLUE,
                                                 Color.WHITE, Color.BLACK, Color.YELLOW,
                                                 Color.PURPLE }; 
     private int selCol = 0;
     private int coltick = 0;
 
-    private Vector2 tmpV2 = new Vector2();
-    private Vector3 tmpV3 = new Vector3();
+    private Events handler = new Events(this);
     
 	@Override
 	public void create() {
@@ -102,11 +76,10 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		skin = new Skin(Gdx.files.internal("data/uiskin.json"));
 		
 		stage = new Stage();
-		Gdx.input.setInputProcessor(stage);
 
 		InputMultiplexer multiplexer = new InputMultiplexer();
 		multiplexer.addProcessor(stage);
-		multiplexer.addProcessor(this);
+		multiplexer.addProcessor(handler);
 		Gdx.input.setInputProcessor(multiplexer);
 
 		butWin = new Window("Functions",skin);
@@ -142,10 +115,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		thEd = addTextCell(new TextField("",skin), "tex Height");
 		sxEd = addTextCell(new TextField("",skin),"scaleX");
 		syEd = addTextCell(new TextField("",skin),"scaleY");
-        // TODO uses fileDialog for texture selection
 		textureEd = addTextCell(new TextField("",skin),"texure");
 
-        
 		xwrapEd = addSelect(new SelectBox<String>(skin), wraps, "Xwrap");
 		ywrapEd = addSelect(new SelectBox<String>(skin), wraps, "Ywrap");
 
@@ -161,13 +132,12 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
     /* 
      *      convenience functions to add widgets (for properties)
      */
-    
 	private SelectBox<String> addSelect(SelectBox<String> w, String[] list,String label)
 	{
 		Label nameLabel = new Label(label, skin);
 		propTable.add(nameLabel).width(60);
 		propTable.add(w).width(120);
-		w.addListener(this);
+        w.addListener(handler);
         w.setItems(list);
 		propTable.row();
 		return w;
@@ -178,19 +148,19 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		Label nameLabel = new Label(label, skin);
 		propTable.add(nameLabel).width(60);
 		propTable.add(w).width(120);
-		w.addListener(this);
+        w.addListener(handler);
 		propTable.row();
 		return w;
 	}
 
     /*
-     *	add a text button to a table/window used for the functions window
+     *	add a text button to a table/window used for the function button window
      */
     private TextButton addButton(Table parent, boolean row, String text) {
         TextButton button = new TextButton(text, skin);
         parent.add(button).width(60);
         if (row) parent.row();
-        button.addListener(this);
+        button.addListener(handler);
         return button;
     }
 
@@ -206,8 +176,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		float f;
 		try {
 			f = Float.parseFloat(tf.getText());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			f = v;
 			tf.setText(Float.toString(v));
 		}
@@ -215,7 +184,7 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 	}
 
 	// updates pixy properties depending on current UI widget
-	private void updateProperty( Event event)
+	protected void updateProperty( Event event)
 	{
 		if (selected!=null) { // only if selected
 			if (event.getTarget() == nameEd) selected.name = nameEd.getText();
@@ -284,131 +253,8 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		}
 	}
 
-	 
-	@Override
-	public boolean handle(Event event) 
-	{
-		//System.out.println(event+" "+event.getTarget().toString());
-
-        if (event.getClass().equals(FocusEvent.class)) {
-            if (event.getTarget() == textureEd && ((FocusEvent)event).isFocused()) {
-                fd = new fileDialog("Select texture", "data/", stage, skin);
-                stage.addActor(fd);
-                fd.addListener(this);
-                dialogMode = dialogModes.TEXLOAD;
-            }
-        }
-        
-		if (selected!=null) {
-            // no event object in keyup method.....
-			if (event.toString().equals("keyUp")) {  // enter key updates pixy property
-				if (((InputEvent)event).getKeyCode() == Keys.ENTER) {
-					updateProperty(event);
-				}
-			}
-		}
-
-		ChangeEvent ie=null;
-
-        if (event.getClass().equals(ChangeEvent.class)) {  // its a change event!
-            ie = (ChangeEvent)event;
-        }
-		
-		float tx=0,ty=0;
-		if (ie!=null) { // deal with change event
-            if (fd!=null) {
-                if (event.getTarget() == fd.ok) {
-                    switch(dialogMode) {
-                        case LEVLOAD:
-                            LevelLoader ll = new LevelLoader(fd.getChosen());
-                            break;
-                        case LEVSAVE:
-                            saveLevel(fd.getChosen());
-                            break;
-                        case TEXLOAD:
-                            textureEd.setText(fd.getChosen());
-                            event.setTarget(textureEd);
-                            updateProperty(event);
-                            break;
-                    } 
-                }
-                fd=null; 
-            }
-
-            if (event.getTarget() == newButton) { // create a new pixy with default values
-				selected = new Pixy(0,0,0,0,32,32,1,1,0,"missing.png","new",0,0,32,32);
-				// setting gui done is 2 places should really only be done in one place
-				// and called in 2 places....
-				nameEd.setText(selected.name);
-				xEd.setText(""+selected.x);
-				yEd.setText(""+selected.y);
-				sxEd.setText(""+selected.scaleX);
-				syEd.setText(""+selected.scaleY);
-				angEd.setText(""+selected.angle);
-				oxEd.setText(""+selected.textureOffsetX);
-				oyEd.setText(""+selected.textureOffsetY);
-				thEd.setText(""+selected.textureWidth);
-				twEd.setText(""+selected.textureHeight);
-				wEd.setText(""+selected.width);
-				hEd.setText(""+selected.height);
-				textureEd.setText(selected.textureFileName);
-				xwrapEd.setSelectedIndex(selected.xWrap);
-				ywrapEd.setSelectedIndex(selected.yWrap);
-			}
-
-            if (event.getTarget() == cloneButton) {
-                if (selected!=null) {
-                    Pixy c = selected;
-                    Pixy p = new Pixy(c.x+8f,c.y+8f,c.textureOffsetX,c.textureOffsetY,
-                                        c.width,c.height,c.scaleX,c.scaleY,c.angle,
-                                        c.textureFileName,c.name+"_clone",
-                                        c.xWrap,c.yWrap,c.textureWidth,c.textureHeight);
-                    selected = p;
-                    xEd.setText(""+selected.x);
-                    yEd.setText(""+selected.y);
-                }               
-            }
-
-			if (event.getTarget() == saveButton) {
-                fd = new fileDialog("Select file to save", "data/", stage, skin);
-                stage.addActor(fd);
-                fd.addListener(this);
-                dialogMode = dialogModes.LEVSAVE;
-			}
-            
-            if (event.getTarget() == loadButton) {
-                fd = new fileDialog("Select file to load", "data/", stage, skin);
-                stage.addActor(fd);
-                fd.addListener(this);
-                dialogMode = dialogModes.LEVLOAD;
-            }
-            
-			if (event.getTarget()==xwrapEd || event.getTarget()==ywrapEd) {
-				updateProperty(event);
-            }
-			
-			if (event.getTarget() == removeButton) {
-				if (selected!=null) {
-					Pixy.pixies.remove(selected);
-					selected=null;
-                    clearPropsGui();
-				}
-			}
-			
-			camera.translate(tx,ty,0);
-			return true;
-		}
-				
-		if (event.getClass().equals(FocusEvent.class)) {
-			updateProperty(event);
-			return true;
-		}
-		
-		return false;
-	}
-
     // iterate all pixies making them dump themselves to xml
-	private void saveLevel(String fname)
+	protected void saveLevel(String fname)
 	{
 		OutputStream os = Gdx.files.local(fname).write(false);
 		try 
@@ -428,34 +274,9 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 			e.printStackTrace();
 		}
 	}
-	
-	public boolean scrolled(int amount) 
-	{
-		return false;
-	}
-	
-	public boolean mouseMoved(int screenX, int screenY)
-	{
-		return false;
-	}
-	
-	private Vector2 dragStart=new Vector2(),screenDragStart=new Vector2();
-
-    // handles drag start
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-
-		dragStart.x=screenX-Gdx.graphics.getWidth()/2;dragStart.y=screenY-Gdx.graphics.getHeight()/2;
-		if (selected==null) { // drag the screen or selected pixy
-			screenDragStart.x=camera.position.x;screenDragStart.y=camera.position.y;
-		} else {
-			screenDragStart.x=selected.x;screenDragStart.y=selected.y;
-		}
-		
-		return false;
-	}
 
     // updates the gui controls from a pixy
-	private void updateGui() {
+	protected void updateGui() {
 		nameEd.setText(selected.name);
 		xEd.setText(""+selected.x);
 		yEd.setText(""+selected.y);
@@ -473,113 +294,24 @@ public class SpritePlacer implements ApplicationListener, EventListener, InputPr
 		ywrapEd.setSelectedIndex(selected.yWrap);		
 	}
 
-    // update positions because of drag
-	Vector2 dragDelta=new Vector2();
-	public boolean touchDragged(int screenX, int screenY, int pointer)
-	{
-        // first double check the selection is still valid
-        if (selected!=null) {
-            tmpV3.set((float)screenX,(float)screenY,0);
-            camera.unproject(tmpV3);
-            tmpV2.set(tmpV3.x,tmpV3.y);
-            if (!selected.pointIntersects(tmpV2)) {
-                selected=null;
-                clearPropsGui();
-                touchDown(screenX,screenY,0,0);
-                return true;
-            }
-        }
-
-		dragDelta.x=dragStart.x-(screenX-Gdx.graphics.getWidth()/2);dragDelta.y=dragStart.y-(screenY-Gdx.graphics.getHeight()/2);
-
-		if (selected==null) {	
-			camera.position.x=screenDragStart.x+dragDelta.x;camera.position.y=screenDragStart.y-dragDelta.y;
-			camera.update();
-		} else {
-			selected.x=screenDragStart.x-dragDelta.x;selected.y=screenDragStart.y+dragDelta.y;
-			updateGui();
-		}
-		
-		return true;
-	}
-
-    // selection including selecting differnet sprites in a stack via
-    // repeated selection
-    public boolean touchUp(int screenX, int screenY, int pointer, int button)
- 	{
-        // find all pixies intersecting selection point
-        // has to be vector3 for unproject...
-		final Vector3 cursor = new Vector3();
-        cursor.set(screenX,screenY,0);
-		camera.unproject(cursor);
-		Iterator<Pixy> itr = Pixy.pixies.iterator();
-        ArrayList<Pixy> stack = new ArrayList<Pixy>();
-		Pixy Sel = null;
-		while(itr.hasNext()) {
-			Pixy p = itr.next();
-			if (p.pointIntersects(tmpV2.set(cursor.x,cursor.y))) {
-                stack.add(p);
-            }
-		}
-
-        // loop through the stack when you get to the selected item
-        // choose the next one if no selected item or end of list choose first
-        if (stack.size()!=0) {
-            Iterator<Pixy> si = stack.iterator();
-            while(si.hasNext()) {
-                Pixy sp = si.next();
-                if (selected==sp) {
-                    if (si.hasNext()) Sel=si.next();
-                }
-            }
-            if (Sel==null) Sel = stack.iterator().next();
-        }
-
-        // if a selection found actually select it and update the gui
-        // or select nothing and update the gui
-		if (Sel!=null) {
-			selected = Sel;
-			updateGui();
-		} else {
-            clearPropsGui();
-			selected = null;
-		}
-		return true;
-	}
-
     public void clearPropsGui() {
-        	nameEd.setText("");
-			xEd.setText("");
-			yEd.setText("");
-			sxEd.setText("");
-			syEd.setText("");
-			angEd.setText("");
-			oxEd.setText("");
-			oyEd.setText("");
-			wEd.setText("");
-			hEd.setText("");
-			twEd.setText("");
-			thEd.setText("");
-			textureEd.setText("");
-			xwrapEd.setSelectedIndex(0);
-			ywrapEd.setSelectedIndex(0);
+        nameEd.setText("");
+        xEd.setText("");
+        yEd.setText("");
+        sxEd.setText("");
+        syEd.setText("");
+        angEd.setText("");
+        oxEd.setText("");
+        oyEd.setText("");
+        wEd.setText("");
+        hEd.setText("");
+        twEd.setText("");
+        thEd.setText("");
+        textureEd.setText("");
+        xwrapEd.setSelectedIndex(0);
+        ywrapEd.setSelectedIndex(0);
     }
 
-	public boolean keyUp(int keycode)
-	{
-		return false;
-	}
-	
-	public boolean keyDown(int keycode)
-	{
-		return false;
-	}
-	
-	public boolean keyTyped(char character)
-	{
-		return false;
-	}
-	
 	@Override
 	public void render() {
 		Gdx.gl.glClearColor(1, .5f, .25f, 1);

@@ -3,9 +3,6 @@
         ant build/run file
     </description>
 
-    <!-- set global properties for this build -->
-	<property name="bin" location="bin"/>
-
     <!-- the run time classpath is also used to compile -->
     <path id="classpath">
         <pathelement location="bin" />
@@ -16,16 +13,16 @@
         name="clean"
         description="removes all classes" >
         <delete>
-            <fileset dir="${bin}" includes="**/*.class"/>
+            <fileset dir="bin" includes="**/*.class"/>
         </delete>
     </target>
 
     <target 
         name="compile"
         description="compile the source " >
-			<mkdir dir="${bin}"/>
+        <mkdir dir="bin"/>
         <javac 
-            destdir="${bin}"
+            destdir="bin"
             includeantruntime="false"
 			debug="on"
 			debuglevel="lines,vars,source"
@@ -36,9 +33,9 @@
 			
             <compilerarg value="-Xlint:all" />
             <compilerarg value="-Werror" />
+            <!-- maxerrs param must be seperate or space is picked up as a param -->
             <compilerarg value="-Xmaxerrs" />
             <compilerarg value="1" />
-
             <classpath refid="classpath"/>
         </javac>
     </target>

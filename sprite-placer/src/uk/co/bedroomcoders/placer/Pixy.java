@@ -13,6 +13,8 @@ import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
 
+import com.badlogic.gdx.physics.box2d.Shape;
+
 // a Pixy is like a Sprite except that its origin is always in the centre
 // and the rotation/scaling and drawing origin is always the same...
 public class Pixy
@@ -32,7 +34,7 @@ public class Pixy
 	public int textureWidth,textureHeight;
 
 	public static ArrayList<Pixy> pixies = new ArrayList<Pixy>();
-	
+	public static ArrayList<Shape> shapes = new ArrayList<Shape>();
 	public static Texture brokenTexture = new Texture(Gdx.files.internal("data/missing.png"));
 
     // TODO this is a monster constructor...

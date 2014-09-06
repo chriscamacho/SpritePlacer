@@ -12,6 +12,6 @@ public class Const {
     public static final int     VEL_ITER        =   4;
     public static final int     POS_ITER        =   2;
 
-    public static final float   GRAVITY         =   9.91f;
+    public static final float   GRAVITY         =   9.81f;
 
 }
