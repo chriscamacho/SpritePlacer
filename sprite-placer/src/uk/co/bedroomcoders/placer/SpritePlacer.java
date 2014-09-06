@@ -31,6 +31,7 @@ import java.util.Iterator;
 
 import java.io.OutputStream;
 
+import com.badlogic.gdx.physics.box2d.Shape;
 
 public class SpritePlacer implements ApplicationListener { 
 
@@ -46,13 +47,13 @@ public class SpritePlacer implements ApplicationListener {
 	protected Stage stage;
 	protected Skin skin;
 	protected Pixy selected=null;
-    private ShapeRenderer shapes; // selection hilight
+    private ShapeRenderer shpBatch; // selection hilight
 
 	private String wraps[] = new String[3];
     private static final Color selCols[] = { Color.RED, Color.GREEN, Color.BLUE,
                                                 Color.WHITE, Color.BLACK, Color.YELLOW,
                                                 Color.PURPLE }; 
-    private int selCol = 0;
+    private int selCol = 0; physCol = selCols.length/2;
     private int coltick = 0;
 
     private Events handler = new Events(this);
@@ -71,7 +72,7 @@ public class SpritePlacer implements ApplicationListener {
 		camera = new OrthographicCamera(w,h);
 		
 		batch = new SpriteBatch();
-        shapes = new ShapeRenderer();
+        shpBatch = new ShapeRenderer();
 		
 		skin = new Skin(Gdx.files.internal("data/uiskin.json"));
 		
@@ -325,24 +326,32 @@ public class SpritePlacer implements ApplicationListener {
 		batch.end();
 
         coltick++;
-        if (coltick>5) {
+        if (coltick>6) {
             coltick=0;
-            selCol++;
+            selCol++;physCol++
             if (selCol==selCols.length) selCol=0;
+            if (phyCol==selCols.length) physCol=0;
         }
         if (selected!=null) {
-            shapes.setProjectionMatrix(camera.combined);
-            shapes.begin(ShapeType.Line);
-            shapes.setColor(selCols[selCol]);
+            shpBatch.setProjectionMatrix(camera.combined);
+            shpBatch.begin(ShapeType.Line);
+            shpBatch.setColor(selCols[selCol]);
             // see pixy draw - offset / x,y is done this way to decouple
             // offset from position so it only works with texture...
-            shapes.rect(selected.x-selected.originX, selected.y-selected.originY,
+            shpBatch.rect(selected.x-selected.originX, selected.y-selected.originY,
                         selected.originX, selected.originY,
                         selected.width, selected.height,
                         selected.scaleX, selected.scaleY,
                         selected.angle);
-            shapes.end();
+
+            // Overlay the selected objects physics shapes
+
+
+            shpBatch.end();
+
         }
+
+        
 
 		stage.act();
 		stage.draw();

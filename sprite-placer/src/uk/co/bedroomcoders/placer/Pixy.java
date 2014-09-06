@@ -34,8 +34,15 @@ public class Pixy
 	public int textureWidth,textureHeight;
 
 	public static ArrayList<Pixy> pixies = new ArrayList<Pixy>();
-	public static ArrayList<Shape> shapes = new ArrayList<Shape>();
 	public static Texture brokenTexture = new Texture(Gdx.files.internal("data/missing.png"));
+
+    // not static as each pixie has its own list
+    // normally these would be disposed of but in this case they
+    // are kept so fixtures can be created when physics starts
+	public ArrayList<Shape> shapes = new ArrayList<Shape>();
+    // kept to allow fixture creation when physics starts
+    public ArrayList<FixtureDef> fixDef = new ArrayList<FixtureDef>();
+    public Body body;
 
     // TODO this is a monster constructor...
 	Pixy(float px, float py, int ox, int oy, int w, int h,
@@ -59,15 +66,13 @@ public class Pixy
 		pixies.add(this);
 	}
 
-	public void draw(SpriteBatch sb)
-	{
+	public void draw(SpriteBatch sb) {
 		sb.draw(texture, x-originX, y-originY, originX, originY, width, height,
 					scaleX, scaleY, angle, textureOffsetX, textureOffsetY, textureWidth, textureHeight, false, false);
 					
 	}
 	
-	public static void drawAll(SpriteBatch sb)
-	{
+	public static void drawAll(SpriteBatch sb) {
 		Iterator<Pixy> itr = pixies.iterator();
 		while(itr.hasNext())
 		{
@@ -76,9 +81,10 @@ public class Pixy
 		}	
 	}
 
+    
+
     // dumps a sprite and its extra properties to an xml node
-	public String toXml()
-	{
+	public String toXml() {
     // example output
 	//	<pixy name="small ufo" x="-50" y="50" oy="64" sx="0.5" sy="0.5" texture="libgdx.png" angle="-15" width="128" height="64" />
 		String s = "";
@@ -105,8 +111,7 @@ public class Pixy
     // NB the point must unprojected if using coordinates from the
     // screen - ie from events
     // Can't use box2d as some sprites will be decorative only
-	public boolean pointIntersects(Vector2 p)
-	{
+	public boolean pointIntersects(Vector2 p) {
 		float c = (float)Math.cos(-angle*Const.PI180);
 		float s = (float)Math.sin(-angle*Const.PI180);
 		float rtx = x + c * (p.x - x) - s * (p.y - y);
