@@ -14,6 +14,8 @@ import java.util.Iterator;
 import com.badlogic.gdx.Gdx;
 
 import com.badlogic.gdx.physics.box2d.Shape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.Body;
 
 // a Pixy is like a Sprite except that its origin is always in the centre
 // and the rotation/scaling and drawing origin is always the same...
@@ -41,7 +43,7 @@ public class Pixy
     // are kept so fixtures can be created when physics starts
 	public ArrayList<Shape> shapes = new ArrayList<Shape>();
     // kept to allow fixture creation when physics starts
-    public ArrayList<FixtureDef> fixDef = new ArrayList<FixtureDef>();
+    public ArrayList<FixtureDef> fixtDefs = new ArrayList<FixtureDef>();
     public Body body;
 
     // TODO this is a monster constructor...

@@ -41,7 +41,7 @@ public class SpritePlacer implements ApplicationListener {
 	protected TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd;
     protected TextField textureEd,twEd,thEd;
 	protected SelectBox<String> xwrapEd,ywrapEd;
-	private Window win,butWin;
+	private Window win,butWin,fixtWin;
 	private ScrollPane sPane;
 	private Table propTable;
 	protected Stage stage;
@@ -53,7 +53,7 @@ public class SpritePlacer implements ApplicationListener {
     private static final Color selCols[] = { Color.RED, Color.GREEN, Color.BLUE,
                                                 Color.WHITE, Color.BLACK, Color.YELLOW,
                                                 Color.PURPLE }; 
-    private int selCol = 0; physCol = selCols.length/2;
+    private int selCol = 0; int physCol = selCols.length/2;
     private int coltick = 0;
 
     private Events handler = new Events(this);
@@ -84,8 +84,8 @@ public class SpritePlacer implements ApplicationListener {
 		Gdx.input.setInputProcessor(multiplexer);
 
 		butWin = new Window("Functions",skin);
-        butWin.pad(6);
-        butWin.padTop(24);
+        //butWin.pad(6);
+        //butWin.padTop(24);
 
 		newButton = addButton(butWin,false,"New");
         cloneButton = addButton(butWin,false,"Clone");
@@ -328,9 +328,9 @@ public class SpritePlacer implements ApplicationListener {
         coltick++;
         if (coltick>6) {
             coltick=0;
-            selCol++;physCol++
+            selCol++;physCol++;
             if (selCol==selCols.length) selCol=0;
-            if (phyCol==selCols.length) physCol=0;
+            if (physCol==selCols.length) physCol=0;
         }
         if (selected!=null) {
             shpBatch.setProjectionMatrix(camera.combined);
