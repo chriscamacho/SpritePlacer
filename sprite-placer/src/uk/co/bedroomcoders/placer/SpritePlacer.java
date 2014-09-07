@@ -33,6 +33,7 @@ import java.io.OutputStream;
 
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.math.Matrix4;
 
 public class SpritePlacer implements ApplicationListener { 
 
@@ -50,6 +51,7 @@ public class SpritePlacer implements ApplicationListener {
 	protected Skin skin;
 	protected Pixy selected=null;
     private ShapeRenderer shpBatch; // selection hilight
+    private OneBodyRenderer obr;
 
 	private String wraps[] = new String[3];
     private static final Color selCols[] = { Color.RED, Color.GREEN, Color.BLUE,
@@ -133,7 +135,9 @@ public class SpritePlacer implements ApplicationListener {
 		stage.addActor(win);
 		win.setPosition(8,110);
 		stage.addActor(butWin);
-		butWin.setPosition(8,8);       
+		butWin.setPosition(8,8);
+
+        obr = new OneBodyRenderer();     
 	}
 
     /* 
@@ -350,10 +354,17 @@ public class SpritePlacer implements ApplicationListener {
                         selected.scaleX, selected.scaleY,
                         selected.angle);
 
+            shpBatch.end();
+            
             // Overlay the selected objects physics shapes
 
+            if (selected.body!=null) {
+                Matrix4 dm=new Matrix4();
+                dm.set(camera.combined);
+                dm.scale(Const.BOX2WORLD,Const.BOX2WORLD,1f);
 
-            shpBatch.end();
+                obr.renderOneBody(selected.body, dm);
+            }
 
         }
 

@@ -116,6 +116,8 @@ public class Events implements EventListener, InputProcessor {
                         BodyDef bd=new BodyDef();
                         bd.type = BodyDef.BodyType.DynamicBody;
                         SP.selected.body=SP.world.createBody(bd);
+                        SP.selected.body.setTransform(SP.selected.x*Const.WORLD2BOX,
+                                                        SP.selected.y*Const.WORLD2BOX,0);
                     }
                     SP.selected.body.createFixture(fx);
                 }
