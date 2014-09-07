@@ -32,12 +32,14 @@ import java.util.Iterator;
 import java.io.OutputStream;
 
 import com.badlogic.gdx.physics.box2d.Shape;
+import com.badlogic.gdx.physics.box2d.World;
 
 public class SpritePlacer implements ApplicationListener { 
 
 	private SpriteBatch batch;
 	protected OrthographicCamera camera;
-	protected TextButton loadButton,saveButton,removeButton,newButton,cloneButton;
+	protected TextButton loadButton,saveButton,removeButton,newButton;
+    protected TextButton fixtButton,cloneButton;
 	protected TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd;
     protected TextField textureEd,twEd,thEd;
 	protected SelectBox<String> xwrapEd,ywrapEd;
@@ -56,10 +58,13 @@ public class SpritePlacer implements ApplicationListener {
     private int selCol = 0; int physCol = selCols.length/2;
     private int coltick = 0;
 
-    private Events handler = new Events(this);
+    private Events handler;
+    protected World world;
     
 	@Override
 	public void create() {
+
+        world = new World(Const.GRAVITY, false);
         // provide a textual version of wrap types
         wraps[Texture.TextureWrap.MirroredRepeat.ordinal()]="Mirror";
         wraps[Texture.TextureWrap.Repeat.ordinal()]="Repeat";
@@ -75,7 +80,7 @@ public class SpritePlacer implements ApplicationListener {
         shpBatch = new ShapeRenderer();
 		
 		skin = new Skin(Gdx.files.internal("data/uiskin.json"));
-		
+		handler = new Events(this);
 		stage = new Stage();
 
 		InputMultiplexer multiplexer = new InputMultiplexer();
@@ -91,7 +96,8 @@ public class SpritePlacer implements ApplicationListener {
         cloneButton = addButton(butWin,false,"Clone");
 		removeButton = addButton(butWin,true,"Remove");
 		loadButton = addButton(butWin,false,"Load");
-		saveButton = addButton(butWin,false,"Save");
+		saveButton = addButton(butWin,true,"Save");
+        fixtButton = addButton(butWin,false,"+Shape");
         butWin.pack();
 				
 		win = new Window("Properties",skin);

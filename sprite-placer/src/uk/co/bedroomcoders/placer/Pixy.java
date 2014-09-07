@@ -38,13 +38,7 @@ public class Pixy
 	public static ArrayList<Pixy> pixies = new ArrayList<Pixy>();
 	public static Texture brokenTexture = new Texture(Gdx.files.internal("data/missing.png"));
 
-    // not static as each pixie has its own list
-    // normally these would be disposed of but in this case they
-    // are kept so fixtures can be created when physics starts
-	public ArrayList<Shape> shapes = new ArrayList<Shape>();
-    // kept to allow fixture creation when physics starts
-    public ArrayList<FixtureDef> fixtDefs = new ArrayList<FixtureDef>();
-    public Body body;
+    public Body body=null; // by default a pixy is decorative only
 
     // TODO this is a monster constructor...
 	Pixy(float px, float py, int ox, int oy, int w, int h,

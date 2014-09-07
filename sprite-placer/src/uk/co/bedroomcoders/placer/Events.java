@@ -1,6 +1,9 @@
 package uk.co.bedroomcoders.placer;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -14,6 +17,12 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import com.badlogic.gdx.physics.box2d.Shape;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Body;
 
 import uk.co.bedroomcoders.fileDialog.fileDialog;
 
@@ -32,49 +41,94 @@ public class Events implements EventListener, InputProcessor {
 
     private SpritePlacer SP;
     private fileDialog fd=null;
+    private Dialog sd;
     private enum dialogModes { LEVLOAD, LEVSAVE, TEXLOAD };
     private dialogModes dialogMode;
+    private TextButton butCircle,butBox,butCancel;
 
     private Vector2 tmpV2 = new Vector2();
     private Vector3 tmpV3 = new Vector3();
         
     Events(SpritePlacer Parent) {
         SP=Parent;
+        butCircle=new TextButton("Circle",SP.skin);
+        butBox=new TextButton("Box",SP.skin);
+        butCancel=new TextButton("Cancel",SP.skin);
     }
 
     public boolean handle(Event event) {
-		//System.out.println(event+" "+event.getTarget().toString());
+        
+        //System.out.println(event+" "+event.getTarget().toString());
+
+        FocusEvent FE=null;  // rather than lots of casts...
+        InputEvent IE=null;
+        ChangeEvent CE=null;
 
         if (event.getClass().equals(FocusEvent.class)) {
-            if (event.getTarget() == SP.textureEd && ((FocusEvent)event).isFocused()) {
+            FE=(FocusEvent)event;
+        }
+        
+        if (event.getClass().equals(InputEvent.class)) {
+            IE=(InputEvent)event;
+        }
+        
+        if (event.getClass().equals(ChangeEvent.class)) {
+            CE=(ChangeEvent)event;
+        }
+        
+        // selection of texture
+        if (FE!=null) {
+            // using a textField as if its a button
+            // TODO fix!
+            if (FE.getTarget() == SP.textureEd && FE.isFocused()) {
                 fd = new fileDialog("Select texture", "data/", SP.stage, SP.skin);
                 SP.stage.addActor(fd);
                 fd.addListener(this);
                 dialogMode = dialogModes.TEXLOAD;
             }
         }
-        
+
+        // pressing enter updates an edited property
 		if (SP.selected!=null) {
-            // no event object in keyup method.....
-			if (event.toString().equals("keyUp")) {  // enter key updates pixy property
-				if (((InputEvent)event).getKeyCode() == Keys.ENTER) {
-					SP.updateProperty(event);
-				}
-			}
+            // no event object in keyup method..... need target and
+            // whole event for update property
+            if (IE!=null) {
+                if ( IE.getType()==InputEvent.Type.keyUp ) {  // enter key updates pixy property
+                    if (IE.getKeyCode() == Keys.ENTER) {
+                        SP.updateProperty(event);
+                    }
+                }
+            }
 		}
 
-		ChangeEvent ie=null;
-
-        if (event.getClass().equals(ChangeEvent.class)) {  // its a change event!
-            ie = (ChangeEvent)event;
-        }
-		
-		float tx=0,ty=0;
-		if (ie!=null) { // deal with change event
+        if (CE!=null) { // deal with change event
+            // new shape type selected
+            if (sd!=null) {
+                if (event.getTarget()==butCircle) {
+                    Shape shp = new CircleShape();
+                    shp.setRadius(32f*Const.WORLD2BOX);
+                    FixtureDef fx = new FixtureDef();
+                    fx.density=10f;
+                    fx.friction=0.5f;
+                    fx.restitution=0.5f;
+                    fx.shape=shp;
+                    if (SP.selected.body==null) {
+                        BodyDef bd=new BodyDef();
+                        bd.type = BodyDef.BodyType.DynamicBody;
+                        SP.selected.body=SP.world.createBody(bd);
+                    }
+                    SP.selected.body.createFixture(fx);
+                }
+                sd=null;
+            }
+            
+            // file dialog return for save/load level and load texture
             if (fd!=null) {
                 if (event.getTarget() == fd.ok) {
                     switch(dialogMode) {
                         case LEVLOAD:
+                            Pixy.pixies.clear();
+                            SP.selected=null;
                             LevelLoader ll = new LevelLoader(fd.getChosen());
                             break;
                         case LEVSAVE:
@@ -90,6 +144,7 @@ public class Events implements EventListener, InputProcessor {
                 fd=null; 
             }
 
+            // new pixy
             if (event.getTarget() == SP.newButton) { // create a new pixy with default values
 				SP.selected = new Pixy(0,0,0,0,32,32,1,1,0,
                                             "missing.png","new",
@@ -97,13 +152,16 @@ public class Events implements EventListener, InputProcessor {
                 SP.updateGui();
 			}
 
+            // copy an existing pixy
             if (event.getTarget() == SP.cloneButton) {
                 if (SP.selected!=null) {
                     Pixy c = SP.selected;
-                    Pixy p = new Pixy(c.x+8f,c.y+8f,c.textureOffsetX,c.textureOffsetY,
-                                        c.width,c.height,c.scaleX,c.scaleY,c.angle,
-                                        c.textureFileName,c.name+"_clone",
-                                        c.xWrap,c.yWrap,c.textureWidth,c.textureHeight);
+                    Pixy p = new Pixy(c.x+8f,c.y+8f,
+                                        c.textureOffsetX, c.textureOffsetY,
+                                        c.width,c.height,c.scaleX,c.scaleY,
+                                        c.angle, c.textureFileName,
+                                        c.name+"_clone", c.xWrap,c.yWrap,
+                                        c.textureWidth,c.textureHeight);
                     SP.selected = p;
                     SP.xEd.setText(""+SP.selected.x);
                     SP.yEd.setText(""+SP.selected.y);
@@ -123,11 +181,28 @@ public class Events implements EventListener, InputProcessor {
                 fd.addListener(this);
                 dialogMode = dialogModes.LEVLOAD;
             }
+
+            // adding a new fixture to a body
+            if (event.getTarget() == SP.fixtButton && SP.selected!=null) {
+                sd = new Dialog("Shape type",SP.skin);
+                sd.button(butCircle);
+                sd.button(butBox);
+                sd.button(butCancel);
+                sd.getContentTable().add(new Label("Select a shape type",SP.skin));
+                sd.pack();
+                SP.stage.addActor(sd);
+                sd.addListener(this);
+                sd.setPosition((SP.stage.getWidth()/2)-(sd.getWidth()/2),
+                                (SP.stage.getHeight()/2)-(sd.getHeight()/2));
+
+            }
             
-			if (event.getTarget()==SP.xwrapEd || event.getTarget()==SP.ywrapEd) {
+            // texture wrap mode
+            if (event.getTarget()==SP.xwrapEd || event.getTarget()==SP.ywrapEd) {
 				SP.updateProperty(event);
             }
-			
+
+            // remove an existing pixy
 			if (event.getTarget() == SP.removeButton) {
 				if (SP.selected!=null) {
 					Pixy.pixies.remove(SP.selected);
@@ -136,7 +211,6 @@ public class Events implements EventListener, InputProcessor {
 				}
 			}
 			
-			SP.camera.translate(tx,ty,0);
 			return true;
 		}
 				
