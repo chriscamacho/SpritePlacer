@@ -116,8 +116,8 @@ public class Events implements EventListener, InputProcessor {
                         BodyDef bd=new BodyDef();
                         bd.type = BodyDef.BodyType.DynamicBody;
                         SP.selected.body=SP.world.createBody(bd);
-                        SP.selected.body.setTransform(SP.selected.x*Const.WORLD2BOX,
-                                                        SP.selected.y*Const.WORLD2BOX,0);
+                        SP.selected.body.setTransform(SP.selected.getX()*Const.WORLD2BOX,
+                                                        SP.selected.getY()*Const.WORLD2BOX,0);
                     }
                     SP.selected.body.createFixture(fx);
                 }
@@ -129,7 +129,7 @@ public class Events implements EventListener, InputProcessor {
                 if (event.getTarget() == fd.ok) {
                     switch(dialogMode) {
                         case LEVLOAD:
-                            Pixy.pixies.clear();
+                            Pixy.getPixies().clear();
                             SP.selected=null;
                             LevelLoader ll = new LevelLoader(fd.getChosen());
                             break;
@@ -158,15 +158,15 @@ public class Events implements EventListener, InputProcessor {
             if (event.getTarget() == SP.cloneButton) {
                 if (SP.selected!=null) {
                     Pixy c = SP.selected;
-                    Pixy p = new Pixy(c.x+8f,c.y+8f,
-                                        c.textureOffsetX, c.textureOffsetY,
-                                        c.width,c.height,c.scaleX,c.scaleY,
-                                        c.angle, c.textureFileName,
-                                        c.name+"_clone", c.xWrap,c.yWrap,
-                                        c.textureWidth,c.textureHeight);
+                    Pixy p = new Pixy(c.getX()+8f,c.getY()+8f,
+                                        c.getTextureOffsetX(), c.getTextureOffsetY(),
+                                        c.getWidth(),c.getHeight(),c.getScaleX(),c.getScaleY(),
+                                        c.getAngle(), c.getTextureFileName(),
+                                        c.getName()+"_clone", c.getxWrap(),c.getyWrap(),
+                                        c.getTextureWidth(),c.getTextureHeight());
                     SP.selected = p;
-                    SP.xEd.setText(""+SP.selected.x);
-                    SP.yEd.setText(""+SP.selected.y);
+                    SP.xEd.setText(""+SP.selected.getX());
+                    SP.yEd.setText(""+SP.selected.getY());
                 }               
             }
 
@@ -207,7 +207,7 @@ public class Events implements EventListener, InputProcessor {
             // remove an existing pixy
 			if (event.getTarget() == SP.removeButton) {
 				if (SP.selected!=null) {
-					Pixy.pixies.remove(SP.selected);
+					Pixy.getPixies().remove(SP.selected);
 					SP.selected=null;
                     SP.clearPropsGui();
 				}
@@ -258,8 +258,8 @@ public class Events implements EventListener, InputProcessor {
             SP.camera.position.y=screenDragStart.y-dragDelta.y;
 			SP.camera.update();
 		} else {
-			SP.selected.x=screenDragStart.x-dragDelta.x;
-            SP.selected.y=screenDragStart.y+dragDelta.y;
+			SP.selected.setX(screenDragStart.x-dragDelta.x);
+            SP.selected.setY(screenDragStart.y+dragDelta.y);
 			SP.updateGui();
 		}
 		
@@ -273,7 +273,7 @@ public class Events implements EventListener, InputProcessor {
         // has to be vector3 for unproject...
 		tmpV3.set(x,y,0);
 		SP.camera.unproject(tmpV3);
-		Iterator<Pixy> itr = Pixy.pixies.iterator();
+		Iterator<Pixy> itr = Pixy.getPixies().iterator();
         ArrayList<Pixy> stack = new ArrayList<Pixy>();
 		Pixy Sel = null;
 		while(itr.hasNext()) {
@@ -317,8 +317,8 @@ public class Events implements EventListener, InputProcessor {
 			screenDragStart.x=SP.camera.position.x;
             screenDragStart.y=SP.camera.position.y;
 		} else {
-			screenDragStart.x=SP.selected.x;
-            screenDragStart.y=SP.selected.y;
+			screenDragStart.x=SP.selected.getX();
+            screenDragStart.y=SP.selected.getY();
 		}
 		return false;
     }

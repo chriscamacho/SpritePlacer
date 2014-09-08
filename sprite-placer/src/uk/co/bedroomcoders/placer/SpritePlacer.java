@@ -198,37 +198,37 @@ public class SpritePlacer implements ApplicationListener {
 	protected void updateProperty( Event event)
 	{
 		if (selected!=null) { // only if selected
-			if (event.getTarget() == nameEd) selected.name = nameEd.getText();
-			if (event.getTarget() == twEd) selected.textureWidth = (int)parseFloatString(twEd,selected.textureWidth);
-			if (event.getTarget() == thEd) selected.textureHeight = (int)parseFloatString(thEd,selected.textureHeight);
-			if (event.getTarget() == xEd) selected.x = parseFloatString(xEd,selected.x);
-			if (event.getTarget() == yEd) selected.y = parseFloatString(yEd,selected.y);
-			if (event.getTarget() == sxEd) selected.scaleX = parseFloatString(sxEd,selected.scaleX);
-			if (event.getTarget() == syEd) selected.scaleY = parseFloatString(syEd,selected.scaleY);
-			if (event.getTarget() == angEd) selected.angle = parseFloatString(angEd,selected.angle);
+			if (event.getTarget() == nameEd) selected.setName(nameEd.getText());
+			if (event.getTarget() == twEd) selected.setTextureWidth((int)parseFloatString(twEd,selected.getTextureWidth()));
+			if (event.getTarget() == thEd) selected.setTextureHeight((int)parseFloatString(thEd,selected.getTextureHeight()));
+			if (event.getTarget() == xEd) selected.setX(parseFloatString(xEd,selected.getX()));
+			if (event.getTarget() == yEd) selected.setY(parseFloatString(yEd,selected.getY()));
+			if (event.getTarget() == sxEd) selected.setScaleX(parseFloatString(sxEd,selected.getScaleX()));
+			if (event.getTarget() == syEd) selected.setScaleY(parseFloatString(syEd,selected.getScaleY()));
+			if (event.getTarget() == angEd) selected.setAngle(parseFloatString(angEd,selected.getAngle()));
 			if (event.getTarget() == wEd) {
-				selected.width = (int)parseFloatString(wEd,selected.width);
-				selected.originX = selected.width / 2;
+				selected.setWidth((int)parseFloatString(wEd,selected.getWidth()));
+				selected.setOriginX(selected.getWidth() / 2);
 			}
 			if (event.getTarget() == hEd) {
-				selected.height = (int)parseFloatString(hEd,selected.height);
-				selected.originY = selected.height / 2;
+				selected.setHeight((int)parseFloatString(hEd,selected.getHeight()));
+				selected.setOriginY(selected.getHeight() / 2);
 			}
 			if (event.getTarget() == oxEd) {
-				selected.textureOffsetX = (int)parseFloatString(oxEd,selected.textureOffsetX);
+				selected.setTextureOffsetX((int)parseFloatString(oxEd,selected.getTextureOffsetX()));
             }
 			if (event.getTarget() == oyEd) {
-				selected.textureOffsetY = (int)parseFloatString(oyEd,selected.textureOffsetX);
+				selected.setTextureOffsetY((int)parseFloatString(oyEd,selected.getTextureOffsetX()));
             }
 			if (event.getTarget() == textureEd) {
-				selected.textureFileName = textureEd.getText();
+				selected.setTextureFileName(textureEd.getText());
 				try
 				{
-                    selected.texture = new Texture(Gdx.files.internal(selected.textureFileName));
+                    selected.setTexture(new Texture(Gdx.files.internal(selected.getTextureFileName())));
 				} 
 				catch (Exception e)
 				{
-					selected.texture = Pixy.brokenTexture;
+					selected.setTexture(Pixy.getBrokenTexture());
 					textureEd.setText("missing!");
 				}
 			}
@@ -236,29 +236,29 @@ public class SpritePlacer implements ApplicationListener {
 			{
 				int s = xwrapEd.getSelectedIndex();
 				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
-						selected.xWrap = Texture.TextureWrap.ClampToEdge.ordinal(); 
+						selected.setxWrap(Texture.TextureWrap.ClampToEdge.ordinal()); 
 				if ( s == Texture.TextureWrap.Repeat.ordinal() )
-						selected.xWrap = Texture.TextureWrap.Repeat.ordinal(); 
+						selected.setxWrap(Texture.TextureWrap.Repeat.ordinal()); 
 				if ( s == Texture.TextureWrap.MirroredRepeat.ordinal() )
-						selected.xWrap = Texture.TextureWrap.MirroredRepeat.ordinal(); 
+						selected.setxWrap(Texture.TextureWrap.MirroredRepeat.ordinal()); 
 			}
 			
 			if (event.getTarget() == ywrapEd)
 			{
 				int s = ywrapEd.getSelectedIndex();
 				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
-						selected.yWrap = Texture.TextureWrap.ClampToEdge.ordinal(); 
+						selected.setyWrap(Texture.TextureWrap.ClampToEdge.ordinal()); 
 				if ( s == Texture.TextureWrap.Repeat.ordinal() )
-						selected.yWrap = Texture.TextureWrap.Repeat.ordinal(); 
+						selected.setyWrap(Texture.TextureWrap.Repeat.ordinal()); 
 				if ( s == Texture.TextureWrap.MirroredRepeat.ordinal() )
-						selected.yWrap = Texture.TextureWrap.MirroredRepeat.ordinal(); 
+						selected.setyWrap(Texture.TextureWrap.MirroredRepeat.ordinal()); 
 			}
 			
 			if (event.getTarget() == ywrapEd || event.getTarget() == xwrapEd)
 			{
-				selected.texture.setWrap(
-						Texture.TextureWrap.values()[selected.xWrap],
-						Texture.TextureWrap.values()[selected.yWrap]
+				selected.getTexture().setWrap(
+						Texture.TextureWrap.values()[selected.getxWrap()],
+						Texture.TextureWrap.values()[selected.getyWrap()]
 					);
 			}
 		}
@@ -271,7 +271,7 @@ public class SpritePlacer implements ApplicationListener {
 		try 
 		{
 			os.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<level>\n".getBytes());
-			Iterator<Pixy> itr = Pixy.pixies.iterator();
+			Iterator<Pixy> itr = Pixy.getPixies().iterator();
 			while(itr.hasNext())
 			{
 				Pixy p = itr.next();
@@ -288,21 +288,21 @@ public class SpritePlacer implements ApplicationListener {
 
     // updates the gui controls from a pixy
 	protected void updateGui() {
-		nameEd.setText(selected.name);
-		xEd.setText(""+selected.x);
-		yEd.setText(""+selected.y);
-		sxEd.setText(""+selected.scaleX);
-		syEd.setText(""+selected.scaleY);
-		angEd.setText(""+selected.angle);
-		oxEd.setText(""+selected.textureOffsetX);
-		oyEd.setText(""+selected.textureOffsetY);
-		wEd.setText(""+selected.width);
-		hEd.setText(""+selected.height);
-		twEd.setText(""+selected.textureWidth);
-		thEd.setText(""+selected.textureHeight);
-		textureEd.setText(selected.textureFileName);
-		xwrapEd.setSelectedIndex(selected.xWrap);
-		ywrapEd.setSelectedIndex(selected.yWrap);		
+		nameEd.setText(selected.getName());
+		xEd.setText(""+selected.getX());
+		yEd.setText(""+selected.getY());
+		sxEd.setText(""+selected.getScaleX());
+		syEd.setText(""+selected.getScaleY());
+		angEd.setText(""+selected.getAngle());
+		oxEd.setText(""+selected.getTextureOffsetX());
+		oyEd.setText(""+selected.getTextureOffsetY());
+		wEd.setText(""+selected.getWidth());
+		hEd.setText(""+selected.getHeight());
+		twEd.setText(""+selected.getTextureWidth());
+		thEd.setText(""+selected.getTextureHeight());
+		textureEd.setText(selected.getTextureFileName());
+		xwrapEd.setSelectedIndex(selected.getxWrap());
+		ywrapEd.setSelectedIndex(selected.getyWrap());		
 	}
 
     public void clearPropsGui() {
@@ -348,11 +348,11 @@ public class SpritePlacer implements ApplicationListener {
             shpBatch.setColor(selCols[selCol]);
             // see pixy draw - offset / x,y is done this way to decouple
             // offset from position so it only works with texture...
-            shpBatch.rect(selected.x-selected.originX, selected.y-selected.originY,
-                        selected.originX, selected.originY,
-                        selected.width, selected.height,
-                        selected.scaleX, selected.scaleY,
-                        selected.angle);
+            shpBatch.rect(selected.getX()-selected.getOriginX(), selected.getY()-selected.getOriginY(),
+                        selected.getOriginX(), selected.getOriginY(),
+                        selected.getWidth(), selected.getHeight(),
+                        selected.getScaleX(), selected.getScaleY(),
+                        selected.getAngle());
 
             shpBatch.end();
             
