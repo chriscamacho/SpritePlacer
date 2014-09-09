@@ -67,14 +67,6 @@ public class Pixy
 		getPixies().add(this);
 	}
 
-	public float getX() { return x; }
-
-	public void setX(float x) { this.x = x; }
-
-	public float getY() { return y; }
-
-	public void setY(float y) { this.y = y; }
-
 	public void draw(SpriteBatch sb) {
 		sb.draw(getTexture(), getX()-getOriginX(), getY()-getOriginY(), getOriginX(), getOriginY(), getWidth(), getHeight(),
 					getScaleX(), getScaleY(), getAngle(), getTextureOffsetX(), getTextureOffsetY(), getTextureWidth(), getTextureHeight(), false, false);
@@ -89,8 +81,6 @@ public class Pixy
 			p.draw(sb);
 		}	
 	}
-
-    
 
     // dumps a sprite and its extra properties to an xml node
 	public String toXml() {
@@ -135,12 +125,17 @@ public class Pixy
 		return lx <= rtx && rtx <= rx && ty <= rty && rty <= by;
 	}
 
-	public float getAngle() {
-		return angle;
-	}
+	public float getX() { return x; }
+	public void setX(float x) { this.x = x; updateBodyTransform(); }
+	public float getY() { return y; }
+	public void setY(float y) { this.y = y; updateBodyTransform(); }
+	public float getAngle() { return angle; }
+	public void setAngle(float angle) {	this.angle = angle; updateBodyTransform(); }
 
-	public void setAngle(float angle) {
-		this.angle = angle;
+	private void updateBodyTransform() {
+		if (body!=null) {
+			body.setTransform(x*Const.WORLD2BOX,y*Const.WORLD2BOX,angle*Const.PI180);
+		}
 	}
 
 	public float getOriginX() {

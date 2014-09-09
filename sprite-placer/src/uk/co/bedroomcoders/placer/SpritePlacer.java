@@ -336,7 +336,7 @@ public class SpritePlacer implements ApplicationListener {
 		batch.end();
 
         coltick++;
-        if (coltick>6) {
+        if (coltick>12) {
             coltick=0;
             selCol++;physCol++;
             if (selCol==selCols.length) selCol=0;
@@ -363,7 +363,7 @@ public class SpritePlacer implements ApplicationListener {
                 dm.set(camera.combined);
                 dm.scale(Const.BOX2WORLD,Const.BOX2WORLD,1f);
 
-                obr.renderOneBody(selected.body, dm);
+                obr.renderOneBody(selected.body, dm, selCols[physCol]);
             }
 
         }

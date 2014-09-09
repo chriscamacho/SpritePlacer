@@ -34,6 +34,7 @@ import uk.co.bedroomcoders.fileDialog.fileDialog;
  *
  *  TODO look at better method of communication between main class and
  *  event handling
+ *  not sure any advantage to getters/setters ?
  *                      
  */
 
@@ -105,22 +106,45 @@ public class Events implements EventListener, InputProcessor {
             // new shape type selected
             if (sd!=null) {
                 if (event.getTarget()==butCircle) {
-                    Shape shp = new CircleShape();
-                    shp.setRadius(32f*Const.WORLD2BOX);
+                    CircleShape shp = new CircleShape();
+                    shp.setRadius(16f*Const.WORLD2BOX);
                     FixtureDef fx = new FixtureDef();
-                    fx.density=10f;
-                    fx.friction=0.5f;
-                    fx.restitution=0.5f;
-                    fx.shape=shp;
+                    fx.density=10f; fx.friction=0.5f;
+                    fx.restitution=0.5f; fx.shape=shp;
+                    shp.setPosition(new Vector2(16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
                     if (SP.selected.body==null) {
                         BodyDef bd=new BodyDef();
                         bd.type = BodyDef.BodyType.DynamicBody;
                         SP.selected.body=SP.world.createBody(bd);
                         SP.selected.body.setTransform(SP.selected.getX()*Const.WORLD2BOX,
-                                                        SP.selected.getY()*Const.WORLD2BOX,0);
+                                                        SP.selected.getY()*Const.WORLD2BOX,SP.selected.getAngle()*Const.PI180);
+                        SP.selected.body.setUserData(SP.selected);
                     }
                     SP.selected.body.createFixture(fx);
                 }
+                
+                if (event.getTarget()==butBox) {
+                    // NB must use update after changing one or more BoxShape
+                    // properties via their setters...
+                    BoxShape shp = new BoxShape();
+                    FixtureDef fx = new FixtureDef();
+                    fx.density=10f; fx.friction=0.5f;
+                    fx.restitution=0.5f;
+                    shp.setSize(16f*Const.WORLD2BOX,8f*Const.WORLD2BOX);
+                    shp.setPosition(new Vector2(-16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
+                    shp.setAngle(0);
+                    shp.update(); fx.shape=shp;
+                    if (SP.selected.body==null) {
+                        BodyDef bd=new BodyDef();
+                        bd.type = BodyDef.BodyType.DynamicBody;
+                        SP.selected.body=SP.world.createBody(bd);
+                        SP.selected.body.setTransform(SP.selected.getX()*Const.WORLD2BOX,
+                                                        SP.selected.getY()*Const.WORLD2BOX,SP.selected.getAngle()*Const.PI180);
+                        SP.selected.body.setUserData(SP.selected);
+                    }
+                    SP.selected.body.createFixture(fx);
+                }
+                
                 sd=null;
             }
             
