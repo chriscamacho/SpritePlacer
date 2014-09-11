@@ -36,6 +36,8 @@ import uk.co.bedroomcoders.fileDialog.fileDialog;
 
 public class Events implements EventListener, InputProcessor {
 
+    protected static Events handler;
+
     private fileDialog fd=null;
     private Dialog sd;
     private enum dialogModes { LEVLOAD, LEVSAVE, TEXLOAD };

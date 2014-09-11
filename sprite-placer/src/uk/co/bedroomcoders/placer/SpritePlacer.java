@@ -47,14 +47,14 @@ public class SpritePlacer implements ApplicationListener {
     private ShapeRenderer shpBatch; // selection hilight
     private OneBodyRenderer obr;
 
-	private String wraps[] = new String[3];
+
     private static final Color selCols[] = { Color.RED, Color.GREEN, Color.BLUE,
                                                 Color.WHITE, Color.BLACK, Color.YELLOW,
                                                 Color.PURPLE }; 
     private int selCol = 0; int physCol = selCols.length/2;
     private int coltick = 0;
 
-    private Events handler;
+
     protected static World world;
     
 	@Override
@@ -63,9 +63,7 @@ public class SpritePlacer implements ApplicationListener {
 
         world = new World(Const.GRAVITY, false);
         // provide a textual version of wrap types
-        wraps[Texture.TextureWrap.MirroredRepeat.ordinal()]="Mirror";
-        wraps[Texture.TextureWrap.Repeat.ordinal()]="Repeat";
-        wraps[Texture.TextureWrap.ClampToEdge.ordinal()]="Clamp";
+
         
 		// sets up UI controls
 		float w = Gdx.graphics.getWidth();
@@ -75,105 +73,21 @@ public class SpritePlacer implements ApplicationListener {
 		
 		batch = new SpriteBatch();
         shpBatch = new ShapeRenderer();
-		
-		UI.skin = new Skin(Gdx.files.internal("data/uiskin.json"));
-		UI.stage = new Stage();
-		handler = new Events();
+
+        UI.initialise();
 
 		InputMultiplexer multiplexer = new InputMultiplexer();
 		multiplexer.addProcessor(UI.stage);
-		multiplexer.addProcessor(handler);
+		multiplexer.addProcessor(Events.handler);
 		Gdx.input.setInputProcessor(multiplexer);
 
-		UI.func.win = new Window("Functions",UI.skin);
 
-		UI.func.add = addButton(UI.func.win,false,"New");
-        UI.func.clone = addButton(UI.func.win,false,"Clone");
-		UI.func.remove = addButton(UI.func.win,true,"Remove");
-		UI.func.load = addButton(UI.func.win,false,"Load");
-		UI.func.save = addButton(UI.func.win,true,"Save");
-        UI.func.fixture = addButton(UI.func.win,false,"+Shape");
-        UI.func.win.pack();
-        UI.func.win.setResizable(false);
-        		
-		UI.props.win = new Window("Properties",UI.skin);
-        UI.props.win.setWidth(190);
-		UI.props.win.setResizeBorder(8);
-        UI.props.table = new Table(UI.skin);
-		UI.props.pane = new ScrollPane(UI.props.table);
-        UI.props.pane.setFillParent(true);
-        UI.props.win.add(UI.props.pane).fill().expand();
-		
-		UI.props.table.add(new Label("drag to scroll",UI.skin)).colspan(2);
-		UI.props.table.row();
-		UI.props.name = addTextCell(new TextField("",UI.skin),"Name");
-		UI.props.x = addTextCell(new TextField("",UI.skin),"Xpos");
-		UI.props.y = addTextCell(new TextField("",UI.skin),"Ypos");
-		UI.props.width = addTextCell(new TextField("",UI.skin),"width");
-		UI.props.height = addTextCell(new TextField("",UI.skin),"height");
-		UI.props.ang = addTextCell(new TextField("",UI.skin),"angle");
-		UI.props.offx = addTextCell(new TextField("",UI.skin),"offsetX");
-		UI.props.offy = addTextCell(new TextField("",UI.skin),"offsetY");
-		UI.props.twidth = addTextCell(new TextField("",UI.skin), "tex width");
-		UI.props.theight = addTextCell(new TextField("",UI.skin), "tex Height");
-		UI.props.sclx = addTextCell(new TextField("",UI.skin),"scaleX");
-		UI.props.scly = addTextCell(new TextField("",UI.skin),"scaleY");
-		UI.props.texture = addTextCell(new TextField("",UI.skin),"texure");
-
-		UI.props.xwrap = addSelect(new SelectBox<String>(UI.skin), wraps, "Xwrap");
-		UI.props.ywrap = addSelect(new SelectBox<String>(UI.skin), wraps, "Ywrap");
-
-        UI.props.table.padTop(24);
-        UI.props.win.setResizable(true);
-
-        UI.body.win = new Window("Body",UI.skin);
-        UI.body.win.setWidth(190);
-        
-        		
-		UI.stage.addActor(UI.props.win);
-		UI.props.win.setPosition(8,110);
-		UI.stage.addActor(UI.func.win);
-		UI.func.win.setPosition(8,8);
 
         obr = new OneBodyRenderer();     
 	}
 
-    /* 
-     *      convenience functions to add widgets (for properties)
-     *      TODO should use parent param like addButton
-     */
-	private SelectBox<String> addSelect(SelectBox<String> w, String[] list,String label)
-	{
-		Label nameLabel = new Label(label, UI.skin);
-		UI.props.table.add(nameLabel).width(60);
-		UI.props.table.add(w).width(120);
-        w.addListener(handler);
-        w.setItems(list);
-		UI.props.table.row();
-		return w;
-	}
 
-	private TextField addTextCell(TextField w,String label)
-	{
-		Label nameLabel = new Label(label, UI.skin);
-		UI.props.table.add(nameLabel).width(60);
-		UI.props.table.add(w).width(120);
-        w.addListener(handler);
-		UI.props.table.row();
-        w.setUserObject(nameLabel);
-		return w;
-	}
 
-    /*
-     *	add a text button to a table/window used for the function button window
-     */
-    private TextButton addButton(Table parent, boolean row, String text) {
-        TextButton button = new TextButton(text, UI.skin);
-        parent.add(button).width(60);
-        if (row) parent.row();
-        button.addListener(handler);
-        return button;
-    }
 
 	@Override
 	public void dispose() {
