@@ -29,18 +29,13 @@ import uk.co.bedroomcoders.fileDialog.fileDialog;
 /*
  *  handles events
  *
- *  removing from main class makes it more maintainable at the expense
- *  of communicating via a bunch of protected members
- *
- *  TODO look at better method of communication between main class and
- *  event handling
- *  not sure any advantage to getters/setters ?
+ *  really part of the SpritePlacer class but moved to its own
+ *  class just to make for more managable sized sources
  *                      
  */
 
 public class Events implements EventListener, InputProcessor {
 
-    private SpritePlacer SP;
     private fileDialog fd=null;
     private Dialog sd;
     private enum dialogModes { LEVLOAD, LEVSAVE, TEXLOAD };
@@ -50,11 +45,10 @@ public class Events implements EventListener, InputProcessor {
     private Vector2 tmpV2 = new Vector2();
     private Vector3 tmpV3 = new Vector3();
         
-    Events(SpritePlacer Parent) {
-        SP=Parent;
-        butCircle=new TextButton("Circle",SP.skin);
-        butBox=new TextButton("Box",SP.skin);
-        butCancel=new TextButton("Cancel",SP.skin);
+    Events() {
+        butCircle=new TextButton("Circle",UI.skin);
+        butBox=new TextButton("Box",UI.skin);
+        butCancel=new TextButton("Cancel",UI.skin);
     }
 
     public boolean handle(Event event) {
@@ -81,22 +75,22 @@ public class Events implements EventListener, InputProcessor {
         if (FE!=null) {
             // using a textField as if its a button
             // TODO fix!
-            if (FE.getTarget() == SP.textureEd && FE.isFocused()) {
-                fd = new fileDialog("Select texture", "data/", SP.stage, SP.skin);
-                SP.stage.addActor(fd);
+            if (FE.getTarget() == UI.props.texture && FE.isFocused()) {
+                fd = new fileDialog("Select texture", "data/", UI.stage, UI.skin);
+                UI.stage.addActor(fd);
                 fd.addListener(this);
                 dialogMode = dialogModes.TEXLOAD;
             }
         }
 
         // pressing enter updates an edited property
-		if (SP.selected!=null) {
+		if (SpritePlacer.selected!=null) {
             // no event object in keyup method..... need target and
             // whole event for update property
             if (IE!=null) {
                 if ( IE.getType()==InputEvent.Type.keyUp ) {  // enter key updates pixy property
                     if (IE.getKeyCode() == Keys.ENTER) {
-                        SP.updateProperty(event);
+                        SpritePlacer.updateProperty(event);
                     }
                 }
             }
@@ -112,15 +106,15 @@ public class Events implements EventListener, InputProcessor {
                     fx.density=10f; fx.friction=0.5f;
                     fx.restitution=0.5f; fx.shape=shp;
                     shp.setPosition(new Vector2(16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
-                    if (SP.selected.body==null) {
+                    if (SpritePlacer.selected.body==null) {
                         BodyDef bd=new BodyDef();
                         bd.type = BodyDef.BodyType.DynamicBody;
-                        SP.selected.body=SP.world.createBody(bd);
-                        SP.selected.body.setTransform(SP.selected.getX()*Const.WORLD2BOX,
-                                                        SP.selected.getY()*Const.WORLD2BOX,SP.selected.getAngle()*Const.PI180);
-                        SP.selected.body.setUserData(SP.selected);
+                        SpritePlacer.selected.body=SpritePlacer.world.createBody(bd);
+                        SpritePlacer.selected.body.setTransform(SpritePlacer.selected.getX()*Const.WORLD2BOX,
+                                                        SpritePlacer.selected.getY()*Const.WORLD2BOX,SpritePlacer.selected.getAngle()*Const.PI180);
+                        SpritePlacer.selected.body.setUserData(SpritePlacer.selected);
                     }
-                    SP.selected.body.createFixture(fx);
+                    SpritePlacer.selected.body.createFixture(fx);
                 }
                 
                 if (event.getTarget()==butBox) {
@@ -134,15 +128,15 @@ public class Events implements EventListener, InputProcessor {
                     shp.setPosition(new Vector2(-16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
                     shp.setAngle(0);
                     shp.update(); fx.shape=shp;
-                    if (SP.selected.body==null) {
+                    if (SpritePlacer.selected.body==null) {
                         BodyDef bd=new BodyDef();
                         bd.type = BodyDef.BodyType.DynamicBody;
-                        SP.selected.body=SP.world.createBody(bd);
-                        SP.selected.body.setTransform(SP.selected.getX()*Const.WORLD2BOX,
-                                                        SP.selected.getY()*Const.WORLD2BOX,SP.selected.getAngle()*Const.PI180);
-                        SP.selected.body.setUserData(SP.selected);
+                        SpritePlacer.selected.body=SpritePlacer.world.createBody(bd);
+                        SpritePlacer.selected.body.setTransform(SpritePlacer.selected.getX()*Const.WORLD2BOX,
+                                                        SpritePlacer.selected.getY()*Const.WORLD2BOX,SpritePlacer.selected.getAngle()*Const.PI180);
+                        SpritePlacer.selected.body.setUserData(SpritePlacer.selected);
                     }
-                    SP.selected.body.createFixture(fx);
+                    SpritePlacer.selected.body.createFixture(fx);
                 }
                 
                 sd=null;
@@ -154,16 +148,16 @@ public class Events implements EventListener, InputProcessor {
                     switch(dialogMode) {
                         case LEVLOAD:
                             Pixy.getPixies().clear();
-                            SP.selected=null;
+                            SpritePlacer.selected=null;
                             LevelLoader ll = new LevelLoader(fd.getChosen());
                             break;
                         case LEVSAVE:
-                            SP.saveLevel(fd.getChosen());
+                            SpritePlacer.saveLevel(fd.getChosen());
                             break;
                         case TEXLOAD:
-                            SP.textureEd.setText(fd.getChosen());
-                            event.setTarget(SP.textureEd);
-                            SP.updateProperty(event);
+                            UI.props.texture.setText(fd.getChosen());
+                            event.setTarget(UI.props.texture);
+                            SpritePlacer.updateProperty(event);
                             break;
                     } 
                 }
@@ -171,69 +165,70 @@ public class Events implements EventListener, InputProcessor {
             }
 
             // new pixy
-            if (event.getTarget() == SP.newButton) { // create a new pixy with default values
-				SP.selected = new Pixy(0,0,0,0,32,32,1,1,0,
+            if (event.getTarget() == UI.func.add) { // create a new pixy with default values
+				SpritePlacer.selected = new Pixy(0,0,0,0,32,32,1,1,0,
                                             "missing.png","new",
                                             0,0,32,32);
-                SP.updateGui();
+                SpritePlacer.updatePropGui();
 			}
 
             // copy an existing pixy
-            if (event.getTarget() == SP.cloneButton) {
-                if (SP.selected!=null) {
-                    Pixy c = SP.selected;
+            if (event.getTarget() == UI.func.clone) {
+                if (SpritePlacer.selected!=null) {
+                    Pixy c = SpritePlacer.selected;
                     Pixy p = new Pixy(c.getX()+8f,c.getY()+8f,
                                         c.getTextureOffsetX(), c.getTextureOffsetY(),
                                         c.getWidth(),c.getHeight(),c.getScaleX(),c.getScaleY(),
                                         c.getAngle(), c.getTextureFileName(),
                                         c.getName()+"_clone", c.getxWrap(),c.getyWrap(),
                                         c.getTextureWidth(),c.getTextureHeight());
-                    SP.selected = p;
-                    SP.xEd.setText(""+SP.selected.getX());
-                    SP.yEd.setText(""+SP.selected.getY());
+                    SpritePlacer.selected = p;
+                    UI.props.x.setText(""+SpritePlacer.selected.getX());
+                    UI.props.y.setText(""+SpritePlacer.selected.getY());
                 }               
             }
 
-			if (event.getTarget() == SP.saveButton) {
-                fd = new fileDialog("Select file to save", "data/", SP.stage, SP.skin);
-                SP.stage.addActor(fd);
+			if (event.getTarget() == UI.func.save) {
+                fd = new fileDialog("Select file to save", "data/", UI.stage, UI.skin);
+                UI.stage.addActor(fd);
                 fd.addListener(this);
                 dialogMode = dialogModes.LEVSAVE;
 			}
             
-            if (event.getTarget() == SP.loadButton) {
-                fd = new fileDialog("Select file to load", "data/", SP.stage, SP.skin);
-                SP.stage.addActor(fd);
+            if (event.getTarget() == UI.func.load) {
+                fd = new fileDialog("Select file to load", "data/", UI.stage, UI.skin);
+                UI.stage.addActor(fd);
                 fd.addListener(this);
                 dialogMode = dialogModes.LEVLOAD;
             }
 
             // adding a new fixture to a body
-            if (event.getTarget() == SP.fixtButton && SP.selected!=null) {
-                sd = new Dialog("Shape type",SP.skin);
+            if (event.getTarget() == UI.func.fixture && SpritePlacer.selected!=null) {
+                sd = new Dialog("Shape type",UI.skin);
                 sd.button(butCircle);
                 sd.button(butBox);
                 sd.button(butCancel);
-                sd.getContentTable().add(new Label("Select a shape type",SP.skin));
+                sd.getContentTable().add(new Label("Select a shape type",UI.skin));
                 sd.pack();
-                SP.stage.addActor(sd);
+                UI.stage.addActor(sd);
                 sd.addListener(this);
-                sd.setPosition((SP.stage.getWidth()/2)-(sd.getWidth()/2),
-                                (SP.stage.getHeight()/2)-(sd.getHeight()/2));
+                sd.setPosition((UI.stage.getWidth()/2)-(sd.getWidth()/2),
+                                (UI.stage.getHeight()/2)-(sd.getHeight()/2));
 
             }
             
             // texture wrap mode
-            if (event.getTarget()==SP.xwrapEd || event.getTarget()==SP.ywrapEd) {
-				SP.updateProperty(event);
+            if (event.getTarget()==UI.props.xwrap ||
+                event.getTarget()==UI.props.ywrap) {
+				SpritePlacer.updateProperty(event);
             }
 
             // remove an existing pixy
-			if (event.getTarget() == SP.removeButton) {
-				if (SP.selected!=null) {
-					Pixy.getPixies().remove(SP.selected);
-					SP.selected=null;
-                    SP.clearPropsGui();
+			if (event.getTarget() == UI.func.remove) {
+				if (SpritePlacer.selected!=null) {
+					Pixy.getPixies().remove(SpritePlacer.selected);
+					SpritePlacer.selected=null;
+                    SpritePlacer.clearPropsGui();
 				}
 			}
 			
@@ -241,7 +236,7 @@ public class Events implements EventListener, InputProcessor {
 		}
 				
 		if (event.getClass().equals(FocusEvent.class)) {
-			SP.updateProperty(event);
+			SpritePlacer.updateProperty(event);
 			return true;
 		}
 		
@@ -262,13 +257,13 @@ public class Events implements EventListener, InputProcessor {
 	Vector2 dragDelta=new Vector2();
     public boolean touchDragged(int x, int y, int pointer) {
         // first double check the selection is still valid
-        if (SP.selected!=null) {
+        if (SpritePlacer.selected!=null) {
             tmpV3.set((float)x,(float)y,0);
-            SP.camera.unproject(tmpV3);
+            SpritePlacer.camera.unproject(tmpV3);
             tmpV2.set(tmpV3.x,tmpV3.y);
-            if (!SP.selected.pointIntersects(tmpV2)) {
-                SP.selected=null;
-                SP.clearPropsGui();
+            if (!SpritePlacer.selected.pointIntersects(tmpV2)) {
+                SpritePlacer.selected=null;
+                SpritePlacer.clearPropsGui();
                 touchDown(x,y,0,0);
                 return true;
             }
@@ -277,14 +272,14 @@ public class Events implements EventListener, InputProcessor {
 		dragDelta.x=dragStart.x-(x-Gdx.graphics.getWidth()/2);
         dragDelta.y=dragStart.y-(y-Gdx.graphics.getHeight()/2);
 
-		if (SP.selected==null) {	
-			SP.camera.position.x=screenDragStart.x+dragDelta.x;
-            SP.camera.position.y=screenDragStart.y-dragDelta.y;
-			SP.camera.update();
+		if (SpritePlacer.selected==null) {	
+			SpritePlacer.camera.position.x=screenDragStart.x+dragDelta.x;
+            SpritePlacer.camera.position.y=screenDragStart.y-dragDelta.y;
+			SpritePlacer.camera.update();
 		} else {
-			SP.selected.setX(screenDragStart.x-dragDelta.x);
-            SP.selected.setY(screenDragStart.y+dragDelta.y);
-			SP.updateGui();
+			SpritePlacer.selected.setX(screenDragStart.x-dragDelta.x);
+            SpritePlacer.selected.setY(screenDragStart.y+dragDelta.y);
+			SpritePlacer.updatePropGui();
 		}
 		
 		return true;
@@ -296,7 +291,7 @@ public class Events implements EventListener, InputProcessor {
         // find all pixies intersecting selection point
         // has to be vector3 for unproject...
 		tmpV3.set(x,y,0);
-		SP.camera.unproject(tmpV3);
+		SpritePlacer.camera.unproject(tmpV3);
 		Iterator<Pixy> itr = Pixy.getPixies().iterator();
         ArrayList<Pixy> stack = new ArrayList<Pixy>();
 		Pixy Sel = null;
@@ -313,7 +308,7 @@ public class Events implements EventListener, InputProcessor {
             Iterator<Pixy> si = stack.iterator();
             while(si.hasNext()) {
                 Pixy sp = si.next();
-                if (SP.selected==sp) {
+                if (SpritePlacer.selected==sp) {
                     if (si.hasNext()) Sel=si.next();
                 }
             }
@@ -323,11 +318,11 @@ public class Events implements EventListener, InputProcessor {
         // if a selection found actually select it and update the gui
         // or select nothing and update the gui
 		if (Sel!=null) {
-			SP.selected = Sel;
-			SP.updateGui();
+			SpritePlacer.selected = Sel;
+			SpritePlacer.updatePropGui();
 		} else {
-            SP.clearPropsGui();
-			SP.selected = null;
+            SpritePlacer.clearPropsGui();
+			SpritePlacer.selected = null;
 		}
 		return true;
     }
@@ -337,12 +332,12 @@ public class Events implements EventListener, InputProcessor {
     public boolean touchDown(int x, int y, int pointer, int button) {
 		dragStart.x=x-Gdx.graphics.getWidth()/2;
         dragStart.y=y-Gdx.graphics.getHeight()/2;
-		if (SP.selected==null) { // drag the screen or selected pixy
-			screenDragStart.x=SP.camera.position.x;
-            screenDragStart.y=SP.camera.position.y;
+		if (SpritePlacer.selected==null) { // drag the screen or selected pixy
+			screenDragStart.x=SpritePlacer.camera.position.x;
+            screenDragStart.y=SpritePlacer.camera.position.y;
 		} else {
-			screenDragStart.x=SP.selected.getX();
-            screenDragStart.y=SP.selected.getY();
+			screenDragStart.x=SpritePlacer.selected.getX();
+            screenDragStart.y=SpritePlacer.selected.getY();
 		}
 		return false;
     }

@@ -21,19 +21,17 @@ public class OneBodyRenderer extends Box2DDebugRenderer {
 			vertices[i] = new Vector2();
     }
 
-    private Color col;
 
     // only needed this method... till I wanted to change the colour
     public void renderOneBody(Body bod, Matrix4 proj, Color c) {
-        col=c;
         renderer.begin(ShapeType.Line);
         renderer.setProjectionMatrix(proj);
-        renderBody(bod);
+        renderBody(bod, c);
         renderer.end();
     }
 
 
-	protected void renderBody (Body body) {
+	protected void renderBody (Body body,Color col) {
 		Transform transform = body.getTransform();
 		for (Fixture fixture : body.getFixtureList()) {
             drawShape(fixture, transform, col);
@@ -51,17 +49,7 @@ public class OneBodyRenderer extends Box2DDebugRenderer {
 			drawSolidCircle(t, circle.getRadius(), axis.set(transform.vals[Transform.COS], transform.vals[Transform.SIN]), color);
 			return;
 		}
-/*
-		if (fixture.getType() == Type.Edge) {
-			EdgeShape edge = (EdgeShape)fixture.getShape();
-			edge.getVertex1(vertices[0]);
-			edge.getVertex2(vertices[1]);
-			transform.mul(vertices[0]);
-			transform.mul(vertices[1]);
-			drawSolidPolygon(vertices, 2, color, true);
-			return;
-		}
-*/
+
 		if (fixture.getType() == Type.Polygon) {
 			PolygonShape chain = (PolygonShape)fixture.getShape();
 			int vertexCount = chain.getVertexCount();
@@ -72,17 +60,7 @@ public class OneBodyRenderer extends Box2DDebugRenderer {
 			drawSolidPolygon(vertices, vertexCount, color, true);
 			return;
 		}
-/*
-		if (fixture.getType() == Type.Chain) {
-			ChainShape chain = (ChainShape)fixture.getShape();
-			int vertexCount = chain.getVertexCount();
-			for (int i = 0; i < vertexCount; i++) {
-				chain.getVertex(i, vertices[i]);
-				transform.mul(vertices[i]);
-			}
-			drawSolidPolygon(vertices, vertexCount, color, false);
-		}
-*/
+
 	}
 
 	private final static Vector2[] vertices = new Vector2[4];

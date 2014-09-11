@@ -31,6 +31,7 @@ public class fileDialog extends Dialog {
     private TextField textField;
     private Skin skin;
     private String path;
+
     /** The ok button is left public so that external listeners can
      *  conveniently check which button was pressed */
     public TextButton ok;
@@ -75,7 +76,7 @@ public class fileDialog extends Dialog {
         st.setKeyboardFocus(textField);
     }
 
-    // used by the dialog to change directory when a user click a directory
+    // used by the dialog to change directory when a user clicks a directory
     private void cd(String p) {
         textField.setText("");
         path = p;

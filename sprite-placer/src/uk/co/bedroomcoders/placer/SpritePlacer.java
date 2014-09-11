@@ -35,21 +35,15 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.math.Matrix4;
 
+import java.lang.Throwable;
+import java.lang.Exception;
+
 public class SpritePlacer implements ApplicationListener { 
 
 	private SpriteBatch batch;
-	protected OrthographicCamera camera;
-	protected TextButton loadButton,saveButton,removeButton,newButton;
-    protected TextButton fixtButton,cloneButton;
-	protected TextField nameEd,xEd,yEd,sxEd,syEd,angEd,oxEd,oyEd,wEd,hEd;
-    protected TextField textureEd,twEd,thEd;
-	protected SelectBox<String> xwrapEd,ywrapEd;
-	private Window win,butWin,fixtWin;
-	private ScrollPane sPane;
-	private Table propTable;
-	protected Stage stage;
-	protected Skin skin;
-	protected Pixy selected=null;
+	protected static OrthographicCamera camera;
+
+	protected static Pixy selected=null;
     private ShapeRenderer shpBatch; // selection hilight
     private OneBodyRenderer obr;
 
@@ -61,10 +55,11 @@ public class SpritePlacer implements ApplicationListener {
     private int coltick = 0;
 
     private Events handler;
-    protected World world;
+    protected static World world;
     
 	@Override
 	public void create() {
+
 
         world = new World(Const.GRAVITY, false);
         // provide a textual version of wrap types
@@ -81,86 +76,91 @@ public class SpritePlacer implements ApplicationListener {
 		batch = new SpriteBatch();
         shpBatch = new ShapeRenderer();
 		
-		skin = new Skin(Gdx.files.internal("data/uiskin.json"));
-		handler = new Events(this);
-		stage = new Stage();
+		UI.skin = new Skin(Gdx.files.internal("data/uiskin.json"));
+		UI.stage = new Stage();
+		handler = new Events();
 
 		InputMultiplexer multiplexer = new InputMultiplexer();
-		multiplexer.addProcessor(stage);
+		multiplexer.addProcessor(UI.stage);
 		multiplexer.addProcessor(handler);
 		Gdx.input.setInputProcessor(multiplexer);
 
-		butWin = new Window("Functions",skin);
-        //butWin.pad(6);
-        //butWin.padTop(24);
+		UI.func.win = new Window("Functions",UI.skin);
 
-		newButton = addButton(butWin,false,"New");
-        cloneButton = addButton(butWin,false,"Clone");
-		removeButton = addButton(butWin,true,"Remove");
-		loadButton = addButton(butWin,false,"Load");
-		saveButton = addButton(butWin,true,"Save");
-        fixtButton = addButton(butWin,false,"+Shape");
-        butWin.pack();
-				
-		win = new Window("Properties",skin);
-        win.setWidth(190);
-		win.setResizeBorder(8);
-        propTable = new Table(skin);
-		sPane = new ScrollPane(propTable);
-        sPane.setFillParent(true);
-        win.add(sPane).fill().expand();
-		
-		propTable.add(new Label("drag to scroll",skin)).colspan(2);
-		propTable.row();
-		nameEd = addTextCell(new TextField("",skin),"Name");
-		xEd = addTextCell(new TextField("",skin),"Xpos");
-		yEd = addTextCell(new TextField("",skin),"Ypos");
-		wEd = addTextCell(new TextField("",skin),"width");
-		hEd = addTextCell(new TextField("",skin),"height");
-		angEd = addTextCell(new TextField("",skin),"angle");
-		oxEd = addTextCell(new TextField("",skin),"offsetX");
-		oyEd = addTextCell(new TextField("",skin),"offsetY");
-		twEd = addTextCell(new TextField("",skin), "tex width");
-		thEd = addTextCell(new TextField("",skin), "tex Height");
-		sxEd = addTextCell(new TextField("",skin),"scaleX");
-		syEd = addTextCell(new TextField("",skin),"scaleY");
-		textureEd = addTextCell(new TextField("",skin),"texure");
-
-		xwrapEd = addSelect(new SelectBox<String>(skin), wraps, "Xwrap");
-		ywrapEd = addSelect(new SelectBox<String>(skin), wraps, "Ywrap");
-
-        propTable.padTop(24);
-        win.setResizable(true);
+		UI.func.add = addButton(UI.func.win,false,"New");
+        UI.func.clone = addButton(UI.func.win,false,"Clone");
+		UI.func.remove = addButton(UI.func.win,true,"Remove");
+		UI.func.load = addButton(UI.func.win,false,"Load");
+		UI.func.save = addButton(UI.func.win,true,"Save");
+        UI.func.fixture = addButton(UI.func.win,false,"+Shape");
+        UI.func.win.pack();
+        UI.func.win.setResizable(false);
         		
-		stage.addActor(win);
-		win.setPosition(8,110);
-		stage.addActor(butWin);
-		butWin.setPosition(8,8);
+		UI.props.win = new Window("Properties",UI.skin);
+        UI.props.win.setWidth(190);
+		UI.props.win.setResizeBorder(8);
+        UI.props.table = new Table(UI.skin);
+		UI.props.pane = new ScrollPane(UI.props.table);
+        UI.props.pane.setFillParent(true);
+        UI.props.win.add(UI.props.pane).fill().expand();
+		
+		UI.props.table.add(new Label("drag to scroll",UI.skin)).colspan(2);
+		UI.props.table.row();
+		UI.props.name = addTextCell(new TextField("",UI.skin),"Name");
+		UI.props.x = addTextCell(new TextField("",UI.skin),"Xpos");
+		UI.props.y = addTextCell(new TextField("",UI.skin),"Ypos");
+		UI.props.width = addTextCell(new TextField("",UI.skin),"width");
+		UI.props.height = addTextCell(new TextField("",UI.skin),"height");
+		UI.props.ang = addTextCell(new TextField("",UI.skin),"angle");
+		UI.props.offx = addTextCell(new TextField("",UI.skin),"offsetX");
+		UI.props.offy = addTextCell(new TextField("",UI.skin),"offsetY");
+		UI.props.twidth = addTextCell(new TextField("",UI.skin), "tex width");
+		UI.props.theight = addTextCell(new TextField("",UI.skin), "tex Height");
+		UI.props.sclx = addTextCell(new TextField("",UI.skin),"scaleX");
+		UI.props.scly = addTextCell(new TextField("",UI.skin),"scaleY");
+		UI.props.texture = addTextCell(new TextField("",UI.skin),"texure");
+
+		UI.props.xwrap = addSelect(new SelectBox<String>(UI.skin), wraps, "Xwrap");
+		UI.props.ywrap = addSelect(new SelectBox<String>(UI.skin), wraps, "Ywrap");
+
+        UI.props.table.padTop(24);
+        UI.props.win.setResizable(true);
+
+        UI.body.win = new Window("Body",UI.skin);
+        UI.body.win.setWidth(190);
+        
+        		
+		UI.stage.addActor(UI.props.win);
+		UI.props.win.setPosition(8,110);
+		UI.stage.addActor(UI.func.win);
+		UI.func.win.setPosition(8,8);
 
         obr = new OneBodyRenderer();     
 	}
 
     /* 
      *      convenience functions to add widgets (for properties)
+     *      TODO should use parent param like addButton
      */
 	private SelectBox<String> addSelect(SelectBox<String> w, String[] list,String label)
 	{
-		Label nameLabel = new Label(label, skin);
-		propTable.add(nameLabel).width(60);
-		propTable.add(w).width(120);
+		Label nameLabel = new Label(label, UI.skin);
+		UI.props.table.add(nameLabel).width(60);
+		UI.props.table.add(w).width(120);
         w.addListener(handler);
         w.setItems(list);
-		propTable.row();
+		UI.props.table.row();
 		return w;
 	}
 
 	private TextField addTextCell(TextField w,String label)
 	{
-		Label nameLabel = new Label(label, skin);
-		propTable.add(nameLabel).width(60);
-		propTable.add(w).width(120);
+		Label nameLabel = new Label(label, UI.skin);
+		UI.props.table.add(nameLabel).width(60);
+		UI.props.table.add(w).width(120);
         w.addListener(handler);
-		propTable.row();
+		UI.props.table.row();
+        w.setUserObject(nameLabel);
 		return w;
 	}
 
@@ -168,7 +168,7 @@ public class SpritePlacer implements ApplicationListener {
      *	add a text button to a table/window used for the function button window
      */
     private TextButton addButton(Table parent, boolean row, String text) {
-        TextButton button = new TextButton(text, skin);
+        TextButton button = new TextButton(text, UI.skin);
         parent.add(button).width(60);
         if (row) parent.row();
         button.addListener(handler);
@@ -182,7 +182,7 @@ public class SpritePlacer implements ApplicationListener {
 	
 	// converts an input string to a float, if the conversion fails the string
 	// is replaced with a string of the existing property value.
-	float parseFloatString(TextField tf, float v)
+	protected static float parseFloatString(TextField tf, float v)
 	{
 		float f;
 		try {
@@ -195,33 +195,41 @@ public class SpritePlacer implements ApplicationListener {
 	}
 
 	// updates pixy properties depending on current UI widget
-	protected void updateProperty( Event event)
+	protected static void updateProperty( Event event)
 	{
 		if (selected!=null) { // only if selected
-			if (event.getTarget() == nameEd) selected.setName(nameEd.getText());
-			if (event.getTarget() == twEd) selected.setTextureWidth((int)parseFloatString(twEd,selected.getTextureWidth()));
-			if (event.getTarget() == thEd) selected.setTextureHeight((int)parseFloatString(thEd,selected.getTextureHeight()));
-			if (event.getTarget() == xEd) selected.setX(parseFloatString(xEd,selected.getX()));
-			if (event.getTarget() == yEd) selected.setY(parseFloatString(yEd,selected.getY()));
-			if (event.getTarget() == sxEd) selected.setScaleX(parseFloatString(sxEd,selected.getScaleX()));
-			if (event.getTarget() == syEd) selected.setScaleY(parseFloatString(syEd,selected.getScaleY()));
-			if (event.getTarget() == angEd) selected.setAngle(parseFloatString(angEd,selected.getAngle()));
-			if (event.getTarget() == wEd) {
-				selected.setWidth((int)parseFloatString(wEd,selected.getWidth()));
+			if (event.getTarget() == UI.props.name)
+                    selected.setName(UI.props.name.getText());
+			if (event.getTarget() == UI.props.twidth)
+                    selected.setTextureWidth((int)parseFloatString(UI.props.twidth,selected.getTextureWidth()));
+			if (event.getTarget() == UI.props.theight)
+                    selected.setTextureHeight((int)parseFloatString(UI.props.theight,selected.getTextureHeight()));
+			if (event.getTarget() == UI.props.x)
+                    selected.setX(parseFloatString(UI.props.x,selected.getX()));
+			if (event.getTarget() == UI.props.y)
+                    selected.setY(parseFloatString(UI.props.y,selected.getY()));
+			if (event.getTarget() == UI.props.sclx)
+                    selected.setScaleX(parseFloatString(UI.props.sclx,selected.getScaleX()));
+			if (event.getTarget() == UI.props.scly)
+                    selected.setScaleY(parseFloatString(UI.props.scly,selected.getScaleY()));
+			if (event.getTarget() == UI.props.ang)
+                    selected.setAngle(parseFloatString(UI.props.ang,selected.getAngle()));
+			if (event.getTarget() == UI.props.width) {
+				selected.setWidth((int)parseFloatString(UI.props.width,selected.getWidth()));
 				selected.setOriginX(selected.getWidth() / 2);
 			}
-			if (event.getTarget() == hEd) {
-				selected.setHeight((int)parseFloatString(hEd,selected.getHeight()));
+			if (event.getTarget() == UI.props.height) {
+				selected.setHeight((int)parseFloatString(UI.props.height,selected.getHeight()));
 				selected.setOriginY(selected.getHeight() / 2);
 			}
-			if (event.getTarget() == oxEd) {
-				selected.setTextureOffsetX((int)parseFloatString(oxEd,selected.getTextureOffsetX()));
+			if (event.getTarget() == UI.props.offx) {
+				selected.setTextureOffsetX((int)parseFloatString(UI.props.offx,selected.getTextureOffsetX()));
             }
-			if (event.getTarget() == oyEd) {
-				selected.setTextureOffsetY((int)parseFloatString(oyEd,selected.getTextureOffsetX()));
+			if (event.getTarget() == UI.props.offy) {
+				selected.setTextureOffsetY((int)parseFloatString(UI.props.offy,selected.getTextureOffsetX()));
             }
-			if (event.getTarget() == textureEd) {
-				selected.setTextureFileName(textureEd.getText());
+			if (event.getTarget() == UI.props.texture) {
+				selected.setTextureFileName(UI.props.texture.getText());
 				try
 				{
                     selected.setTexture(new Texture(Gdx.files.internal(selected.getTextureFileName())));
@@ -229,12 +237,12 @@ public class SpritePlacer implements ApplicationListener {
 				catch (Exception e)
 				{
 					selected.setTexture(Pixy.getBrokenTexture());
-					textureEd.setText("missing!");
+					UI.props.texture.setText("missing!");
 				}
 			}
-			if (event.getTarget() == xwrapEd)
+			if (event.getTarget() == UI.props.xwrap)
 			{
-				int s = xwrapEd.getSelectedIndex();
+				int s = UI.props.xwrap.getSelectedIndex();
 				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
 						selected.setxWrap(Texture.TextureWrap.ClampToEdge.ordinal()); 
 				if ( s == Texture.TextureWrap.Repeat.ordinal() )
@@ -243,9 +251,9 @@ public class SpritePlacer implements ApplicationListener {
 						selected.setxWrap(Texture.TextureWrap.MirroredRepeat.ordinal()); 
 			}
 			
-			if (event.getTarget() == ywrapEd)
+			if (event.getTarget() == UI.props.ywrap)
 			{
-				int s = ywrapEd.getSelectedIndex();
+				int s = UI.props.ywrap.getSelectedIndex();
 				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
 						selected.setyWrap(Texture.TextureWrap.ClampToEdge.ordinal()); 
 				if ( s == Texture.TextureWrap.Repeat.ordinal() )
@@ -254,7 +262,8 @@ public class SpritePlacer implements ApplicationListener {
 						selected.setyWrap(Texture.TextureWrap.MirroredRepeat.ordinal()); 
 			}
 			
-			if (event.getTarget() == ywrapEd || event.getTarget() == xwrapEd)
+			if (event.getTarget() == UI.props.xwrap ||
+                event.getTarget() == UI.props.ywrap)
 			{
 				selected.getTexture().setWrap(
 						Texture.TextureWrap.values()[selected.getxWrap()],
@@ -265,7 +274,7 @@ public class SpritePlacer implements ApplicationListener {
 	}
 
     // iterate all pixies making them dump themselves to xml
-	protected void saveLevel(String fname)
+	protected static void saveLevel(String fname)
 	{
 		OutputStream os = Gdx.files.local(fname).write(false);
 		try 
@@ -287,40 +296,40 @@ public class SpritePlacer implements ApplicationListener {
 	}
 
     // updates the gui controls from a pixy
-	protected void updateGui() {
-		nameEd.setText(selected.getName());
-		xEd.setText(""+selected.getX());
-		yEd.setText(""+selected.getY());
-		sxEd.setText(""+selected.getScaleX());
-		syEd.setText(""+selected.getScaleY());
-		angEd.setText(""+selected.getAngle());
-		oxEd.setText(""+selected.getTextureOffsetX());
-		oyEd.setText(""+selected.getTextureOffsetY());
-		wEd.setText(""+selected.getWidth());
-		hEd.setText(""+selected.getHeight());
-		twEd.setText(""+selected.getTextureWidth());
-		thEd.setText(""+selected.getTextureHeight());
-		textureEd.setText(selected.getTextureFileName());
-		xwrapEd.setSelectedIndex(selected.getxWrap());
-		ywrapEd.setSelectedIndex(selected.getyWrap());		
+	protected static void updatePropGui() {
+		UI.props.name.setText(selected.getName());
+		UI.props.x.setText(""+selected.getX());
+		UI.props.y.setText(""+selected.getY());
+		UI.props.sclx.setText(""+selected.getScaleX());
+		UI.props.scly.setText(""+selected.getScaleY());
+		UI.props.ang.setText(""+selected.getAngle());
+		UI.props.offx.setText(""+selected.getTextureOffsetX());
+		UI.props.offy.setText(""+selected.getTextureOffsetY());
+		UI.props.width.setText(""+selected.getWidth());
+		UI.props.height.setText(""+selected.getHeight());
+		UI.props.twidth.setText(""+selected.getTextureWidth());
+		UI.props.theight.setText(""+selected.getTextureHeight());
+		UI.props.texture.setText(selected.getTextureFileName());
+		UI.props.xwrap.setSelectedIndex(selected.getxWrap());
+		UI.props.ywrap.setSelectedIndex(selected.getyWrap());		
 	}
 
-    public void clearPropsGui() {
-        nameEd.setText("");
-        xEd.setText("");
-        yEd.setText("");
-        sxEd.setText("");
-        syEd.setText("");
-        angEd.setText("");
-        oxEd.setText("");
-        oyEd.setText("");
-        wEd.setText("");
-        hEd.setText("");
-        twEd.setText("");
-        thEd.setText("");
-        textureEd.setText("");
-        xwrapEd.setSelectedIndex(0);
-        ywrapEd.setSelectedIndex(0);
+    protected static void clearPropsGui() {
+        UI.props.name.setText("");
+        UI.props.x.setText("");
+        UI.props.y.setText("");
+        UI.props.sclx.setText("");
+        UI.props.scly.setText("");
+        UI.props.ang.setText("");
+        UI.props.offx.setText("");
+        UI.props.offy.setText("");
+        UI.props.width.setText("");
+        UI.props.height.setText("");
+        UI.props.twidth.setText("");
+        UI.props.theight.setText("");
+        UI.props.texture.setText("");
+        UI.props.xwrap.setSelectedIndex(0);
+        UI.props.ywrap.setSelectedIndex(0);
     }
 
 	@Override
@@ -336,7 +345,7 @@ public class SpritePlacer implements ApplicationListener {
 		batch.end();
 
         coltick++;
-        if (coltick>12) {
+        if (coltick>4) {
             coltick=0;
             selCol++;physCol++;
             if (selCol==selCols.length) selCol=0;
@@ -368,10 +377,8 @@ public class SpritePlacer implements ApplicationListener {
 
         }
 
-        
-
-		stage.act();
-		stage.draw();
+		UI.stage.act();
+		UI.stage.draw();
 
 	}
 
