@@ -12,6 +12,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.Gdx;
 
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import java.util.Arrays;
+
 // STATIC class for holding UI items and intitalising them
 
 public class UI {
@@ -19,6 +22,9 @@ public class UI {
     protected static Stage stage;
     protected static Skin skin;
     private static String wraps[] = new String[3];
+    private static String bodyTypes[] = new String[3];
+    //private static String shapeIndexs[] = {   "shape zero", "shape one" , "shape two", "shape three",
+    //                        "shape four", "shape five", "shape six", "shape seven" };
 
     protected static class func {
         protected static Window win;
@@ -42,9 +48,19 @@ public class UI {
         protected static Window win;
         protected static Table table;
         protected static ScrollPane pane;
+
+        protected static SelectBox<String> bodyType;
+        protected static SelectBox<String> shapeIndex;
+        protected static TextField shapeType;
     }
 
     protected static void initialise() {
+
+
+        bodyTypes[0] = new String("Static");
+        bodyTypes[1] = new String("Kinematic");
+        bodyTypes[2] = new String("Dynamic");
+         
         wraps[Texture.TextureWrap.MirroredRepeat.ordinal()]="Mirror";
         wraps[Texture.TextureWrap.Repeat.ordinal()]="Repeat";
         wraps[Texture.TextureWrap.ClampToEdge.ordinal()]="Clamp";
@@ -75,59 +91,67 @@ public class UI {
 		
 		props.table.add(new Label("drag to scroll",skin)).colspan(2);
 		props.table.row();
-		props.name = addTextCell(new TextField("",skin),"Name");
-		props.x = addTextCell(new TextField("",skin),"Xpos");
-		props.y = addTextCell(new TextField("",skin),"Ypos");
-		props.width = addTextCell(new TextField("",skin),"width");
-		props.height = addTextCell(new TextField("",skin),"height");
-		props.ang = addTextCell(new TextField("",skin),"angle");
-		props.offx = addTextCell(new TextField("",skin),"offsetX");
-		props.offy = addTextCell(new TextField("",skin),"offsetY");
-		props.twidth = addTextCell(new TextField("",skin), "tex width");
-		props.theight = addTextCell(new TextField("",skin), "tex Height");
-		props.sclx = addTextCell(new TextField("",skin),"scaleX");
-		props.scly = addTextCell(new TextField("",skin),"scaleY");
-		props.texture = addTextCell(new TextField("",skin),"texure");
+		props.name = addTextCell(props.table, new TextField("",skin),"Name");
+		props.x = addTextCell(props.table, new TextField("",skin),"Xpos");
+		props.y = addTextCell(props.table, new TextField("",skin),"Ypos");
+		props.width = addTextCell(props.table, new TextField("",skin),"width");
+		props.height = addTextCell(props.table, new TextField("",skin),"height");
+		props.ang = addTextCell(props.table, new TextField("",skin),"angle");
+		props.offx = addTextCell(props.table, new TextField("",skin),"offsetX");
+		props.offy = addTextCell(props.table, new TextField("",skin),"offsetY");
+		props.twidth = addTextCell(props.table, new TextField("",skin), "tex width");
+		props.theight = addTextCell(props.table, new TextField("",skin), "tex Height");
+		props.sclx = addTextCell(props.table, new TextField("",skin),"scaleX");
+		props.scly = addTextCell(props.table, new TextField("",skin),"scaleY");
+		props.texture = addTextCell(props.table, new TextField("",skin),"texure");
 
-		props.xwrap = addSelect(new SelectBox<String>(skin), wraps, "Xwrap");
-		props.ywrap = addSelect(new SelectBox<String>(skin), wraps, "Ywrap");
+		props.xwrap = addSelect(props.table, new SelectBox<String>(skin), wraps, "Xwrap");
+		props.ywrap = addSelect(props.table, new SelectBox<String>(skin), wraps, "Ywrap");
 
         props.table.padTop(24);
         props.win.setResizable(true);
 
         body.win = new Window("Body",skin);
         body.win.setWidth(190);
+        body.win.setResizeBorder(8);
+        body.table = new Table(skin);
+        body.pane = new ScrollPane(body.table);
+        body.pane.setFillParent(true);
+        body.win.add(body.pane).fill().expand();
+
         
+        body.bodyType = addSelect(body.table, new SelectBox<String>(skin), bodyTypes, "type");
+        body.shapeIndex = addSelect(body.table, new SelectBox<String>(skin), null, "EDIT: ");
+        body.shapeType = addTextCell(body.table, new TextField("",skin),"type");
+        body.shapeType.setDisabled(true);
         		
 		stage.addActor(props.win);
 		props.win.setPosition(8,110);
 		stage.addActor(func.win);
-		func.win.setPosition(8,8);        
+		func.win.setPosition(8,8);
+        stage.addActor(body.win);
+        body.win.setPosition(8,280);
     }
 
 
-    /* 
-     *      convenience functions to add widgets (for properties)
-     *      TODO should use parent param like addButton
-     */
-	private static SelectBox<String> addSelect(SelectBox<String> w, String[] list,String label)
+	private static SelectBox<String> addSelect(Table parent, SelectBox<String> w, String[] list,String label)
 	{
 		Label nameLabel = new Label(label, UI.skin);
-		UI.props.table.add(nameLabel).width(60);
-		UI.props.table.add(w).width(120);
+		parent.add(nameLabel).width(60);
+		parent.add(w).width(120);
         w.addListener(Events.handler);
-        w.setItems(list);
-		UI.props.table.row();
+        if (list!=null) w.setItems(list);
+		parent.row();
 		return w;
 	}
 
-	private static TextField addTextCell(TextField w,String label)
+	private static TextField addTextCell(Table parent, TextField w,String label)
 	{
 		Label nameLabel = new Label(label, UI.skin);
-		UI.props.table.add(nameLabel).width(60);
-		UI.props.table.add(w).width(120);
+		parent.add(nameLabel).width(60);
+		parent.add(w).width(120);
         w.addListener(Events.handler);
-		UI.props.table.row();
+		parent.row();
         w.setUserObject(nameLabel);
 		return w;
 	}
@@ -142,6 +166,8 @@ public class UI {
         button.addListener(Events.handler);
         return button;
     }
+
+
 
         
 }

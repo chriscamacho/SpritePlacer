@@ -99,6 +99,10 @@ public class Events implements EventListener, InputProcessor {
 		}
 
         if (CE!=null) { // deal with change event
+
+            if (CE.getTarget()==UI.body.shapeIndex) {
+                SpritePlacer.updateBodyGui();
+            }
             // new shape type selected
             if (sd!=null) {
                 if (event.getTarget()==butCircle) {
@@ -117,6 +121,8 @@ public class Events implements EventListener, InputProcessor {
                         SpritePlacer.selected.body.setUserData(SpritePlacer.selected);
                     }
                     SpritePlacer.selected.body.createFixture(fx);
+                    shp.dispose();
+                    SpritePlacer.updateBodyGui();
                 }
                 
                 if (event.getTarget()==butBox) {
@@ -139,6 +145,8 @@ public class Events implements EventListener, InputProcessor {
                         SpritePlacer.selected.body.setUserData(SpritePlacer.selected);
                     }
                     SpritePlacer.selected.body.createFixture(fx);
+                    shp.dispose();
+                    SpritePlacer.updateBodyGui();
                 }
                 
                 sd=null;
@@ -172,6 +180,7 @@ public class Events implements EventListener, InputProcessor {
                                             "missing.png","new",
                                             0,0,32,32);
                 SpritePlacer.updatePropGui();
+                SpritePlacer.updateBodyGui();
 			}
 
             // copy an existing pixy
@@ -231,8 +240,19 @@ public class Events implements EventListener, InputProcessor {
 					Pixy.getPixies().remove(SpritePlacer.selected);
 					SpritePlacer.selected=null;
                     SpritePlacer.clearPropsGui();
+                    SpritePlacer.clearBodyGui();
 				}
 			}
+
+            if (event.getTarget()==UI.body.bodyType) {
+                if (SpritePlacer.selected!=null) {
+                    if (SpritePlacer.selected.body!=null) {
+                        SpritePlacer.selected.body.setType(
+                            BodyDef.BodyType.values()[UI.body.bodyType.getSelectedIndex()]
+                            );
+                    }
+                }
+            }
 			
 			return true;
 		}
@@ -266,6 +286,7 @@ public class Events implements EventListener, InputProcessor {
             if (!SpritePlacer.selected.pointIntersects(tmpV2)) {
                 SpritePlacer.selected=null;
                 SpritePlacer.clearPropsGui();
+                SpritePlacer.clearBodyGui();
                 touchDown(x,y,0,0);
                 return true;
             }
@@ -282,14 +303,19 @@ public class Events implements EventListener, InputProcessor {
 			SpritePlacer.selected.setX(screenDragStart.x-dragDelta.x);
             SpritePlacer.selected.setY(screenDragStart.y+dragDelta.y);
 			SpritePlacer.updatePropGui();
+            SpritePlacer.updateBodyGui();
 		}
 		
 		return true;
     }
 
-    // selection including selecting differnet sprites in a stack via
-    // repeated selection
+
     public boolean touchUp(int x, int y, int pointer, int button) {
+
+        // selection including selecting differnet sprites in a stack via
+        // repeated selection
+
+
         // find all pixies intersecting selection point
         // has to be vector3 for unproject...
 		tmpV3.set(x,y,0);
@@ -322,10 +348,16 @@ public class Events implements EventListener, InputProcessor {
 		if (Sel!=null) {
 			SpritePlacer.selected = Sel;
 			SpritePlacer.updatePropGui();
+            SpritePlacer.updateBodyGui();
 		} else {
-            SpritePlacer.clearPropsGui();
 			SpritePlacer.selected = null;
+            SpritePlacer.clearPropsGui();
+            SpritePlacer.clearBodyGui();
+
 		}
+
+
+
 		return true;
     }
     
@@ -341,7 +373,10 @@ public class Events implements EventListener, InputProcessor {
 			screenDragStart.x=SpritePlacer.selected.getX();
             screenDragStart.y=SpritePlacer.selected.getY();
 		}
-		return false;
+
+
+        
+		return true;
     }
 
     public boolean keyTyped(char c) {

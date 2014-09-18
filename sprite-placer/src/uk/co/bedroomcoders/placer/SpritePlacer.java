@@ -26,12 +26,14 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.InputMultiplexer;
 
+import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import java.io.OutputStream;
 
 import com.badlogic.gdx.physics.box2d.Shape;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.math.Matrix4;
 
@@ -75,6 +77,7 @@ public class SpritePlacer implements ApplicationListener {
         shpBatch = new ShapeRenderer();
 
         UI.initialise();
+        clearBodyGui();
 
 		InputMultiplexer multiplexer = new InputMultiplexer();
 		multiplexer.addProcessor(UI.stage);
@@ -244,6 +247,41 @@ public class SpritePlacer implements ApplicationListener {
         UI.props.texture.setText("");
         UI.props.xwrap.setSelectedIndex(0);
         UI.props.ywrap.setSelectedIndex(0);
+    }
+
+    private static Fixture currFix;
+    protected static void updateBodyGui() {
+        clearBodyGui();
+        if (selected!=null ) {
+            if (selected.body!=null) {
+                UI.body.bodyType.setVisible(true);
+                UI.body.shapeIndex.setVisible(true);
+                UI.body.bodyType.setSelectedIndex(SpritePlacer.selected.body.getType().getValue());
+
+                if (UI.body.shapeIndex.getItems().size!=selected.body.getFixtureList().size) {
+                    int i=0;
+                    Array<String> lst=new Array<String>();
+                    for(Fixture f : selected.body.getFixtureList()) {
+                        lst.add("shape "+i);
+                        i++;
+                    }
+                    UI.body.shapeIndex.setItems(lst); 
+                }
+                currFix=selected.body.getFixtureList().get(UI.body.shapeIndex.getSelectedIndex());
+                String sn=new String();
+                sn=currFix.getType().toString();
+                if (sn.equals("Polygon")) sn="Box";
+                UI.body.shapeType.setText(sn);
+            }  
+        } 
+         
+    }
+
+
+    protected static void clearBodyGui() {
+        UI.body.bodyType.setVisible(false);
+        UI.body.shapeIndex.setVisible(false);
+        UI.body.shapeType.setText("");
     }
 
 	@Override
