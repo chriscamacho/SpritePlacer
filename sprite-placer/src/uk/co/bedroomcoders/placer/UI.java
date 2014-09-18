@@ -23,8 +23,6 @@ public class UI {
     protected static Skin skin;
     private static String wraps[] = new String[3];
     private static String bodyTypes[] = new String[3];
-    //private static String shapeIndexs[] = {   "shape zero", "shape one" , "shape two", "shape three",
-    //                        "shape four", "shape five", "shape six", "shape seven" };
 
     protected static class func {
         protected static Window win;
@@ -52,6 +50,9 @@ public class UI {
         protected static SelectBox<String> bodyType;
         protected static SelectBox<String> shapeIndex;
         protected static TextField shapeType;
+        protected static TextField offsetX;
+        protected static TextField offsetY;
+        
     }
 
     protected static void initialise() {
@@ -124,6 +125,9 @@ public class UI {
         body.shapeIndex = addSelect(body.table, new SelectBox<String>(skin), null, "EDIT: ");
         body.shapeType = addTextCell(body.table, new TextField("",skin),"type");
         body.shapeType.setDisabled(true);
+        body.offsetX = addTextCell(body.table, new TextField("",skin),"Offset X");
+        body.offsetY = addTextCell(body.table, new TextField("",skin),"Offset Y");
+        
         		
 		stage.addActor(props.win);
 		props.win.setPosition(8,110);

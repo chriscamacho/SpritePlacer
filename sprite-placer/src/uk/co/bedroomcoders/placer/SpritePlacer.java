@@ -22,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.InputMultiplexer;
@@ -33,9 +34,11 @@ import java.util.Iterator;
 import java.io.OutputStream;
 
 import com.badlogic.gdx.physics.box2d.Shape;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 
 import java.lang.Throwable;
 import java.lang.Exception;
@@ -46,6 +49,10 @@ public class SpritePlacer implements ApplicationListener {
 	protected static OrthographicCamera camera;
 
 	protected static Pixy selected=null;
+    protected static Fixture selectedFixture=null;
+    private static Vector2 tmpV2=new Vector2();
+
+    
     private ShapeRenderer shpBatch; // selection hilight
     private OneBodyRenderer obr;
 
@@ -115,37 +122,38 @@ public class SpritePlacer implements ApplicationListener {
 	protected static void updateProperty( Event event)
 	{
 		if (selected!=null) { // only if selected
-			if (event.getTarget() == UI.props.name)
+            Actor target = event.getTarget();
+			if (target == UI.props.name)
                     selected.setName(UI.props.name.getText());
-			if (event.getTarget() == UI.props.twidth)
+			if (target == UI.props.twidth)
                     selected.setTextureWidth((int)parseFloatString(UI.props.twidth,selected.getTextureWidth()));
-			if (event.getTarget() == UI.props.theight)
+			if (target == UI.props.theight)
                     selected.setTextureHeight((int)parseFloatString(UI.props.theight,selected.getTextureHeight()));
-			if (event.getTarget() == UI.props.x)
+			if (target == UI.props.x)
                     selected.setX(parseFloatString(UI.props.x,selected.getX()));
-			if (event.getTarget() == UI.props.y)
+			if (target == UI.props.y)
                     selected.setY(parseFloatString(UI.props.y,selected.getY()));
-			if (event.getTarget() == UI.props.sclx)
+			if (target == UI.props.sclx)
                     selected.setScaleX(parseFloatString(UI.props.sclx,selected.getScaleX()));
-			if (event.getTarget() == UI.props.scly)
+			if (target == UI.props.scly)
                     selected.setScaleY(parseFloatString(UI.props.scly,selected.getScaleY()));
-			if (event.getTarget() == UI.props.ang)
+			if (target == UI.props.ang)
                     selected.setAngle(parseFloatString(UI.props.ang,selected.getAngle()));
-			if (event.getTarget() == UI.props.width) {
+			if (target == UI.props.width) {
 				selected.setWidth((int)parseFloatString(UI.props.width,selected.getWidth()));
 				selected.setOriginX(selected.getWidth() / 2);
 			}
-			if (event.getTarget() == UI.props.height) {
+			if (target == UI.props.height) {
 				selected.setHeight((int)parseFloatString(UI.props.height,selected.getHeight()));
 				selected.setOriginY(selected.getHeight() / 2);
 			}
-			if (event.getTarget() == UI.props.offx) {
+			if (target == UI.props.offx) {
 				selected.setTextureOffsetX((int)parseFloatString(UI.props.offx,selected.getTextureOffsetX()));
             }
-			if (event.getTarget() == UI.props.offy) {
+			if (target == UI.props.offy) {
 				selected.setTextureOffsetY((int)parseFloatString(UI.props.offy,selected.getTextureOffsetX()));
             }
-			if (event.getTarget() == UI.props.texture) {
+			if (target == UI.props.texture) {
 				selected.setTextureFileName(UI.props.texture.getText());
 				try
 				{
@@ -157,7 +165,7 @@ public class SpritePlacer implements ApplicationListener {
 					UI.props.texture.setText("missing!");
 				}
 			}
-			if (event.getTarget() == UI.props.xwrap)
+			if (target == UI.props.xwrap)
 			{
 				int s = UI.props.xwrap.getSelectedIndex();
 				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
@@ -168,7 +176,7 @@ public class SpritePlacer implements ApplicationListener {
 						selected.setxWrap(Texture.TextureWrap.MirroredRepeat.ordinal()); 
 			}
 			
-			if (event.getTarget() == UI.props.ywrap)
+			if (target == UI.props.ywrap)
 			{
 				int s = UI.props.ywrap.getSelectedIndex();
 				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
@@ -179,16 +187,32 @@ public class SpritePlacer implements ApplicationListener {
 						selected.setyWrap(Texture.TextureWrap.MirroredRepeat.ordinal()); 
 			}
 			
-			if (event.getTarget() == UI.props.xwrap ||
-                event.getTarget() == UI.props.ywrap)
+			if (target == UI.props.xwrap ||
+                target == UI.props.ywrap)
 			{
 				selected.getTexture().setWrap(
 						Texture.TextureWrap.values()[selected.getxWrap()],
 						Texture.TextureWrap.values()[selected.getyWrap()]
 					);
 			}
+
+            
+            if (target == UI.body.offsetX || target == UI.body.offsetY) {
+                tmpV2.set(parseFloatString(UI.body.offsetX,0)*Const.WORLD2BOX,
+                            parseFloatString(UI.body.offsetY,0)*Const.WORLD2BOX);
+                Shape shp = selectedFixture.getShape();
+                if (shp.getClass() == CircleShape.class) {
+                    ((CircleShape)shp).setPosition(tmpV2);
+                }
+
+                if (shp.getClass() == BoxShape.class) {
+                    ((BoxShape)shp).setPosition(tmpV2);
+                    ((BoxShape)shp).update();
+                }
+            }
 		}
 	}
+
 
     // iterate all pixies making them dump themselves to xml
 	protected static void saveLevel(String fname)
@@ -249,7 +273,7 @@ public class SpritePlacer implements ApplicationListener {
         UI.props.ywrap.setSelectedIndex(0);
     }
 
-    private static Fixture currFix;
+
     protected static void updateBodyGui() {
         clearBodyGui();
         if (selected!=null ) {
@@ -267,11 +291,25 @@ public class SpritePlacer implements ApplicationListener {
                     }
                     UI.body.shapeIndex.setItems(lst); 
                 }
-                currFix=selected.body.getFixtureList().get(UI.body.shapeIndex.getSelectedIndex());
+                selectedFixture=selected.body.getFixtureList().get(UI.body.shapeIndex.getSelectedIndex());
                 String sn=new String();
-                sn=currFix.getType().toString();
+                sn=selectedFixture.getType().toString();
                 if (sn.equals("Polygon")) sn="Box";
                 UI.body.shapeType.setText(sn);
+
+                Vector2 p=null;
+                Shape shp = SpritePlacer.selectedFixture.getShape();
+                if (shp.getClass() == CircleShape.class) {
+                    p=((CircleShape)shp).getPosition();
+                }
+
+                if (shp.getClass() == BoxShape.class) {
+                    p=((BoxShape)shp).getPosition();
+                }
+                if (p!=null) {
+                    UI.body.offsetX.setText(""+(p.x*Const.BOX2WORLD));
+                    UI.body.offsetY.setText(""+(p.y*Const.BOX2WORLD));
+                }
             }  
         } 
          

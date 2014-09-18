@@ -1,6 +1,7 @@
 package uk.co.bedroomcoders.placer;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -60,6 +61,7 @@ public class Events implements EventListener, InputProcessor {
         FocusEvent FE=null;  // rather than lots of casts...
         InputEvent IE=null;
         ChangeEvent CE=null;
+        Actor target=event.getTarget();
 
         if (event.getClass().equals(FocusEvent.class)) {
             FE=(FocusEvent)event;
@@ -77,7 +79,7 @@ public class Events implements EventListener, InputProcessor {
         if (FE!=null) {
             // using a textField as if its a button
             // TODO fix!
-            if (FE.getTarget() == UI.props.texture && FE.isFocused()) {
+            if (target == UI.props.texture && FE.isFocused()) {
                 fd = new fileDialog("Select texture", "data/", UI.stage, UI.skin);
                 UI.stage.addActor(fd);
                 fd.addListener(this);
@@ -100,12 +102,14 @@ public class Events implements EventListener, InputProcessor {
 
         if (CE!=null) { // deal with change event
 
-            if (CE.getTarget()==UI.body.shapeIndex) {
+            if (target==UI.body.shapeIndex) {
                 SpritePlacer.updateBodyGui();
             }
+
+            
             // new shape type selected
             if (sd!=null) {
-                if (event.getTarget()==butCircle) {
+                if (target==butCircle) {
                     CircleShape shp = new CircleShape();
                     shp.setRadius(16f*Const.WORLD2BOX);
                     FixtureDef fx = new FixtureDef();
@@ -125,7 +129,7 @@ public class Events implements EventListener, InputProcessor {
                     SpritePlacer.updateBodyGui();
                 }
                 
-                if (event.getTarget()==butBox) {
+                if (target==butBox) {
                     // NB must use update after changing one or more BoxShape
                     // properties via their setters...
                     BoxShape shp = new BoxShape();
@@ -154,7 +158,7 @@ public class Events implements EventListener, InputProcessor {
             
             // file dialog return for save/load level and load texture
             if (fd!=null) {
-                if (event.getTarget() == fd.ok) {
+                if (target == fd.ok) {
                     switch(dialogMode) {
                         case LEVLOAD:
                             Pixy.getPixies().clear();
@@ -175,7 +179,7 @@ public class Events implements EventListener, InputProcessor {
             }
 
             // new pixy
-            if (event.getTarget() == UI.func.add) { // create a new pixy with default values
+            if (target == UI.func.add) { // create a new pixy with default values
 				SpritePlacer.selected = new Pixy(0,0,0,0,32,32,1,1,0,
                                             "missing.png","new",
                                             0,0,32,32);
@@ -184,7 +188,7 @@ public class Events implements EventListener, InputProcessor {
 			}
 
             // copy an existing pixy
-            if (event.getTarget() == UI.func.clone) {
+            if (target == UI.func.clone) {
                 if (SpritePlacer.selected!=null) {
                     Pixy c = SpritePlacer.selected;
                     Pixy p = new Pixy(c.getX()+8f,c.getY()+8f,
@@ -199,14 +203,14 @@ public class Events implements EventListener, InputProcessor {
                 }               
             }
 
-			if (event.getTarget() == UI.func.save) {
+			if (target == UI.func.save) {
                 fd = new fileDialog("Select file to save", "data/", UI.stage, UI.skin);
                 UI.stage.addActor(fd);
                 fd.addListener(this);
                 dialogMode = dialogModes.LEVSAVE;
 			}
             
-            if (event.getTarget() == UI.func.load) {
+            if (target == UI.func.load) {
                 fd = new fileDialog("Select file to load", "data/", UI.stage, UI.skin);
                 UI.stage.addActor(fd);
                 fd.addListener(this);
@@ -214,7 +218,7 @@ public class Events implements EventListener, InputProcessor {
             }
 
             // adding a new fixture to a body
-            if (event.getTarget() == UI.func.fixture && SpritePlacer.selected!=null) {
+            if (target == UI.func.fixture && SpritePlacer.selected!=null) {
                 sd = new Dialog("Shape type",UI.skin);
                 sd.button(butCircle);
                 sd.button(butBox);
@@ -229,13 +233,13 @@ public class Events implements EventListener, InputProcessor {
             }
             
             // texture wrap mode
-            if (event.getTarget()==UI.props.xwrap ||
-                event.getTarget()==UI.props.ywrap) {
+            if (target == UI.props.xwrap ||
+                target == UI.props.ywrap) {
 				SpritePlacer.updateProperty(event);
             }
 
             // remove an existing pixy
-			if (event.getTarget() == UI.func.remove) {
+			if (target == UI.func.remove) {
 				if (SpritePlacer.selected!=null) {
 					Pixy.getPixies().remove(SpritePlacer.selected);
 					SpritePlacer.selected=null;
@@ -244,7 +248,7 @@ public class Events implements EventListener, InputProcessor {
 				}
 			}
 
-            if (event.getTarget()==UI.body.bodyType) {
+            if (target == UI.body.bodyType) {
                 if (SpritePlacer.selected!=null) {
                     if (SpritePlacer.selected.body!=null) {
                         SpritePlacer.selected.body.setType(
