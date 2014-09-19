@@ -35,6 +35,7 @@ import java.io.OutputStream;
 
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.math.Matrix4;
@@ -71,8 +72,6 @@ public class SpritePlacer implements ApplicationListener {
 
 
         world = new World(Const.GRAVITY, false);
-        // provide a textual version of wrap types
-
         
 		// sets up UI controls
 		float w = Gdx.graphics.getWidth();
@@ -205,9 +204,12 @@ public class SpritePlacer implements ApplicationListener {
                     ((CircleShape)shp).setPosition(tmpV2);
                 }
 
-                if (shp.getClass() == BoxShape.class) {
-                    ((BoxShape)shp).setPosition(tmpV2);
-                    ((BoxShape)shp).update();
+                if (shp.getClass() == PolygonShape.class) {
+                    //((BoxShape)shp).setPosition(tmpV2);
+                    //((BoxShape)shp).update();
+                    BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
+                    bs.setPosition(tmpV2);
+                    bs.update();
                 }
             }
 		}
@@ -293,18 +295,18 @@ public class SpritePlacer implements ApplicationListener {
                 }
                 selectedFixture=selected.body.getFixtureList().get(UI.body.shapeIndex.getSelectedIndex());
                 String sn=new String();
-                sn=selectedFixture.getType().toString();
-                if (sn.equals("Polygon")) sn="Box";
-                UI.body.shapeType.setText(sn);
-
+                
                 Vector2 p=null;
                 Shape shp = SpritePlacer.selectedFixture.getShape();
                 if (shp.getClass() == CircleShape.class) {
                     p=((CircleShape)shp).getPosition();
+                    UI.body.shapeType.setText("Circle");
                 }
 
-                if (shp.getClass() == BoxShape.class) {
-                    p=((BoxShape)shp).getPosition();
+                if (shp.getClass() == PolygonShape.class) {
+                    //p=((BoxShape)shp).getPosition();
+                    p=BoxShape.fauxCast((PolygonShape)shp).getPosition();
+                    UI.body.shapeType.setText("Box");
                 }
                 if (p!=null) {
                     UI.body.offsetX.setText(""+(p.x*Const.BOX2WORLD));

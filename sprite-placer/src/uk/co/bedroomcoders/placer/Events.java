@@ -22,6 +22,7 @@ import java.util.Iterator;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Body;
 
@@ -139,7 +140,7 @@ public class Events implements EventListener, InputProcessor {
                     shp.setSize(16f*Const.WORLD2BOX,8f*Const.WORLD2BOX);
                     shp.setPosition(new Vector2(-16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
                     shp.setAngle(0);
-                    shp.update(); fx.shape=shp;
+                    shp.update(); fx.shape=shp.getShape();
                     if (SpritePlacer.selected.body==null) {
                         BodyDef bd=new BodyDef();
                         bd.type = BodyDef.BodyType.DynamicBody;
@@ -148,8 +149,9 @@ public class Events implements EventListener, InputProcessor {
                                                         SpritePlacer.selected.getY()*Const.WORLD2BOX,SpritePlacer.selected.getAngle()*Const.PI180);
                         SpritePlacer.selected.body.setUserData(SpritePlacer.selected);
                     }
-                    SpritePlacer.selected.body.createFixture(fx);
-                    shp.dispose();
+                    Fixture f=SpritePlacer.selected.body.createFixture(fx);
+                    //shp.dispose();
+                    shp.putShape(f.getShape());
                     SpritePlacer.updateBodyGui();
                 }
                 
