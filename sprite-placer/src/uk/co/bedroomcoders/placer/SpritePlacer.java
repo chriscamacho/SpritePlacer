@@ -205,12 +205,25 @@ public class SpritePlacer implements ApplicationListener {
                 }
 
                 if (shp.getClass() == PolygonShape.class) {
-                    //((BoxShape)shp).setPosition(tmpV2);
-                    //((BoxShape)shp).update();
                     BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
                     bs.setPosition(tmpV2);
                     bs.update();
                 }
+            }
+
+            if (target == UI.body.width || target == UI.body.height) {
+                tmpV2.set(parseFloatString(UI.body.width,0)*Const.WORLD2BOX,
+                            parseFloatString(UI.body.height,0)*Const.WORLD2BOX);
+                Shape shp = selectedFixture.getShape();
+                if (shp.getClass() == CircleShape.class) {
+                    ((CircleShape)shp).setRadius(tmpV2.x);
+                }
+                if (shp.getClass() == PolygonShape.class) {
+                    BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
+                    bs.setSize(tmpV2);
+                    bs.update();
+                }
+                
             }
 		}
 	}
@@ -301,12 +314,18 @@ public class SpritePlacer implements ApplicationListener {
                 if (shp.getClass() == CircleShape.class) {
                     p=((CircleShape)shp).getPosition();
                     UI.body.shapeType.setText("Circle");
+                    UI.body.height.setVisible(false);
+                    UI.body.width.setText(""+(((CircleShape)shp).getRadius()*Const.BOX2WORLD));
                 }
 
                 if (shp.getClass() == PolygonShape.class) {
                     //p=((BoxShape)shp).getPosition();
                     p=BoxShape.fauxCast((PolygonShape)shp).getPosition();
                     UI.body.shapeType.setText("Box");
+                    UI.body.height.setVisible(true);
+                    tmpV2.set(BoxShape.fauxCast((PolygonShape)shp).getSize());
+                    UI.body.width.setText(""+(tmpV2.x*Const.BOX2WORLD));
+                    UI.body.height.setText(""+(tmpV2.y*Const.BOX2WORLD));
                 }
                 if (p!=null) {
                     UI.body.offsetX.setText(""+(p.x*Const.BOX2WORLD));

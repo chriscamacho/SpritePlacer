@@ -52,6 +52,9 @@ public class UI {
         protected static TextField shapeType;
         protected static TextField offsetX;
         protected static TextField offsetY;
+        protected static TextField width;
+        protected static TextField height;
+        
         
     }
 
@@ -127,7 +130,10 @@ public class UI {
         body.shapeType.setDisabled(true);
         body.offsetX = addTextCell(body.table, new TextField("",skin),"Offset X");
         body.offsetY = addTextCell(body.table, new TextField("",skin),"Offset Y");
-        
+        body.width = addTextCell(body.table, new TextField("",skin),"width");
+        body.height = addTextCell(body.table, new TextField("",skin),"height");
+
+        body.table.padTop(24);
         		
 		stage.addActor(props.win);
 		props.win.setPosition(8,110);

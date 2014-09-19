@@ -4,19 +4,22 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.math.Vector2;
 
+import com.badlogic.gdx.utils.Disposable;
+
+
 import java.util.HashMap;
 // just wraps the polygon shape mainly so we can keep track of things
 // like width, height and position(offset) 
 // setAsBox utilises already allocated memory internally so can be called
 // repeatedly, for example when size changes... 
 
-// we use a polyshape when creating the fixture then after the
-// fixture is created we put the fixtures shape into the cast list
+// the class uses a polyshape when creating the fixture then after the
+// fixture is created, its shape is put into the cast list
 // as the fixture shape is cloned - with the correct instance of
 // polygonShape we can then find out BoxShape and get things like
 // position and size....
 
-public class BoxShape { // extends PolygonShape {
+public class BoxShape implements Disposable { // extends PolygonShape {
 
     private Vector2 size=new Vector2();
     private Vector2 position=new Vector2();
@@ -34,6 +37,7 @@ public class BoxShape { // extends PolygonShape {
 
 
     public void dispose() {
+        shapes.remove(poly);
         poly.dispose();
     }
 
