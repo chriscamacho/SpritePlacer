@@ -180,6 +180,16 @@ public class Events implements EventListener, InputProcessor {
                 fd=null; 
             }
 
+            if (target == UI.func.run) {
+                if (SpritePlacer.runMode) {
+                    SpritePlacer.runMode=false;
+                    UI.func.run.setText("Run");
+                } else {
+                    SpritePlacer.runMode=true;
+                    UI.func.run.setText("Edit");
+                }
+            }
+
             // new pixy
             if (target == UI.func.add) { // create a new pixy with default values
 				SpritePlacer.selected = new Pixy(0,0,0,0,32,32,1,1,0,

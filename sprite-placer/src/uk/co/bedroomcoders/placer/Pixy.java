@@ -39,6 +39,7 @@ public class Pixy
 	private int yWrap;
 	private int textureWidth;
 	private int textureHeight;
+    private static final Vector2 tmpV2 = new Vector2();
 
 	private static ArrayList<Pixy> pixies = new ArrayList<Pixy>();
 	private static Texture brokenTexture = new Texture(Gdx.files.internal("data/missing.png"));
@@ -75,8 +76,7 @@ public class Pixy
 	
 	public static void drawAll(SpriteBatch sb) {
 		Iterator<Pixy> itr = getPixies().iterator();
-		while(itr.hasNext())
-		{
+		while(itr.hasNext()) {
 			Pixy p = itr.next();
 			p.draw(sb);
 		}	
@@ -131,6 +131,13 @@ public class Pixy
 	public void setY(float y) { this.y = y; updateBodyTransform(); }
 	public float getAngle() { return angle; }
 	public void setAngle(float angle) {	this.angle = angle; updateBodyTransform(); }
+
+    public void updateFromBody(Body b) {
+        tmpV2.set(b.getPosition());
+        x=tmpV2.x*Const.BOX2WORLD;
+        y=tmpV2.y*Const.BOX2WORLD;
+        angle=b.getAngle()*Const.I80PI;
+    }
 
 	private void updateBodyTransform() {
 		if (body!=null) {

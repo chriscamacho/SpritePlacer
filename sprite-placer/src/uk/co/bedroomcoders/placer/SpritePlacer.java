@@ -38,6 +38,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 
@@ -51,7 +52,7 @@ public class SpritePlacer implements ApplicationListener {
 
 	protected static Pixy selected=null;
     protected static Fixture selectedFixture=null;
-    private static Vector2 tmpV2=new Vector2();
+    private final static Vector2 tmpV2=new Vector2();
 
     
     private ShapeRenderer shpBatch; // selection hilight
@@ -66,6 +67,8 @@ public class SpritePlacer implements ApplicationListener {
 
 
     protected static World world;
+
+    protected static boolean runMode=false;
     
 	@Override
 	public void create() {
@@ -211,6 +214,8 @@ public class SpritePlacer implements ApplicationListener {
                 }
             }
 
+            // TODO display size as full size not half as box2d
+            // to fit with Pixy
             if (target == UI.body.width || target == UI.body.height) {
                 tmpV2.set(parseFloatString(UI.body.width,0)*Const.WORLD2BOX,
                             parseFloatString(UI.body.height,0)*Const.WORLD2BOX);
@@ -289,6 +294,8 @@ public class SpritePlacer implements ApplicationListener {
     }
 
 
+    // TODO display size as full size not half as box2d
+    // to fit with Pixy
     protected static void updateBodyGui() {
         clearBodyGui();
         if (selected!=null ) {
@@ -343,6 +350,9 @@ public class SpritePlacer implements ApplicationListener {
         UI.body.shapeType.setText("");
     }
 
+    float accumulator;
+    Array<Body> bodies = new Array<Body>();
+    
 	@Override
 	public void render() {
 		Gdx.gl.glClearColor(1, .5f, .25f, 1);
@@ -350,6 +360,29 @@ public class SpritePlacer implements ApplicationListener {
 		
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
+
+        if (runMode) {
+            float frameTime = Math.min(Gdx.graphics.getDeltaTime(), Const.TIME_STEP);
+            accumulator += frameTime;
+            while (accumulator >= Const.TIME_STEP) {
+                world.step(Const.TIME_STEP, Const.VEL_ITER, Const.POS_ITER);
+                accumulator -= Const.TIME_STEP;
+            }
+
+            // TODO double check can we get away with only doing this
+            // just when run mode first starts?
+            world.getBodies(bodies);
+
+            for (Body b : bodies) {
+                Pixy p = (Pixy) b.getUserData();
+                if (p != null) { p.updateFromBody(b); }
+            }  
+        }
+
+
+
+
+
 		
 		batch.begin();
 		Pixy.drawAll(batch);

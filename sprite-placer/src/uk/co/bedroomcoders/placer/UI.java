@@ -27,7 +27,7 @@ public class UI {
     protected static class func {
         protected static Window win;
         protected static TextButton load,save,remove,
-                            add,fixture,clone;
+                            add,fixture,clone,run;
     }
     
     protected static class props {
@@ -82,6 +82,7 @@ public class UI {
 		func.load = addButton(func.win,false,"Load");
 		func.save = addButton(func.win,true,"Save");
         func.fixture = addButton(func.win,false,"+Shape");
+        func.run = addButton(func.win,false,"Run");
         func.win.pack();
         func.win.setResizable(false);
         		
