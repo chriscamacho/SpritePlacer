@@ -111,47 +111,12 @@ public class Events implements EventListener, InputProcessor {
             // new shape type selected
             if (sd!=null) {
                 if (target==butCircle) {
-                    CircleShape shp = new CircleShape();
-                    shp.setRadius(16f*Const.WORLD2BOX);
-                    FixtureDef fx = new FixtureDef();
-                    fx.density=10f; fx.friction=0.5f;
-                    fx.restitution=0.5f; fx.shape=shp;
-                    shp.setPosition(new Vector2(16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
-                    if (SpritePlacer.selected.body==null) {
-                        BodyDef bd=new BodyDef();
-                        bd.type = BodyDef.BodyType.DynamicBody;
-                        SpritePlacer.selected.body=SpritePlacer.world.createBody(bd);
-                        SpritePlacer.selected.body.setTransform(SpritePlacer.selected.getX()*Const.WORLD2BOX,
-                                                        SpritePlacer.selected.getY()*Const.WORLD2BOX,SpritePlacer.selected.getAngle()*Const.PI180);
-                        SpritePlacer.selected.body.setUserData(SpritePlacer.selected);
-                    }
-                    SpritePlacer.selected.body.createFixture(fx);
-                    shp.dispose();
+                    SpritePlacer.selected.addCircleShape();
                     SpritePlacer.updateBodyGui();
                 }
                 
                 if (target==butBox) {
-                    // NB must use update after changing one or more BoxShape
-                    // properties via their setters...
-                    BoxShape shp = new BoxShape();
-                    FixtureDef fx = new FixtureDef();
-                    fx.density=10f; fx.friction=0.5f;
-                    fx.restitution=0.5f;
-                    shp.setSize(16f*Const.WORLD2BOX,8f*Const.WORLD2BOX);
-                    shp.setPosition(new Vector2(-16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
-                    shp.setAngle(0);
-                    shp.update(); fx.shape=shp.getShape();
-                    if (SpritePlacer.selected.body==null) {
-                        BodyDef bd=new BodyDef();
-                        bd.type = BodyDef.BodyType.DynamicBody;
-                        SpritePlacer.selected.body=SpritePlacer.world.createBody(bd);
-                        SpritePlacer.selected.body.setTransform(SpritePlacer.selected.getX()*Const.WORLD2BOX,
-                                                        SpritePlacer.selected.getY()*Const.WORLD2BOX,SpritePlacer.selected.getAngle()*Const.PI180);
-                        SpritePlacer.selected.body.setUserData(SpritePlacer.selected);
-                    }
-                    Fixture f=SpritePlacer.selected.body.createFixture(fx);
-                    //shp.dispose();
-                    shp.putShape(f.getShape());
+                    SpritePlacer.selected.addBoxShape();
                     SpritePlacer.updateBodyGui();
                 }
                 
@@ -187,6 +152,7 @@ public class Events implements EventListener, InputProcessor {
                 } else {
                     SpritePlacer.runMode=true;
                     UI.func.run.setText("Edit");
+                    // TODO reset all pixies to their start conditions
                 }
             }
 

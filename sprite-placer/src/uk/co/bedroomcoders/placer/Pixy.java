@@ -8,17 +8,24 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 
 import com.badlogic.gdx.math.Vector2;
 
+import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
 
 import com.badlogic.gdx.physics.box2d.Shape;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
 
 // a Pixy is like a Sprite except that its origin is always in the centre
 // and the rotation/scaling and drawing origin is always the same...
+
+// TODO reset values - for when physics run ends.
 public class Pixy
 {
 	private float x;
@@ -47,6 +54,7 @@ public class Pixy
     public Body body=null; // by default a pixy is decorative only
 
     // TODO this is a monster constructor...
+    // make smaller and add some multiple setters
 	Pixy(float px, float py, int ox, int oy, int w, int h,
 			float sx, float sy, float a, String textureName, String Name,int wx,int wy,int tw,int th)
 	{
@@ -68,6 +76,15 @@ public class Pixy
 		getPixies().add(this);
 	}
 
+    public void addBody() {
+        BodyDef bd=new BodyDef();
+        bd.type = BodyDef.BodyType.DynamicBody;
+        body=SpritePlacer.world.createBody(bd);
+        body.setTransform(getX()*Const.WORLD2BOX,
+                                getY()*Const.WORLD2BOX,getAngle()*Const.PI180);
+        body.setUserData(this);
+    }
+
 	public void draw(SpriteBatch sb) {
 		sb.draw(getTexture(), getX()-getOriginX(), getY()-getOriginY(), getOriginX(), getOriginY(), getWidth(), getHeight(),
 					getScaleX(), getScaleY(), getAngle(), getTextureOffsetX(), getTextureOffsetY(), getTextureWidth(), getTextureHeight(), false, false);
@@ -83,11 +100,9 @@ public class Pixy
 	}
 
     // dumps a sprite and its extra properties to an xml node
+    // adds additional child nodes for physics shapes etc if needed
 	public String toXml() {
-    // example output
-	//	<pixy name="small ufo" x="-50" y="50" oy="64" sx="0.5" sy="0.5" texture="libgdx.png" angle="-15" width="128" height="64" />
 		String s = "";
-		
 		s= "    <pixy name=\""+getName()+"\" ";
 		s+="x=\""+getX()+"\" ";
 		s+="y=\""+getY()+"\" ";
@@ -103,7 +118,38 @@ public class Pixy
 		s+="ywrap=\""+getyWrap()+"\" ";
 		s+="twidth=\""+getTextureWidth()+"\" ";
 		s+="theight=\""+getTextureHeight()+"\" ";
-		s+=" />\n";
+        if (body!=null) {
+            s+=">\n";
+            s+="        <body>\n";
+            Array<Fixture> fxtrs = body.getFixtureList();
+            for(Fixture fx : fxtrs) {
+                Shape shp = fx.getShape();
+                s+="            <shape ";
+                s+="type=";
+                if (fx.getType() == Shape.Type.Circle) {
+                    s+="\"circle\" ";
+                    s+="x=\""+((CircleShape)shp).getPosition().x*Const.BOX2WORLD+"\" ";
+                    s+="y=\""+((CircleShape)shp).getPosition().y*Const.BOX2WORLD+"\" ";
+                    s+="radius=\""+shp.getRadius()*Const.BOX2WORLD+"\" ";
+                } else {
+                    s+="\"box\" ";
+                    BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
+                    s+="x=\""+bs.getPosition().x*Const.BOX2WORLD+"\" ";
+                    s+="y=\""+bs.getPosition().y*Const.BOX2WORLD+"\" ";
+                    s+="width=\""+bs.getWidth()*Const.BOX2WORLD*2f+"\" "; // convert half sizes
+                    s+="height=\""+bs.getHeight()*Const.BOX2WORLD*2f+"\" ";// to match pixy full sizes
+                }
+                s+="restitution=\""+fx.getRestitution()+"\" ";
+                s+="density=\""+fx.getDensity()+"\" ";
+                s+="friction=\""+fx.getFriction()+"\" ";
+                
+                s+=" />\n";
+            }
+            s+="        </body>\n";
+            s+="    </pixy>\n";
+        } else {
+            s+="    />\n";
+        }
 		return s;
 	}
 
@@ -139,12 +185,43 @@ public class Pixy
         angle=b.getAngle()*Const.I80PI;
     }
 
+    public Fixture addCircleShape() {
+        CircleShape shp = new CircleShape();
+        shp.setRadius(16f*Const.WORLD2BOX);
+        FixtureDef fx = new FixtureDef();
+        fx.density=10f; fx.friction=0.1f;
+        fx.restitution=0.1f; fx.shape=shp;
+        shp.setPosition(new Vector2(16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
+        if (body==null) { addBody(); }
+        Fixture f = body.createFixture(fx);
+        shp.dispose();
+        return f;
+    }
+
+    public Fixture addBoxShape() {
+        BoxShape shp = new BoxShape();
+        FixtureDef fx = new FixtureDef();
+        fx.density=10f; fx.friction=0.1f;
+        fx.restitution=0.1f;
+        shp.setSize(16f*Const.WORLD2BOX,8f*Const.WORLD2BOX);
+        shp.setPosition(new Vector2(-16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
+        shp.setAngle(0);
+        shp.update(); fx.shape=shp.getShape();
+        if (body==null) { addBody(); }
+        Fixture f=body.createFixture(fx);
+        shp.putShape(f.getShape());
+        return f;
+    }
+
 	private void updateBodyTransform() {
 		if (body!=null) {
 			body.setTransform(x*Const.WORLD2BOX,y*Const.WORLD2BOX,angle*Const.PI180);
 		}
 	}
 
+
+    // none of these require extra functionality so just wrapping them in
+    // get
 	public float getOriginX() {
 		return originX;
 	}

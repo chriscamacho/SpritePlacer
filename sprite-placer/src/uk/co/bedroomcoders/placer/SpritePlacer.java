@@ -214,14 +214,13 @@ public class SpritePlacer implements ApplicationListener {
                 }
             }
 
-            // TODO display size as full size not half as box2d
-            // to fit with Pixy
+
             if (target == UI.body.width || target == UI.body.height) {
-                tmpV2.set(parseFloatString(UI.body.width,0)*Const.WORLD2BOX,
-                            parseFloatString(UI.body.height,0)*Const.WORLD2BOX);
+                tmpV2.set(parseFloatString(UI.body.width,0)*Const.WORLD2BOX/2f,
+                            parseFloatString(UI.body.height,0)*Const.WORLD2BOX/2f);
                 Shape shp = selectedFixture.getShape();
                 if (shp.getClass() == CircleShape.class) {
-                    ((CircleShape)shp).setRadius(tmpV2.x);
+                    ((CircleShape)shp).setRadius(tmpV2.x*2f); // radius not width so undo /2 correction
                 }
                 if (shp.getClass() == PolygonShape.class) {
                     BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
@@ -294,8 +293,7 @@ public class SpritePlacer implements ApplicationListener {
     }
 
 
-    // TODO display size as full size not half as box2d
-    // to fit with Pixy
+
     protected static void updateBodyGui() {
         clearBodyGui();
         if (selected!=null ) {
@@ -331,8 +329,8 @@ public class SpritePlacer implements ApplicationListener {
                     UI.body.shapeType.setText("Box");
                     UI.body.height.setVisible(true);
                     tmpV2.set(BoxShape.fauxCast((PolygonShape)shp).getSize());
-                    UI.body.width.setText(""+(tmpV2.x*Const.BOX2WORLD));
-                    UI.body.height.setText(""+(tmpV2.y*Const.BOX2WORLD));
+                    UI.body.width.setText(""+(tmpV2.x*Const.BOX2WORLD*2));
+                    UI.body.height.setText(""+(tmpV2.y*Const.BOX2WORLD*2));
                 }
                 if (p!=null) {
                     UI.body.offsetX.setText(""+(p.x*Const.BOX2WORLD));
