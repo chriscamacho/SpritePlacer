@@ -28,10 +28,11 @@ Allows the following manipulations on individual sprites
 * scaleX scaleY – scales the size of the sprite
 * texture – the file name of the texture to use.
 * Xwrap Ywrap – effects how the texture wraps if it is not big enough to cover the sprite.
+* various physics properties (multiple physics shapes per sprite)
 
 The current sprite is selected with the mouse (or touch) 
 
-In addition to manipulating individual sprites the view can be moved using the four buttons marked up, down, left & right. Sprites and where the camera is looking can be moved by "dragging"
+In addition to manipulating individual sprites where the camera is looking can be moved by "dragging"
 
 There is a (somewhat rudimentry) file dialog to assist with loading and saving "levels"
 
@@ -39,6 +40,9 @@ New sprites can be added with the “add” button, they can be deleted with the
 
 TODO
 
+* more physics properties
+* allow deletion of physics shapes
+* add scrpting
 * add button to create box office smash game.
 
 I'm open to sensible suggestions, but do contact me before diving into massive code changes, as depending on what I'm doing next I might not be able to use them...
