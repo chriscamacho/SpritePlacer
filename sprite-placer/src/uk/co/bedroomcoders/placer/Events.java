@@ -159,7 +159,7 @@ public class Events implements EventListener, InputProcessor {
             // new pixy
             if (target == UI.func.add) { // create a new pixy with default values
 				SpritePlacer.selected = new Pixy(0,0,0,0,32,32,1,1,0,
-                                            "missing.png","new",
+                                            "data/missing.png","new",
                                             0,0,32,32);
                 SpritePlacer.updatePropGui();
                 SpritePlacer.updateBodyGui();

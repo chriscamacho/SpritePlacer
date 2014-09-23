@@ -20,6 +20,7 @@ import java.lang.Integer;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.CircleShape;
@@ -53,6 +54,7 @@ public class LevelLoader
         Pixy px=null;
         String shpType;
         float shpX,shpY,shpRadius,shpWidth,shpHeight,shpRestitution,shpDensity,shpFriction;
+        String bodyType;
         
 		public void startElement(String uri, String localName, String qName, Attributes attributes)
 												throws SAXException 
@@ -95,7 +97,10 @@ public class LevelLoader
                         th = Integer.valueOf(attributes.getValue(i)).intValue();
 
                 }
-                // body currently no attribs just a parent for shapes
+                if (qName.equalsIgnoreCase("body")) {
+                    if (attributes.getQName(i).equalsIgnoreCase("type"))
+                        bodyType=attributes.getValue(i);
+                }
                 if (qName.equalsIgnoreCase("shape")) {
                     if (attributes.getQName(i).equalsIgnoreCase("type"))
                         shpType=attributes.getValue(i);
@@ -139,12 +144,15 @@ public class LevelLoader
                     fx=px.addBoxShape();
                     BoxShape bs=BoxShape.fauxCast((PolygonShape)fx.getShape());
                     bs.setPosition(tmpV2);
-                    bs.setWidth(shpWidth/2f);
-                    bs.setHeight(shpHeight/2f);
+                    bs.setWidth((shpWidth*Const.WORLD2BOX)/2f);
+                    bs.setHeight((shpHeight*Const.WORLD2BOX)/2f);
+                    bs.update();
                 }
                 fx.setRestitution(shpRestitution);
                 fx.setDensity(shpDensity);
                 fx.setFriction(shpFriction);
+                px.updateBodyTransform();
+                SpritePlacer.selected=null;
                 shpType="";shpX=0;shpY=0;shpRadius=0;shpWidth=0;shpHeight=0;shpRestitution=0;shpDensity=0;shpFriction=0;
             }
 
@@ -155,6 +163,14 @@ public class LevelLoader
 												throws SAXException 
 		{
 			//System.out.println("end element "+uri+" "+localName+" "+qName);
+            if (qName.equalsIgnoreCase("body")) {
+                if (bodyType.equalsIgnoreCase("dynamic"))
+                    px.body.setType(BodyType.DynamicBody);
+                if (bodyType.equalsIgnoreCase("kinematic"))
+                    px.body.setType(BodyType.KinematicBody);
+                if (bodyType.equalsIgnoreCase("static"))
+                    px.body.setType(BodyType.StaticBody);
+            }
 		}
 
 		public void characters(char ch[], int start, int length)

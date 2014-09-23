@@ -62,7 +62,7 @@ public class Pixy
 		setTextureOffsetX(ox);setTextureOffsetY(oy);
 		setWidth(w);setHeight(h);
 		setTextureFileName(textureName);
-		setTexture(new Texture(Gdx.files.internal("data/"+textureName)));
+		setTexture(new Texture(Gdx.files.internal(textureName)));
 		getTexture().setWrap(Texture.TextureWrap.values()[wx], Texture.TextureWrap.values()[wy]);
 		setxWrap(wx);
 		setyWrap(wy);
@@ -120,7 +120,17 @@ public class Pixy
 		s+="theight=\""+getTextureHeight()+"\" ";
         if (body!=null) {
             s+=">\n";
-            s+="        <body>\n";
+            s+="        <body ";
+            s+="type=";
+
+            if (body.getType()==BodyDef.BodyType.DynamicBody)
+                s+="\"dynamic\" ";
+            if (body.getType()==BodyDef.BodyType.StaticBody)
+                s+="\"static\" ";
+            if (body.getType()==BodyDef.BodyType.KinematicBody)
+                s+="\"kinematic\" ";
+            
+            s+=">\n";
             Array<Fixture> fxtrs = body.getFixtureList();
             for(Fixture fx : fxtrs) {
                 Shape shp = fx.getShape();
@@ -213,7 +223,7 @@ public class Pixy
         return f;
     }
 
-	private void updateBodyTransform() {
+	protected void updateBodyTransform() {
 		if (body!=null) {
 			body.setTransform(x*Const.WORLD2BOX,y*Const.WORLD2BOX,angle*Const.PI180);
 		}

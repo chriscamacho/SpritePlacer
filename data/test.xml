@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<level>
+    <pixy name="new" x="29.0" y="-177.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="data/missing.png" angle="0.0" width="256" height="32" xwrap="2" ywrap="0" twidth="256" theight="32" >
+        <body type="static" >
+            <shape type="box" x="0.0" y="0.0" width="256.0" height="32.0" restitution="0.1" density="10.0" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="new" x="0.0" y="0.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="data/dumbell.png" angle="0.0" width="96" height="32" xwrap="0" ywrap="0" twidth="96" theight="32" >
+        <body type="dynamic" >
+            <shape type="circle" x="-32.0" y="0.0" radius="16.0" restitution="0.1" density="10.0" friction="0.1"  />
+            <shape type="circle" x="32.0" y="0.0" radius="16.0" restitution="0.1" density="10.0" friction="0.1"  />
+            <shape type="box" x="0.0" y="0.0" width="32.0" height="12.000001" restitution="0.1" density="10.0" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="new_clone" x="35.0" y="93.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="data/dumbell.png" angle="0.0" width="96" height="32" xwrap="0" ywrap="0" twidth="96" theight="32" >
+        <body type="dynamic" >
+            <shape type="circle" x="-32.0" y="0.0" radius="16.0" restitution="0.1" density="10.0" friction="0.1"  />
+            <shape type="circle" x="32.0" y="0.0" radius="16.0" restitution="0.1" density="10.0" friction="0.1"  />
+            <shape type="box" x="0.0" y="0.0" width="32.0" height="12.000002" restitution="0.1" density="10.0" friction="0.1"  />
+        </body>
+    </pixy>
+</level>
