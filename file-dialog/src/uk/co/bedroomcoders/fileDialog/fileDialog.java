@@ -69,7 +69,7 @@ public class fileDialog extends Dialog {
         
         cancel = new TextButton("Cancel", skin);
         button(cancel, false);
-        key(Keys.ENTER, true);
+        key(Keys.ENTER, false);
         key(Keys.ESCAPE, false);
 
         setPosition((st.getWidth()/2)-(getWidth()/2),(st.getHeight()/2)-(getHeight()/2));

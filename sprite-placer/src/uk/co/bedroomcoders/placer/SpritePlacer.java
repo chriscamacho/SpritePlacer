@@ -320,6 +320,7 @@ public class SpritePlacer implements ApplicationListener {
                     p=((CircleShape)shp).getPosition();
                     UI.body.shapeType.setText("Circle");
                     UI.body.height.setVisible(false);
+                    ((Label)UI.body.width.getUserObject()).setText("Radius");
                     UI.body.width.setText(""+(((CircleShape)shp).getRadius()*Const.BOX2WORLD));
                 }
 
@@ -328,6 +329,7 @@ public class SpritePlacer implements ApplicationListener {
                     p=BoxShape.fauxCast((PolygonShape)shp).getPosition();
                     UI.body.shapeType.setText("Box");
                     UI.body.height.setVisible(true);
+                    ((Label)UI.body.width.getUserObject()).setText("Width");
                     tmpV2.set(BoxShape.fauxCast((PolygonShape)shp).getSize());
                     UI.body.width.setText(""+(tmpV2.x*Const.BOX2WORLD*2));
                     UI.body.height.setText(""+(tmpV2.y*Const.BOX2WORLD*2));
@@ -346,6 +348,10 @@ public class SpritePlacer implements ApplicationListener {
         UI.body.bodyType.setVisible(false);
         UI.body.shapeIndex.setVisible(false);
         UI.body.shapeType.setText("");
+        UI.body.offsetX.setText("");
+        UI.body.offsetY.setText("");
+        UI.body.width.setText("");
+        UI.body.height.setText("");
     }
 
     float accumulator;
