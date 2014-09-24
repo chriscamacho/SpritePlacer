@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 
+import java.util.regex.Pattern;
 /**
  *  fileDialog class an extension of Dialog to provide
  *  a rudimentary file selector
@@ -31,6 +32,7 @@ public class fileDialog extends Dialog {
     private TextField textField;
     private Skin skin;
     private String path;
+    private String filter;
 
     /** The ok button is left public so that external listeners can
      *  conveniently check which button was pressed */
@@ -43,45 +45,50 @@ public class fileDialog extends Dialog {
     *   add it to your scene and add your own listener
     * 
     * @param title			A title for the dialog title bar
-    * @param p		    	The initial file path for the dialog 
-    * @param st			    The stage you intend to add the fileDialog to, only used for positioning
-    * @param s			    The skin to use
+    * @param path	    	The initial file path for the dialog 
+    * @param stage		    The stage you intend to add the fileDialog to, only used for positioning
+    * @param skin		    The skin to use
+    * @param filter         file name match ie "^jpg|^png"
     */
-    public fileDialog(String title , String p, Stage st, Skin s) {
-        super(title, s);
-        skin = s;
-        path = p;
+    public fileDialog(String title , String path, Stage stage, Skin skin, String filter) {
+        super(title, skin);
+        this.skin = skin;
+        this.path = path;
+        this.filter = filter;
 
         chosen = "<selecting>";
 
         setSize(240,200);
         fileTab = new Table();
-        sPane = new ScrollPane(fileTab,skin);
+        sPane = new ScrollPane(fileTab,this.skin);
         sPane.setScrollingDisabled(true,false);
-        textField = new TextField("",skin);
-        cd(path);
+        textField = new TextField("",this.skin);
+        cd(this.path);
         getContentTable().add(sPane).expand().fill();
         getContentTable().row();
         getContentTable().add(textField);
 
-        ok = new TextButton("Ok", skin);
+        ok = new TextButton("Ok", this.skin);
         button(ok, true);
         
-        cancel = new TextButton("Cancel", skin);
+        cancel = new TextButton("Cancel", this.skin);
         button(cancel, false);
         key(Keys.ENTER, false);
         key(Keys.ESCAPE, false);
 
-        setPosition((st.getWidth()/2)-(getWidth()/2),(st.getHeight()/2)-(getHeight()/2));
-        st.setKeyboardFocus(textField);
+        setPosition((stage.getWidth()/2)-(getWidth()/2),
+                        (stage.getHeight()/2)-(getHeight()/2));
+        stage.setKeyboardFocus(textField);
     }
 
     // used by the dialog to change directory when a user clicks a directory
-    private void cd(String p) {
+    private void cd(String path) {
         textField.setText("");
-        path = p;
+        this.path = path;
         fileTab.clearChildren();
         FileHandle dirHandle = Gdx.files.internal(path);
+
+        Pattern pat = Pattern.compile(filter);
 
         addEntry("..",true);
         // do the loop twice grabbing all folders first
@@ -98,7 +105,7 @@ public class fileDialog extends Dialog {
             if (!entry.isDirectory()) {
                 String name = entry.name();
                 if (!name.startsWith(".")) {
-                    addEntry(name, false);
+                    if (pat.matcher(name).find()) addEntry(name, false);
                 }   
             }
         }

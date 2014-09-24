@@ -214,20 +214,34 @@ public class SpritePlacer implements ApplicationListener {
                 }
             }
 
-
-            if (target == UI.body.width || target == UI.body.height) {
-                tmpV2.set(parseFloatString(UI.body.width,0)*Const.WORLD2BOX/2f,
-                            parseFloatString(UI.body.height,0)*Const.WORLD2BOX/2f);
+            if (selectedFixture!=null) {
                 Shape shp = selectedFixture.getShape();
-                if (shp.getClass() == CircleShape.class) {
-                    ((CircleShape)shp).setRadius(tmpV2.x*2f); // radius not width so undo /2 correction
+                    
+                if (target == UI.body.width || target == UI.body.height) {
+                    tmpV2.set(parseFloatString(UI.body.width,0)*Const.WORLD2BOX/2f,
+                                parseFloatString(UI.body.height,0)*Const.WORLD2BOX/2f);
+                    if (shp.getClass() == CircleShape.class) {
+                        ((CircleShape)shp).setRadius(tmpV2.x*2f); // radius not width so undo /2 correction
+                    }
+                    if (shp.getClass() == PolygonShape.class) {
+                        BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
+                        bs.setSize(tmpV2);
+                        bs.update();
+                    }
                 }
-                if (shp.getClass() == PolygonShape.class) {
-                    BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
-                    bs.setSize(tmpV2);
-                    bs.update();
+
+                if (target == UI.body.restitution) {
+                    selectedFixture.setRestitution(parseFloatString(UI.body.restitution,0));
                 }
-                
+
+                if (target == UI.body.friction) {
+                    selectedFixture.setFriction(parseFloatString(UI.body.friction,0));
+                }
+
+                if (target == UI.body.density) {
+                    selectedFixture.setDensity(parseFloatString(UI.body.density,0));
+                    selected.body.resetMassData();
+                }
             }
 		}
 	}
@@ -338,6 +352,9 @@ public class SpritePlacer implements ApplicationListener {
                     UI.body.offsetX.setText(""+(p.x*Const.BOX2WORLD));
                     UI.body.offsetY.setText(""+(p.y*Const.BOX2WORLD));
                 }
+                UI.body.restitution.setText(""+selectedFixture.getRestitution());
+                UI.body.density.setText(""+selectedFixture.getDensity());
+                UI.body.friction.setText(""+selectedFixture.getFriction());
             }  
         } 
          

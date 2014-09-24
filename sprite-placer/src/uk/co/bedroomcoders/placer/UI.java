@@ -54,8 +54,9 @@ public class UI {
         protected static TextField offsetY;
         protected static TextField width;
         protected static TextField height;
-        
-        
+        protected static TextField friction;
+        protected static TextField restitution;
+        protected static TextField density;
     }
 
     protected static void initialise() {
@@ -133,7 +134,9 @@ public class UI {
         body.offsetY = addTextCell(body.table, new TextField("",skin),"Offset Y");
         body.width = addTextCell(body.table, new TextField("",skin),"width");
         body.height = addTextCell(body.table, new TextField("",skin),"height");
-
+        body.restitution = addTextCell(body.table, new TextField("",skin),"bounce");
+        body.friction = addTextCell(body.table, new TextField("",skin),"friction");
+        body.density = addTextCell(body.table, new TextField("",skin),"density");
         body.table.padTop(24);
         		
 		stage.addActor(props.win);

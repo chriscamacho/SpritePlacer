@@ -82,7 +82,7 @@ public class Events implements EventListener, InputProcessor {
             // using a textField as if its a button
             // TODO fix!
             if (target == UI.props.texture && FE.isFocused()) {
-                fd = new fileDialog("Select texture", "data/", UI.stage, UI.skin);
+                fd = new fileDialog("Select texture", "data/", UI.stage, UI.skin, ".\\.jpg|.\\.png" );
                 UI.stage.addActor(fd);
                 fd.addListener(this);
                 dialogMode = dialogModes.TEXLOAD;
@@ -204,14 +204,14 @@ public class Events implements EventListener, InputProcessor {
             }
 
 			if (target == UI.func.save) {
-                fd = new fileDialog("Select file to save", "data/", UI.stage, UI.skin);
+                fd = new fileDialog("Select file to save", "data/", UI.stage, UI.skin, ".\\.xml");
                 UI.stage.addActor(fd);
                 fd.addListener(this);
                 dialogMode = dialogModes.LEVSAVE;
 			}
             
             if (target == UI.func.load) {
-                fd = new fileDialog("Select file to load", "data/", UI.stage, UI.skin);
+                fd = new fileDialog("Select file to load", "data/", UI.stage, UI.skin, ".\\.xml");
                 UI.stage.addActor(fd);
                 fd.addListener(this);
                 dialogMode = dialogModes.LEVLOAD;
