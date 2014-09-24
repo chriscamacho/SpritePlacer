@@ -16,6 +16,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
+import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -129,6 +130,12 @@ public class Events implements EventListener, InputProcessor {
                     switch(dialogMode) {
                         case LEVLOAD:
                             Pixy.getPixies().clear();
+                            Array<Body> bodies = new Array<Body>();
+                            SpritePlacer.world.getBodies(bodies);
+                            for (Body b : bodies) {
+                                SpritePlacer.world.destroyBody(b);
+                                // TODO double check GC will catch BoxShape wrapper
+                            }
                             SpritePlacer.selected=null;
                             LevelLoader ll = new LevelLoader(fd.getChosen());
                             break;

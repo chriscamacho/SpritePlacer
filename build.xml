@@ -57,11 +57,7 @@
 
         <exec executable="/bin/bash" spawn="true"> <!-- to allow wild card expansion -->
             <arg value="-c"/>
-            <arg value="geany -i
-sprite-placer-desktop/src/uk/co/bedroomcoders/placer/*.java
-sprite-placer/src/uk/co/bedroomcoders/placer/*.java
-file-dialog/src/uk/co/bedroomcoders/fileDialog/*.java
-            "/>
+            <arg value="geany -i sprite-placer/src/uk/co/bedroomcoders/placer/*.java"/>
         </exec>
     </target>
     
