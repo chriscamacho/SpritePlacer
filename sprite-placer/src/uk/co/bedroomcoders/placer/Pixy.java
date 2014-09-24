@@ -48,6 +48,9 @@ public class Pixy
 	private int textureHeight;
     private static final Vector2 tmpV2 = new Vector2();
 
+    private Vector2 savedPosition = new Vector2();
+    private float savedAngle;
+
 	private static ArrayList<Pixy> pixies = new ArrayList<Pixy>();
 	private static Texture brokenTexture = new Texture(Gdx.files.internal("data/missing.png"));
 
@@ -75,6 +78,16 @@ public class Pixy
 		setTextureHeight(th);
 		getPixies().add(this);
 	}
+
+    public void saveTransform() {
+        savedPosition.set(x,y);
+        savedAngle=angle;
+    }
+
+    public void restoreSavedTransform() {
+        x=savedPosition.x; y=savedPosition.y; angle=savedAngle;
+        updateBodyTransform();
+    }
 
     public void addBody() {
         BodyDef bd=new BodyDef();
@@ -356,9 +369,9 @@ public class Pixy
 		return pixies;
 	}
 
-	public static void setPixies(ArrayList<Pixy> pixies) {
-		Pixy.pixies = pixies;
-	}
+	//public static void setPixies(ArrayList<Pixy> pixies) {
+	//	Pixy.pixies = pixies;
+	//}
 
 	public static Texture getBrokenTexture() {
 		return brokenTexture;

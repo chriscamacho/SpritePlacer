@@ -382,11 +382,6 @@ public class SpritePlacer implements ApplicationListener {
                 if (p != null) { p.updateFromBody(b); }
             }  
         }
-
-
-
-
-
 		
 		batch.begin();
 		Pixy.drawAll(batch);

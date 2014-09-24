@@ -156,10 +156,25 @@ public class Events implements EventListener, InputProcessor {
                 if (SpritePlacer.runMode) {
                     SpritePlacer.runMode=false;
                     UI.func.run.setText("Run");
+                    // restore position and rotation clear velocities and forces
+                    Iterator<Pixy> itr = Pixy.getPixies().iterator();
+                    while(itr.hasNext()) {
+                        Pixy p = itr.next();
+                        p.restoreSavedTransform();
+                        p.body.setAngularVelocity(0);
+                        p.body.setLinearVelocity(0,0);
+                    }                   
+                    SpritePlacer.world.clearForces();
                 } else {
                     SpritePlacer.runMode=true;
                     UI.func.run.setText("Edit");
-                    // TODO reset all pixies to their start conditions
+
+                    // save position and rotation for restore
+                    Iterator<Pixy> itr = Pixy.getPixies().iterator();
+                    while(itr.hasNext()) {
+                        Pixy p = itr.next();
+                        p.saveTransform();
+                    }
                 }
             }
 
