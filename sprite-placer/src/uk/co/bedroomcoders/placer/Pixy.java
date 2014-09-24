@@ -90,12 +90,14 @@ public class Pixy
     }
 
     public void addBody() {
-        BodyDef bd=new BodyDef();
-        bd.type = BodyDef.BodyType.DynamicBody;
-        body=SpritePlacer.world.createBody(bd);
-        body.setTransform(getX()*Const.WORLD2BOX,
-                                getY()*Const.WORLD2BOX,getAngle()*Const.PI180);
-        body.setUserData(this);
+        if (body==null) {
+            BodyDef bd=new BodyDef();
+            bd.type = BodyDef.BodyType.DynamicBody;
+            body=SpritePlacer.world.createBody(bd);
+            body.setTransform(getX()*Const.WORLD2BOX,
+                                    getY()*Const.WORLD2BOX,getAngle()*Const.PI180);
+            body.setUserData(this);
+        }
     }
 
 	public void draw(SpriteBatch sb) {

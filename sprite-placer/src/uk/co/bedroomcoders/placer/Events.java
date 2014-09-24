@@ -161,8 +161,10 @@ public class Events implements EventListener, InputProcessor {
                     while(itr.hasNext()) {
                         Pixy p = itr.next();
                         p.restoreSavedTransform();
-                        p.body.setAngularVelocity(0);
-                        p.body.setLinearVelocity(0,0);
+                        if (p.body!=null) {
+                            p.body.setAngularVelocity(0);
+                            p.body.setLinearVelocity(0,0);
+                        }
                     }                   
                     SpritePlacer.world.clearForces();
                 } else {

@@ -214,7 +214,7 @@ public class SpritePlacer implements ApplicationListener {
                 }
             }
 
-            if (selectedFixture!=null) {
+            if (selectedFixture!=null && selected!=null) {
                 Shape shp = selectedFixture.getShape();
                     
                 if (target == UI.body.width || target == UI.body.height) {
