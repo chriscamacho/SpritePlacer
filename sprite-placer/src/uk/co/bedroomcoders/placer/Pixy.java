@@ -77,6 +77,7 @@ public class Pixy
 		setTextureWidth(tw);
 		setTextureHeight(th);
 		getPixies().add(this);
+        body=null;
 	}
 
     public void saveTransform() {
@@ -214,9 +215,10 @@ public class Pixy
         CircleShape shp = new CircleShape();
         shp.setRadius(16f*Const.WORLD2BOX);
         FixtureDef fx = new FixtureDef();
-        fx.density=10f; fx.friction=0.1f;
+        fx.density=.1f; fx.friction=0.1f;
         fx.restitution=0.1f; fx.shape=shp;
-        shp.setPosition(new Vector2(16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
+        //shp.setPosition(new Vector2(16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
+        shp.setPosition(new Vector2(0f,0f));
         if (body==null) { addBody(); }
         Fixture f = body.createFixture(fx);
         shp.dispose();
@@ -226,10 +228,11 @@ public class Pixy
     public Fixture addBoxShape() {
         BoxShape shp = new BoxShape();
         FixtureDef fx = new FixtureDef();
-        fx.density=10f; fx.friction=0.1f;
+        fx.density=.1f; fx.friction=0.1f;
         fx.restitution=0.1f;
-        shp.setSize(16f*Const.WORLD2BOX,8f*Const.WORLD2BOX);
-        shp.setPosition(new Vector2(-16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
+        shp.setSize(16f*Const.WORLD2BOX,16f*Const.WORLD2BOX);
+        //shp.setPosition(new Vector2(-16f*Const.WORLD2BOX,16f*Const.WORLD2BOX));
+        shp.setPosition(new Vector2(0,0));
         shp.setAngle(0);
         shp.update(); fx.shape=shp.getShape();
         if (body==null) { addBody(); }
@@ -246,7 +249,7 @@ public class Pixy
 
 
     // none of these require extra functionality so just wrapping them in
-    // get
+    // get / set isn't really OOP
 	public float getOriginX() {
 		return originX;
 	}

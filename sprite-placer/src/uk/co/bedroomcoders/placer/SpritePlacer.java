@@ -383,7 +383,7 @@ public class SpritePlacer implements ApplicationListener {
 		batch.setProjectionMatrix(camera.combined);
 
         if (runMode) {
-            float frameTime = Math.min(Gdx.graphics.getDeltaTime(), Const.TIME_STEP);
+            float frameTime = Math.min(Gdx.graphics.getDeltaTime(), Const.MAXFRAMETIME);
             accumulator += frameTime;
             while (accumulator >= Const.TIME_STEP) {
                 world.step(Const.TIME_STEP, Const.VEL_ITER, Const.POS_ITER);
