@@ -34,7 +34,7 @@
             <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.6" density="0.2" friction="0.1"  />
         </body>
     </pixy>
-    <pixy name="new_clone" x="76.0" y="49.0" ox="64" oy="0" sx="1.0" sy="1.0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+    <pixy name="new_clone" x="43.0" y="93.0" ox="64" oy="0" sx="1.0" sy="1.0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
         <body type="dynamic" >
             <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.6" density="0.2" friction="0.1"  />
         </body>
@@ -44,7 +44,7 @@
             <shape type="box" x="0.0" y="0.0" width="32.0" height="32.0" restitution="0.1" density="0.2" friction="0.1"  />
         </body>
     </pixy>
-    <pixy name="new_clone_clone_clone" x="32.0" y="-29.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+    <pixy name="new_clone_clone_clone" x="98.0" y="-81.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
         <body type="dynamic" >
             <shape type="box" x="0.0" y="0.0" width="32.0" height="32.0" restitution="0.1" density="0.2" friction="0.1"  />
         </body>

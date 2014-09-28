@@ -47,6 +47,7 @@ public class Pixy
 	private int textureWidth;
 	private int textureHeight;
     private static final Vector2 tmpV2 = new Vector2();
+    private long uid;
 
     private Vector2 savedPosition = new Vector2();
     private float savedAngle;
@@ -78,6 +79,7 @@ public class Pixy
 		setTextureHeight(th);
 		getPixies().add(this);
         body=null;
+        uid=SpritePlacer.getUID();
 	}
 
     public void saveTransform() {
@@ -369,6 +371,15 @@ public class Pixy
 	public void setTextureHeight(int textureHeight) {
 		this.textureHeight = textureHeight;
 	}
+
+    public long getUID() {
+        return uid;
+    }
+
+    // only for use by loader
+    protected void setUID(long u) {
+        uid=u;
+    }
 
 	public static ArrayList<Pixy> getPixies() {
 		return pixies;

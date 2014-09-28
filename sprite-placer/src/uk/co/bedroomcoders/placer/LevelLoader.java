@@ -54,7 +54,7 @@ public class LevelLoader
         Pixy px=null;
         String shpType;
         float shpX,shpY,shpRadius,shpWidth,shpHeight,shpRestitution,shpDensity,shpFriction;
-        String bodyType;
+        String bodyType,script;
         
 		public void startElement(String uri, String localName, String qName, Attributes attributes)
 												throws SAXException 
@@ -108,8 +108,10 @@ public class LevelLoader
                         shpX=Float.valueOf(attributes.getValue(i)).floatValue();
                     if (attributes.getQName(i).equalsIgnoreCase("y"))
                         shpY=Float.valueOf(attributes.getValue(i)).floatValue();
-                    if (attributes.getQName(i).equalsIgnoreCase("radius"))
+                    if (attributes.getQName(i).equalsIgnoreCase("radius")) {
                         shpRadius=Float.valueOf(attributes.getValue(i)).floatValue();
+                        //System.out.println("radius from xml "+shpRadius);
+                    }
                     if (attributes.getQName(i).equalsIgnoreCase("width"))
                         shpWidth=Float.valueOf(attributes.getValue(i)).floatValue();
                     if (attributes.getQName(i).equalsIgnoreCase("height"))
@@ -121,6 +123,10 @@ public class LevelLoader
                     if (attributes.getQName(i).equalsIgnoreCase("friction"))
                         shpFriction=Float.valueOf(attributes.getValue(i)).floatValue();
 
+                }
+                if (qName.equalsIgnoreCase("level")) {
+                    if (attributes.getQName(i).equalsIgnoreCase("script"))
+                        script=attributes.getValue(i);
                 }
 			}
 
@@ -156,7 +162,7 @@ public class LevelLoader
                 shpType="";shpX=0;shpY=0;shpRadius=0;shpWidth=0;shpHeight=0;shpRestitution=0;shpDensity=0;shpFriction=0;
             }
 
-			//if(qName.equalsIgnoreCase("level")) levelScript=script;
+			if(qName.equalsIgnoreCase("level")) SpritePlacer.levelScript=script;
 		}
 
 		public void endElement(String uri, String localName, String qName)

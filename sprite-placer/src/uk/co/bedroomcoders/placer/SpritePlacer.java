@@ -45,6 +45,8 @@ import com.badlogic.gdx.math.Vector2;
 import java.lang.Throwable;
 import java.lang.Exception;
 
+import javax.script.*;
+
 public class SpritePlacer implements ApplicationListener { 
 
 	private SpriteBatch batch;
@@ -69,11 +71,17 @@ public class SpritePlacer implements ApplicationListener {
     protected static World world;
 
     protected static boolean runMode=false;
+
+    protected static ScriptEngineManager scriptMan = new ScriptEngineManager();
+    protected static ScriptEngine scriptEng = scriptMan.getEngineByName("JavaScript");
+    protected static String levelScript="";
+    protected static Invocable scriptInvoker;
+
     
 	@Override
 	public void create() {
 
-
+        scriptInvoker = (Invocable) scriptEng;
         world = new World(Const.GRAVITY, false);
         
 		// sets up UI controls
@@ -222,6 +230,7 @@ public class SpritePlacer implements ApplicationListener {
                                 parseFloatString(UI.body.height,0)*Const.WORLD2BOX/2f);
                     if (shp.getClass() == CircleShape.class) {
                         ((CircleShape)shp).setRadius(tmpV2.x*2f); // radius not width so undo /2 correction
+                        //System.out.println("radius update prop "+(tmpV2.x*2f));
                     }
                     if (shp.getClass() == PolygonShape.class) {
                         BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
@@ -336,10 +345,10 @@ public class SpritePlacer implements ApplicationListener {
                     UI.body.height.setVisible(false);
                     ((Label)UI.body.width.getUserObject()).setText("Radius");
                     UI.body.width.setText(""+(((CircleShape)shp).getRadius()*Const.BOX2WORLD));
+                    //System.out.println("set text from getRadius "+(((CircleShape)shp).getRadius()*Const.BOX2WORLD));
                 }
 
                 if (shp.getClass() == PolygonShape.class) {
-                    //p=((BoxShape)shp).getPosition();
                     p=BoxShape.fauxCast((PolygonShape)shp).getPosition();
                     UI.body.shapeType.setText("Box");
                     UI.body.height.setVisible(true);
@@ -441,6 +450,19 @@ public class SpritePlacer implements ApplicationListener {
 		UI.stage.draw();
 
 	}
+
+    // guarantees a unique number when run but may take as much as
+    // 1+ MS to return!
+    private static long lastUID=0;
+    public static long getUID() {
+        long UID=-1;
+        while (UID>lastUID) {
+            UID=System.currentTimeMillis();
+        }
+        lastUID = UID;
+        return UID;
+    }
+
 
 	@Override
 	public void resize(int width, int height) {

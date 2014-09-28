@@ -137,7 +137,17 @@ public class Events implements EventListener, InputProcessor {
                                 // TODO double check GC will catch BoxShape wrapper
                             }
                             SpritePlacer.selected=null;
+                            SpritePlacer.levelScript=null;
                             LevelLoader ll = new LevelLoader(fd.getChosen());
+
+                            if (SpritePlacer.levelScript!=null) {
+                                try {
+                                    SpritePlacer.scriptEng.eval(SpritePlacer.levelScript);
+                                    SpritePlacer.scriptInvoker.invokeFunction("levelLoaded");                                    
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
                             break;
                         case LEVSAVE:
                             SpritePlacer.saveLevel(fd.getChosen());
@@ -167,6 +177,8 @@ public class Events implements EventListener, InputProcessor {
                         }
                     }                   
                     SpritePlacer.world.clearForces();
+                    UI.body.win.setVisible(true);
+                    UI.props.win.setVisible(true);
                 } else {
                     SpritePlacer.runMode=true;
                     UI.func.run.setText("Edit");
@@ -177,6 +189,8 @@ public class Events implements EventListener, InputProcessor {
                         Pixy p = itr.next();
                         p.saveTransform();
                     }
+                    UI.body.win.setVisible(false);
+                    UI.props.win.setVisible(false);
                 }
             }
 
@@ -355,6 +369,13 @@ public class Events implements EventListener, InputProcessor {
 			SpritePlacer.selected = Sel;
 			SpritePlacer.updatePropGui();
             SpritePlacer.updateBodyGui();
+
+            try {
+                SpritePlacer.scriptInvoker.invokeFunction("selected", Sel );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
 		} else {
 			SpritePlacer.selected = null;
             SpritePlacer.clearPropsGui();

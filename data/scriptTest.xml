@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- currently only two scripted events
+levelLoaded     level has been loaded (suprise!)
+selected        a pixy is selected in edit mode
+-->
+<level script="
+
+function levelLoaded() {
+    print('Hello \n');
+}
+
+function selected(P) {
+    print('pixy name = ' + P.getName() +'\n');
+}
+
+">
+    <pixy name="new" x="29.0" y="-177.0" ox="0" oy="0" sx="1.0" sy="1.0" texture="data/missing.png" angle="0.0" width="256" height="32" xwrap="2" ywrap="0" twidth="256" theight="32" >
+        <body type="static" >
+            <shape type="box" x="0.0" y="0.0" width="256.0" height="32.0" restitution="0.1" density="0.2" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="new" x="17.0" y="-34.0" ox="64" oy="0" sx="1.0" sy="1.0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.6" density="0.2" friction="0.1"  />
+        </body>
+    </pixy>
+</level>
