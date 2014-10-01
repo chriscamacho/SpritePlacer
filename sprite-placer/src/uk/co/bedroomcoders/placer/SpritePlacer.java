@@ -39,11 +39,13 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 
 import java.lang.Throwable;
 import java.lang.Exception;
+
 
 import javax.script.*;
 
@@ -77,12 +79,18 @@ public class SpritePlacer implements ApplicationListener {
     protected static String levelScript="";
     protected static Invocable scriptInvoker;
 
+    protected static ContactListener scl = new ScriptContactListener();
+
+    protected static SpritePlacer engine = null;
     
 	@Override
 	public void create() {
 
         scriptInvoker = (Invocable) scriptEng;
+        engine = this;
         world = new World(Const.GRAVITY, false);
+
+        world.setContactListener(scl);
         
 		// sets up UI controls
 		float w = Gdx.graphics.getWidth();

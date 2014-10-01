@@ -6,11 +6,26 @@ selected        a pixy is selected in edit mode
 <level script="
 
 function levelLoaded() {
-    print('Hello \n');
+    print('Hello level loaded\n');
 }
 
 function selected(P) {
     print('pixy name = ' + P.getName() +'\n');
+}
+
+function beginContact(contact) {
+
+    boda = contact.getFixtureA().getBody();
+    bodb = contact.getFixtureB().getBody();
+    
+    man = contact.getWorldManifold();
+
+    vel1 = boda.getLinearVelocityFromWorldPoint( man.points[0] );
+    vel2 = bodb.getLinearVelocityFromWorldPoint( man.points[0] );
+    impactVelocity = vel1.sub(vel2);
+
+    print('impact speed='+impactVelocity.len()+'\n');
+
 }
 
 ">
