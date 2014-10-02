@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+event driven script functions
+
+name                params
+levelLoaded                                 the level has been loaded
+selected            pixy                    a pixy has been selected in the editor
+beforeRender        none                    just about to render a frame
+afterRender         none                    just rendered a frame
+beginContact        contact                 a collision has started
+endContact          contact                 a collision has ended
+preSolve            contact, oldManifold    each frame in contact before forces calculated
+postSolve           contact, impulse        after forces calculated
+-->
 <level script="&#xA;
 function levelLoaded() {&#xA;
     print('Hello level loaded\n');&#xA;

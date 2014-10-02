@@ -399,6 +399,14 @@ public class SpritePlacer implements ApplicationListener {
     
 	@Override
 	public void render() {
+
+        try {
+            SpritePlacer.scriptInvoker.invokeFunction("beforeRender");                                    
+        } catch (Exception e) {
+            if (!(e instanceof java.lang.NoSuchMethodException))
+                    e.printStackTrace();
+        }
+        
 		Gdx.gl.glClearColor(1, .5f, .25f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
@@ -463,7 +471,15 @@ public class SpritePlacer implements ApplicationListener {
 		UI.stage.act();
 		UI.stage.draw();
 
+        try {
+            SpritePlacer.scriptInvoker.invokeFunction("afterRender");                                    
+        } catch (Exception e) {
+            if (!(e instanceof java.lang.NoSuchMethodException))
+                    e.printStackTrace();
+        }
+
 	}
+
 
     // guarantees a unique number when run but may take as much as
     // 1+ MS to return!
