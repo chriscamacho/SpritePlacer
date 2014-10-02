@@ -40,6 +40,7 @@ public class LevelLoader
 		final SAXParserFactory spf = SAXParserFactory.newInstance();
 		try {
 			sp = spf.newSAXParser();
+
 			levelDefaultHandler handler = new levelDefaultHandler();
         	InputStream inputStream = Gdx.files.local(pAssetFilePath).read();
         	sp.parse(inputStream,handler);

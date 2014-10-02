@@ -270,7 +270,13 @@ public class SpritePlacer implements ApplicationListener {
 		OutputStream os = Gdx.files.local(fname).write(false);
 		try 
 		{
-			os.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<level>\n".getBytes());
+			os.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<level".getBytes());
+
+            if (levelScript!=null) {
+                os.write((" script=\""+levelScript.replace("\n","&#xA;\n")+"\"").getBytes());
+            }
+            os.write(">\n".getBytes());
+
 			Iterator<Pixy> itr = Pixy.getPixies().iterator();
 			while(itr.hasNext())
 			{

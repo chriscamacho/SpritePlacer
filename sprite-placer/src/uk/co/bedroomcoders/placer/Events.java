@@ -29,6 +29,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 
 import uk.co.bedroomcoders.fileDialog.fileDialog;
 
+
+
 /*
  *  handles events
  *
@@ -145,21 +147,12 @@ public class Events implements EventListener, InputProcessor {
                                     SpritePlacer.scriptEng.put("engine", SpritePlacer.engine);
                                     SpritePlacer.scriptEng.eval(SpritePlacer.levelScript);
                                     SpritePlacer.scriptInvoker.invokeFunction("levelLoaded");                                    
-                                } catch (Exception e) {
-                                    if (e instanceof javax.script.ScriptException) {
-                                        javax.script.ScriptException se = (javax.script.ScriptException)e;
-                                        System.out.println(se.getMessage()+" at line "+se.getLineNumber()+","+se.getColumnNumber());
-                                        break;
-                                    }
-                                    if (e instanceof sun.org.mozilla.javascript.EvaluatorException) {
-                                        sun.org.mozilla.javascript.EvaluatorException ee = (sun.org.mozilla.javascript.EvaluatorException)e;
-                                        System.out.println(ee.getMessage());
-                                        break;
-                                    }   
-
-                                    e.printStackTrace();
-                                    
+                                } catch (javax.script.ScriptException e) {
+                                    System.out.println(e.getMessage());
+                                } catch (NoSuchMethodException e) {
+                                    System.out.println("[Warning] levelLoaded missing");
                                 }
+                                
                             }
                             break;
                         case LEVSAVE:
