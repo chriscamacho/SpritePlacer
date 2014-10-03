@@ -202,7 +202,7 @@ public class Events implements EventListener, InputProcessor {
 
             // new pixy
             if (target == UI.func.add) { // create a new pixy with default values
-				SpritePlacer.selected = new Pixy(0,0,0,0,32,32,1,1,0,
+				SpritePlacer.selected = new Pixy(0,0,0,0,32,32,0,
                                             "data/missing.png","new",
                                             0,0,32,32);
                 SpritePlacer.updatePropGui();
@@ -215,7 +215,7 @@ public class Events implements EventListener, InputProcessor {
                     Pixy c = SpritePlacer.selected;
                     Pixy p = new Pixy(c.getX()+8f,c.getY()+8f,
                                         c.getTextureOffsetX(), c.getTextureOffsetY(),
-                                        c.getWidth(),c.getHeight(),c.getScaleX(),c.getScaleY(),
+                                        c.getWidth(),c.getHeight(),
                                         c.getAngle(), c.getTextureFileName(),
                                         c.getName()+"_clone", c.getxWrap(),c.getyWrap(),
                                         c.getTextureWidth(),c.getTextureHeight());

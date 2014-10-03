@@ -25,7 +25,6 @@ Allows the following manipulations on individual sprites
 * width height – the size of the sprite also used in conjunction with scale and wrap for texture effects
 * angle – the rotation of the sprite (in degrees)
 * offsetX offsetY – texture offset in pixels
-* scaleX scaleY – scales the size of the sprite
 * texture – the file name of the texture to use.
 * Xwrap Ywrap – effects how the texture wraps if it is not big enough to cover the sprite.
 * various physics properties (multiple physics shapes per sprite)
@@ -38,12 +37,29 @@ There is a (somewhat rudimentry) file dialog to assist with loading and saving "
 
 New sprites can be added with the “add” button, they can be deleted with the remove button once selected
 
+
+event driven script functions
+
+|name                |params                  |description                                      |
+|--------------------|------------------------|-------------------------------------------------|
+|levelLoaded         |                        |the level has been loaded                        |
+|selected            |pixy                    |a pixy has been selected in the editor           |
+|beforeRender        |none                    |just about to render a frame                     |
+|afterRender         |none                    |just rendered a frame                            |
+|beginContact        |contact                 |a collision has started                          |
+|endContact          |contact                 |a collision has ended                            |
+|preSolve            |contact, oldManifold    |each frame in contact before forces calculated   |
+|postSolve           |contact, impulse        |after forces calculated                          |
+
+a global reference to the SpritePlace class is available called engine, to allow access to public
+methods and some fields which may be useful 
+
 TODO
 
-* more physics properties
+* more physics properties - ongoing
 * allow deletion of physics shapes
-* add scrpting
-* add button to create box office smash game.
+* add scrpting - done but ongoing
+* add button to create box office smash game. - awaiting pull request
 
 I'm open to sensible suggestions, but do contact me before diving into massive code changes, as depending on what I'm doing next I might not be able to use them...
 

@@ -54,13 +54,13 @@ public class SpritePlacer implements ApplicationListener {
 	private SpriteBatch batch;
 	protected static OrthographicCamera camera;
 
-	protected static Pixy selected=null;
+	public static Pixy selected=null;
     protected static Fixture selectedFixture=null;
     private final static Vector2 tmpV2=new Vector2();
 
     
     private ShapeRenderer shpBatch; // selection hilight
-    private OneBodyRenderer obr;
+    public OneBodyRenderer obr;
 
 
     private static final Color selCols[] = { Color.RED, Color.GREEN, Color.BLUE,
@@ -70,9 +70,9 @@ public class SpritePlacer implements ApplicationListener {
     private int coltick = 0;
 
 
-    protected static World world;
+    public static World world;
 
-    protected static boolean runMode=false;
+    public static boolean runMode=false;
 
     protected static ScriptEngineManager scriptMan = new ScriptEngineManager();
     protected static ScriptEngine scriptEng = scriptMan.getEngineByName("JavaScript");
@@ -81,7 +81,7 @@ public class SpritePlacer implements ApplicationListener {
 
     protected static ContactListener scl = new ScriptContactListener();
 
-    protected static SpritePlacer engine = null;
+    public static SpritePlacer engine = null;
     
 	@Override
 	public void create() {
@@ -151,10 +151,6 @@ public class SpritePlacer implements ApplicationListener {
                     selected.setX(parseFloatString(UI.props.x,selected.getX()));
 			if (target == UI.props.y)
                     selected.setY(parseFloatString(UI.props.y,selected.getY()));
-			if (target == UI.props.sclx)
-                    selected.setScaleX(parseFloatString(UI.props.sclx,selected.getScaleX()));
-			if (target == UI.props.scly)
-                    selected.setScaleY(parseFloatString(UI.props.scly,selected.getScaleY()));
 			if (target == UI.props.ang)
                     selected.setAngle(parseFloatString(UI.props.ang,selected.getAngle()));
 			if (target == UI.props.width) {
@@ -297,8 +293,6 @@ public class SpritePlacer implements ApplicationListener {
 		UI.props.name.setText(selected.getName());
 		UI.props.x.setText(""+selected.getX());
 		UI.props.y.setText(""+selected.getY());
-		UI.props.sclx.setText(""+selected.getScaleX());
-		UI.props.scly.setText(""+selected.getScaleY());
 		UI.props.ang.setText(""+selected.getAngle());
 		UI.props.offx.setText(""+selected.getTextureOffsetX());
 		UI.props.offy.setText(""+selected.getTextureOffsetY());
@@ -315,8 +309,6 @@ public class SpritePlacer implements ApplicationListener {
         UI.props.name.setText("");
         UI.props.x.setText("");
         UI.props.y.setText("");
-        UI.props.sclx.setText("");
-        UI.props.scly.setText("");
         UI.props.ang.setText("");
         UI.props.offx.setText("");
         UI.props.offy.setText("");
@@ -451,7 +443,7 @@ public class SpritePlacer implements ApplicationListener {
             shpBatch.rect(selected.getX()-selected.getOriginX(), selected.getY()-selected.getOriginY(),
                         selected.getOriginX(), selected.getOriginY(),
                         selected.getWidth(), selected.getHeight(),
-                        selected.getScaleX(), selected.getScaleY(),
+                        1f,1f,
                         selected.getAngle());
 
             shpBatch.end();

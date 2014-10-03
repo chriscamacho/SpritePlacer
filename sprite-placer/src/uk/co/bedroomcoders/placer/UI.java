@@ -35,8 +35,7 @@ public class UI {
         protected static Table table;
         protected static ScrollPane pane;
         
-        protected static TextField name,x,y,sclx,scly,ang,
-                                    offx,offy,width,height;
+        protected static TextField name,x,y,ang,offx,offy,width,height;
         protected static TextField texture,twidth,theight;
         protected static SelectBox<String> xwrap,ywrap;
 
@@ -107,8 +106,6 @@ public class UI {
 		props.offy = addTextCell(props.table, new TextField("",skin),"offsetY");
 		props.twidth = addTextCell(props.table, new TextField("",skin), "tex width");
 		props.theight = addTextCell(props.table, new TextField("",skin), "tex Height");
-		props.sclx = addTextCell(props.table, new TextField("",skin),"scaleX");
-		props.scly = addTextCell(props.table, new TextField("",skin),"scaleY");
 		props.texture = addTextCell(props.table, new TextField("",skin),"texure");
 
 		props.xwrap = addSelect(props.table, new SelectBox<String>(skin), wraps, "Xwrap");

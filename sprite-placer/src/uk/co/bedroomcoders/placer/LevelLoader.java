@@ -132,7 +132,7 @@ public class LevelLoader
 			}
 
             if (qName.equalsIgnoreCase("pixy")) {
-                px=new Pixy(x,y,ox,oy,width,height,sx,sy,angle,texture,name,wx,wy,tw,th);
+                px=new Pixy(x,y,ox,oy,width,height,angle,texture,name,wx,wy,tw,th);
                 // defaults
                 x=0;y=0;ox=0;oy=0;angle=0;width=0;height=0;texture="";name="";sx=1;sy=1;wx=0;wy=0;tw=0;th=0;
             }

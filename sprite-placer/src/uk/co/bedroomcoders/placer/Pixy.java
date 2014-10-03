@@ -33,8 +33,6 @@ public class Pixy
 	private float angle;
 	private float originX = 0;
 	private float originY = 0;
-	private float scaleX = 1;
-	private float scaleY = 1;
 	private int textureOffsetX = 0;
 	private int textureOffsetY = 0;
 	private Texture texture;
@@ -60,7 +58,7 @@ public class Pixy
     // TODO this is a monster constructor...
     // make smaller and add some multiple setters
 	Pixy(float px, float py, int ox, int oy, int w, int h,
-			float sx, float sy, float a, String textureName, String Name,int wx,int wy,int tw,int th)
+			float a, String textureName, String Name,int wx,int wy,int tw,int th)
 	{
 		setName(Name);
 		setTextureOffsetX(ox);setTextureOffsetY(oy);
@@ -74,7 +72,6 @@ public class Pixy
 		setOriginY(getHeight()/2);
 		setX(px);setY(py);
 		setAngle(a);
-		setScaleX(sx);setScaleY(sy);
 		setTextureWidth(tw);
 		setTextureHeight(th);
 		getPixies().add(this);
@@ -105,7 +102,7 @@ public class Pixy
 
 	public void draw(SpriteBatch sb) {
 		sb.draw(getTexture(), getX()-getOriginX(), getY()-getOriginY(), getOriginX(), getOriginY(), getWidth(), getHeight(),
-					getScaleX(), getScaleY(), getAngle(), getTextureOffsetX(), getTextureOffsetY(), getTextureWidth(), getTextureHeight(), false, false);
+					1f,1f, getAngle(), getTextureOffsetX(), getTextureOffsetY(), getTextureWidth(), getTextureHeight(), false, false);
 					
 	}
 	
@@ -126,8 +123,6 @@ public class Pixy
 		s+="y=\""+getY()+"\" ";
 		s+="ox=\""+getTextureOffsetX()+"\" ";
 		s+="oy=\""+getTextureOffsetY()+"\" ";
-		s+="sx=\""+getScaleX()+"\" ";
-		s+="sy=\""+getScaleY()+"\" ";
 		s+="texture=\""+getTextureFileName()+"\" ";
 		s+="angle=\""+getAngle()+"\" ";
 		s+="width=\""+getWidth()+"\" ";
@@ -189,8 +184,8 @@ public class Pixy
 		float s = (float)Math.sin(-getAngle()*Const.PI180);
 		float rtx = getX() + c * (p.x - getX()) - s * (p.y - getY());
 		float rty = getY() + s * (p.x - getX()) + c * (p.y - getY());
-		float wid = (getWidth() / 2) * getScaleX();
-		float hgt = (getHeight() / 2) * getScaleY();
+		float wid = (getWidth() / 2);
+		float hgt = (getHeight() / 2);
 		float lx = getX() - wid;
 		float rx = getX() + wid;
 		float ty = getY() - hgt;
@@ -266,22 +261,6 @@ public class Pixy
 
 	public void setOriginY(float originY) {
 		this.originY = originY;
-	}
-
-	public float getScaleX() {
-		return scaleX;
-	}
-
-	public void setScaleX(float scaleX) {
-		this.scaleX = scaleX;
-	}
-
-	public float getScaleY() {
-		return scaleY;
-	}
-
-	public void setScaleY(float scaleY) {
-		this.scaleY = scaleY;
 	}
 
 	public int getTextureOffsetX() {
