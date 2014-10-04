@@ -45,7 +45,7 @@ public class Pixy
 	private int textureWidth;
 	private int textureHeight;
     private static final Vector2 tmpV2 = new Vector2();
-    private long uid;
+    private long uid=-1;
 
     private Vector2 savedPosition = new Vector2();
     private float savedAngle;
@@ -119,6 +119,7 @@ public class Pixy
 	public String toXml() {
 		String s = "";
 		s= "    <pixy name=\""+getName()+"\" ";
+        s+="uid=\""+getUID()+"\" ";
 		s+="x=\""+getX()+"\" ";
 		s+="y=\""+getY()+"\" ";
 		s+="ox=\""+getTextureOffsetX()+"\" ";

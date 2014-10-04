@@ -475,13 +475,14 @@ public class SpritePlacer implements ApplicationListener {
 
     // guarantees a unique number when run but may take as much as
     // 1+ MS to return!
-    private static long lastUID=0;
+    private static long lastUID=-1;
     public static long getUID() {
-        long UID=-1;
-        while (UID>lastUID) {
+        long UID=-2;
+        while (UID<=lastUID) {
             UID=System.currentTimeMillis();
         }
         lastUID = UID;
+        //System.out.println("UID="+UID);
         return UID;
     }
 

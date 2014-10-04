@@ -49,12 +49,13 @@ public class LevelLoader
 	}
 	
 	public class levelDefaultHandler extends DefaultHandler {
-		float x,y,sx=1,sy=1,angle;
+		float x,y,angle;
 		int ox,oy,width,height,wx,wy,tw,th;
 		String texture,name,tex;
         Pixy px=null;
         String shpType;
         float shpX,shpY,shpRadius,shpWidth,shpHeight,shpRestitution,shpDensity,shpFriction;
+        long uid;
         String bodyType,script;
         
 		public void startElement(String uri, String localName, String qName, Attributes attributes)
@@ -68,12 +69,10 @@ public class LevelLoader
                 if (qName.equalsIgnoreCase("pixy")) {
                     if (attributes.getQName(i).equalsIgnoreCase("x"))
                         x = Float.valueOf(attributes.getValue(i)).floatValue();
+                    if (attributes.getQName(i).equalsIgnoreCase("uid"))
+                        uid = Long.valueOf(attributes.getValue(i)).longValue();
                     if (attributes.getQName(i).equalsIgnoreCase("y"))
                         y = Float.valueOf(attributes.getValue(i)).floatValue();
-                    if (attributes.getQName(i).equalsIgnoreCase("sx"))
-                        sx = Float.valueOf(attributes.getValue(i)).floatValue();
-                    if (attributes.getQName(i).equalsIgnoreCase("sy"))
-                        sy = Float.valueOf(attributes.getValue(i)).floatValue();
                     if (attributes.getQName(i).equalsIgnoreCase("ox"))
                         ox = Integer.valueOf(attributes.getValue(i)).intValue();
                     if (attributes.getQName(i).equalsIgnoreCase("oy"))
@@ -133,8 +132,11 @@ public class LevelLoader
 
             if (qName.equalsIgnoreCase("pixy")) {
                 px=new Pixy(x,y,ox,oy,width,height,angle,texture,name,wx,wy,tw,th);
-                // defaults
-                x=0;y=0;ox=0;oy=0;angle=0;width=0;height=0;texture="";name="";sx=1;sy=1;wx=0;wy=0;tw=0;th=0;
+                if (uid==0) uid=SpritePlacer.getUID();
+                px.setUID(uid);
+
+                x=0;y=0;ox=0;oy=0;angle=0;width=0;height=0;texture="";name="";wx=0;wy=0;tw=0;th=0;
+                uid=0;
             }
 
             if (qName.equalsIgnoreCase("shape")) {
