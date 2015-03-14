@@ -1,31 +1,73 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <level script="&#xA;
-  function levelLoaded() {&#xA;
-      print('Hello level loaded\n');&#xA;
-  }&#xA;
-  &#xA;
-  function selected(P) {&#xA;
-      print('pixy name = ' + P.getName() +'\n');&#xA;
-  }&#xA;
-  &#xA;
-  function beginContact(contact) {&#xA;
-      boda = contact.getFixtureA().getBody();&#xA;
-      bodb = contact.getFixtureB().getBody();&#xA;
-      man = contact.getWorldManifold();&#xA;
-      vel1 = boda.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;
-      vel2 = bodb.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;
-      impactVelocity = vel1.sub(vel2);&#xA;
-      print('impact speed='+impactVelocity.len()+'\n');&#xA;
-  }&#xA;
-  ">
-    <pixy name="new" uid="1412422658144" x="29.0" y="-177.0" ox="0" oy="0" texture="data/missing.png" angle="0.0" width="256" height="32" xwrap="2" ywrap="0" twidth="256" theight="32" >
+	ball=null;&#xA;
+	moveBall=false;&#xA;
+   function levelLoaded() {&#xA;
+       print('Hello level loaded\n');&#xA;
+   }&#xA;
+   &#xA;
+   function selected(P) {&#xA;
+       print('pixy name = ' + P.getName() +'\n');&#xA;
+   }&#xA;
+   &#xA;
+   function beginContact(contact) {&#xA;
+       boda = contact.getFixtureA().getBody();&#xA;
+       bodb = contact.getFixtureB().getBody();&#xA;
+       man = contact.getWorldManifold();&#xA;
+       vel1 = boda.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;
+       vel2 = bodb.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;
+       impactVelocity = vel1.sub(vel2);&#xA;
+       print('impact speed='+impactVelocity.len()+'\n');&#xA;
+   }&#xA;
+   function endContact(contact) {&#xA;
+       boda = contact.getFixtureA().getBody();&#xA;
+       bodb = contact.getFixtureB().getBody();&#xA;
+       pxy1 = boda.getUserData();&#xA;
+       pxy2 = bodb.getUserData();&#xA;
+       if (pxy2.name.equals('ball')) {&#xA;
+			tmp=pxy2;&#xA;
+			pxy2=pxy1;&#xA;
+			pxy1=tmp;&#xA;
+       }&#xA;
+       // now pxy1 is always the ball&#xA;
+       if (pxy1.name.equals('ball')) {&#xA;
+			if (pxy2.name.equals('buffer')) {&#xA;
+				ball=pxy1;
+				moveBall=true;
+			}&#xA;
+       }&#xA;
+   }&#xA;
+   function afterRender() {&#xA;
+		if (moveBall) {&#xA;
+			moveBall=false;&#xA;
+			ball.setX(-34.0);&#xA;
+			ball.setY(325.0);&#xA;
+		}&#xA;
+   }&#xA;
+   ">
+    <pixy name="new" uid="1412422658144" x="-54.0" y="-80.0" ox="0" oy="0" texture="data/missing.png" angle="0.0" width="256" height="32" xwrap="2" ywrap="0" twidth="256" theight="32" >
         <body type="static" >
             <shape type="box" x="0.0" y="0.0" width="256.0" height="32.0" restitution="0.1" density="0.2" friction="0.1"  />
         </body>
     </pixy>
-    <pixy name="new" uid="1412422658153" x="22.0" y="92.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+    <pixy name="ball" uid="1412422658153" x="-34.0" y="325.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
         <body type="dynamic" >
             <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.6" density="0.2" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="new" uid="1426288568910" x="180.0" y="1.0" ox="0" oy="0" texture="data/gantry.png" angle="45.0" width="256" height="64" xwrap="2" ywrap="0" twidth="256" theight="64" >
+        <body type="static" >
+            <shape type="box" x="0.0" y="0.0" width="256.0" height="64.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="new_clone" uid="1426288678652" x="-4.0" y="204.0" ox="0" oy="0" texture="data/gantry.png" angle="-45.0" width="256" height="64" xwrap="2" ywrap="0" twidth="256" theight="64" >
+        <body type="static" >
+            <shape type="box" x="0.0" y="0.0" width="256.0" height="64.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="buffer" uid="1426288839380" x="-165.0" y="31.0" ox="0" oy="0" texture="data/missing.png" angle="90.0" width="256" height="32" xwrap="2" ywrap="0" twidth="256" theight="32" >
+        <body type="static" >
+            <shape type="box" x="0.0" y="0.0" width="256.0" height="32.0" restitution="0.1" density="0.1" friction="0.4"  />
         </body>
     </pixy>
 </level>
