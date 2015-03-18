@@ -56,6 +56,7 @@ public class LevelLoader
         String shpType;
         float shpX,shpY,shpRadius,shpWidth,shpHeight,shpRestitution,shpDensity,shpFriction;
         long uid;
+        boolean sensor;
         String bodyType,script;
         
 		public void startElement(String uri, String localName, String qName, Attributes attributes)
@@ -122,7 +123,10 @@ public class LevelLoader
                         shpDensity=Float.valueOf(attributes.getValue(i)).floatValue();
                     if (attributes.getQName(i).equalsIgnoreCase("friction"))
                         shpFriction=Float.valueOf(attributes.getValue(i)).floatValue();
-
+                    sensor=false;
+                    if (attributes.getQName(i).equalsIgnoreCase("sensor")) {
+						if (attributes.getValue(i).equals("true")) sensor=true;
+					}
                 }
                 if (qName.equalsIgnoreCase("level")) {
                     if (attributes.getQName(i).equalsIgnoreCase("script"))
@@ -160,9 +164,10 @@ public class LevelLoader
                 fx.setRestitution(shpRestitution);
                 fx.setDensity(shpDensity);
                 fx.setFriction(shpFriction);
+                if (sensor) fx.setSensor(true);
                 px.updateBodyTransform();
                 SpritePlacer.selected=null;
-                shpType="";shpX=0;shpY=0;shpRadius=0;shpWidth=0;shpHeight=0;shpRestitution=0;shpDensity=0;shpFriction=0;
+                shpType="";shpX=0;shpY=0;shpRadius=0;shpWidth=0;shpHeight=0;shpRestitution=0;shpDensity=0;shpFriction=0;sensor=false;
             }
 
 			if(qName.equalsIgnoreCase("level")) SpritePlacer.levelScript=script;

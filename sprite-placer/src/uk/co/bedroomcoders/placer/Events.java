@@ -67,17 +67,31 @@ public class Events implements EventListener, InputProcessor {
         ChangeEvent CE=null;
         Actor target=event.getTarget();
 
+	
+
         if (event.getClass().equals(FocusEvent.class)) {
             FE=(FocusEvent)event;
         }
         
         if (event.getClass().equals(InputEvent.class)) {
             IE=(InputEvent)event;
+
         }
         
         if (event.getClass().equals(ChangeEvent.class)) {
             CE=(ChangeEvent)event;
         }
+        
+        
+        if (target==UI.script.levelScript) {
+			if (IE!=null) {
+				if (IE.getType()==InputEvent.Type.keyTyped) {
+					SpritePlacer.levelScript=UI.script.levelScript.getText();
+					
+				}
+			}
+		}
+		
         
         // selection of texture
         if (FE!=null) {
@@ -110,6 +124,11 @@ public class Events implements EventListener, InputProcessor {
                 SpritePlacer.updateBodyGui();
             }
 
+			if (target==UI.body.isSensor) {
+				//boolean v;
+				//System.out.println("isSensor="+UI.body.isSensor.getSelectedIndex());
+				SpritePlacer.updateProperty(event);
+			}
             
             // new shape type selected
             if (sd!=null) {
@@ -154,6 +173,7 @@ public class Events implements EventListener, InputProcessor {
                                 }
                                 
                             }
+                            UI.script.levelScript.setText(SpritePlacer.levelScript);
                             break;
                         case LEVSAVE:
                             SpritePlacer.saveLevel(fd.getChosen());
@@ -185,6 +205,7 @@ public class Events implements EventListener, InputProcessor {
                     SpritePlacer.world.clearForces();
                     UI.body.win.setVisible(true);
                     UI.props.win.setVisible(true);
+                    UI.script.win.setVisible(true);
                 } else {
                     SpritePlacer.runMode=true;
                     UI.func.run.setText("Edit");
@@ -195,8 +216,20 @@ public class Events implements EventListener, InputProcessor {
                         Pixy p = itr.next();
                         p.saveTransform();
                     }
+                    
+					if (SpritePlacer.levelScript!=null) {
+						try {
+							SpritePlacer.scriptEng.put("engine", SpritePlacer.engine);
+							SpritePlacer.scriptEng.eval(SpritePlacer.levelScript);
+							//SpritePlacer.scriptInvoker.invokeFunction("levelLoaded");                                    
+						} catch (javax.script.ScriptException e) {
+							System.out.println(e.getMessage());
+						}
+					}
+					
                     UI.body.win.setVisible(false);
                     UI.props.win.setVisible(false);
+                    UI.script.win.setVisible(false);
                 }
             }
 
@@ -413,7 +446,7 @@ public class Events implements EventListener, InputProcessor {
     }
 
     public boolean keyTyped(char c) {
-
+System.out.println("char="+c);
         return true;
     }
 

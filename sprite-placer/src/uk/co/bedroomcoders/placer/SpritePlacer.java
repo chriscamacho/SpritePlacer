@@ -228,7 +228,15 @@ public class SpritePlacer implements ApplicationListener {
 
             if (selectedFixture!=null && selected!=null) {
                 Shape shp = selectedFixture.getShape();
-                    
+				
+				if (target == UI.body.isSensor) {
+					if (UI.body.isSensor.getSelectedIndex()==0) {
+						selectedFixture.setSensor(false);
+					} else {
+						selectedFixture.setSensor(true);
+					}
+				}
+				
                 if (target == UI.body.width || target == UI.body.height) {
                     tmpV2.set(parseFloatString(UI.body.width,0)*Const.WORLD2BOX/2f,
                                 parseFloatString(UI.body.height,0)*Const.WORLD2BOX/2f);
@@ -267,11 +275,29 @@ public class SpritePlacer implements ApplicationListener {
 		try 
 		{
 			os.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<level".getBytes());
-
+//System.out.println("levelScript="+levelScript);
             if (levelScript!=null) {
-                os.write((" script=\""+levelScript.replace("\n","&#xA;\n")+"\"").getBytes());
+				String l = levelScript.replace("&","&amp;");
+				l = l.replace("\n","&#xA;");
+				l = l.replace("\r","");
+				l = l.replace("\t","&#x9;");
+				l = l.replace(">","&gt;"); // shouldn't need to but....
+				l = l.replace("<","&lt;");
+				l = l.replace("'","&apos;");
+				l = l.replace("\"","&quot;");
+				l = " script=\""+l;
+/*
+				byte[] cb = l.getBytes();
+				for (byte b : cb) {
+					if (b<32) {
+						System.out.print("b="+b+" ");
+					}
+				}
+				System.out.println("");
+*/
+                os.write(l.getBytes());
             }
-            os.write(">\n".getBytes());
+            os.write("\">\n".getBytes());
 
 			Iterator<Pixy> itr = Pixy.getPixies().iterator();
 			while(itr.hasNext())
@@ -343,8 +369,19 @@ public class SpritePlacer implements ApplicationListener {
                 selectedFixture=selected.body.getFixtureList().get(UI.body.shapeIndex.getSelectedIndex());
                 String sn=new String();
                 
+
+				if (selectedFixture!=null) {
+					System.out.println("sf="+selectedFixture.isSensor());
+					if (selectedFixture.isSensor()) {
+						UI.body.isSensor.setSelectedIndex(1);
+					} else {
+						UI.body.isSensor.setSelectedIndex(0);
+					}
+				}
+                
                 Vector2 p=null;
                 Shape shp = SpritePlacer.selectedFixture.getShape();
+                
                 if (shp.getClass() == CircleShape.class) {
                     p=((CircleShape)shp).getPosition();
                     UI.body.shapeType.setText("Circle");
@@ -391,6 +428,8 @@ public class SpritePlacer implements ApplicationListener {
     
 	@Override
 	public void render() {
+		
+		
 
         try {
             SpritePlacer.scriptInvoker.invokeFunction("beforeRender");                                    

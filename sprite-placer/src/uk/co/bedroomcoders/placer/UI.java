@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -14,6 +15,8 @@ import com.badlogic.gdx.Gdx;
 
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import java.util.Arrays;
+
+import com.badlogic.gdx.math.Vector2;
 
 // STATIC class for holding UI items and intitalising them
 
@@ -29,6 +32,14 @@ public class UI {
         protected static TextButton load,save,remove,
                             add,fixture,clone,run;
     }
+    
+    protected static class script {
+		protected static Window win;
+        protected static Table table;
+        protected static ScrollPane pane;
+        
+        protected static TextArea levelScript;	
+	}
     
     protected static class props {
         protected static Window win;
@@ -48,6 +59,7 @@ public class UI {
 
         protected static SelectBox<String> bodyType;
         protected static SelectBox<String> shapeIndex;
+        protected static SelectBox<String> isSensor;
         protected static TextField shapeType;
         protected static TextField offsetX;
         protected static TextField offsetY;
@@ -93,6 +105,34 @@ public class UI {
 		props.pane = new ScrollPane(props.table);
         props.pane.setFillParent(true);
         props.win.add(props.pane).fill().expand();
+        
+        
+        script.win = new Window("Script",skin);
+        script.win.setWidth(400);
+        script.win.setHeight(100);
+        script.win.setResizeBorder(16);
+        
+        script.table = new Table(skin);
+        
+		script.levelScript = new TextArea("",skin);
+        script.levelScript.addListener(Events.handler);
+		script.levelScript.setUserObject("script");        
+		script.levelScript.setX(10);
+		script.levelScript.setY(10);
+		script.levelScript.setWidth(380);
+		script.levelScript.setHeight(360);
+
+        script.win.add(script.table);
+        script.table.addActor(script.levelScript);        
+        script.win.setResizable(true);
+        
+        //script.win.debug();
+        //script.levelScript.debug();
+        //script.table.debug();
+
+        script.levelScript.setPosition(-195f,-180f);
+        
+
 		
 		props.table.add(new Label("drag to scroll",skin)).colspan(2);
 		props.table.row();
@@ -125,8 +165,9 @@ public class UI {
         
         body.bodyType = addSelect(body.table, new SelectBox<String>(skin), bodyTypes, "type");
         body.shapeIndex = addSelect(body.table, new SelectBox<String>(skin), null, "EDIT: ");
-        body.shapeType = addTextCell(body.table, new TextField("",skin),"type");
+        body.shapeType = addTextCell(body.table, new TextField("",skin),"shape");
         body.shapeType.setDisabled(true);
+        body.isSensor = addSelect(body.table, new SelectBox<String>(skin), new String[]{"false","true"}, "sensor");
         body.offsetX = addTextCell(body.table, new TextField("",skin),"Offset X");
         body.offsetY = addTextCell(body.table, new TextField("",skin),"Offset Y");
         body.width = addTextCell(body.table, new TextField("",skin),"width");
@@ -138,10 +179,15 @@ public class UI {
         		
 		stage.addActor(props.win);
 		props.win.setPosition(8,110);
+		
 		stage.addActor(func.win);
 		func.win.setPosition(8,8);
+        
         stage.addActor(body.win);
         body.win.setPosition(8,280);
+        
+        stage.addActor(script.win);
+        script.win.setPosition(8,480);
     }
 
 

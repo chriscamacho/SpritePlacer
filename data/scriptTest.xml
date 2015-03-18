@@ -1,73 +1,99 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<level script="&#xA;
-	ball=null;&#xA;
-	moveBall=false;&#xA;
-   function levelLoaded() {&#xA;
-       print('Hello level loaded\n');&#xA;
-   }&#xA;
-   &#xA;
-   function selected(P) {&#xA;
-       print('pixy name = ' + P.getName() +'\n');&#xA;
-   }&#xA;
-   &#xA;
-   function beginContact(contact) {&#xA;
-       boda = contact.getFixtureA().getBody();&#xA;
-       bodb = contact.getFixtureB().getBody();&#xA;
-       man = contact.getWorldManifold();&#xA;
-       vel1 = boda.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;
-       vel2 = bodb.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;
-       impactVelocity = vel1.sub(vel2);&#xA;
-       print('impact speed='+impactVelocity.len()+'\n');&#xA;
-   }&#xA;
-   function endContact(contact) {&#xA;
-       boda = contact.getFixtureA().getBody();&#xA;
-       bodb = contact.getFixtureB().getBody();&#xA;
-       pxy1 = boda.getUserData();&#xA;
-       pxy2 = bodb.getUserData();&#xA;
-       if (pxy2.name.equals('ball')) {&#xA;
-			tmp=pxy2;&#xA;
-			pxy2=pxy1;&#xA;
-			pxy1=tmp;&#xA;
-       }&#xA;
-       // now pxy1 is always the ball&#xA;
-       if (pxy1.name.equals('ball')) {&#xA;
-			if (pxy2.name.equals('buffer')) {&#xA;
-				ball=pxy1;
-				moveBall=true;
-			}&#xA;
-       }&#xA;
-   }&#xA;
-   function afterRender() {&#xA;
-		if (moveBall) {&#xA;
-			moveBall=false;&#xA;
-			ball.setX(-34.0);&#xA;
-			ball.setY(325.0);&#xA;
-		}&#xA;
-   }&#xA;
-   ">
-    <pixy name="new" uid="1412422658144" x="-54.0" y="-80.0" ox="0" oy="0" texture="data/missing.png" angle="0.0" width="256" height="32" xwrap="2" ywrap="0" twidth="256" theight="32" >
+<level script="ball=null;&#xA;moveBall=false;&#xA;&#xA;function levelLoaded() {&#xA;    print(&apos;Hello level loaded\n&apos;);&#xA;}&#xA; &#xA;function selected(P) {&#xA;    print(&apos;pixy = &apos; + P.getName() +&apos;\n&apos;);&#xA;}&#xA; &#xA;function beginContact(contact) {&#xA;    boda = contact.getFixtureA().getBody();&#xA;    bodb = contact.getFixtureB().getBody();&#xA;    man = contact.getWorldManifold();&#xA;    vel1 = boda.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;    vel2 = bodb.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;    impactVelocity = vel1.sub(vel2);&#xA;    print(&apos;impact speed=&apos;+impactVelocity.len()+&apos;\n&apos;);&#xA;&#xA;    pxy1 = boda.getUserData();&#xA;    pxy2 = bodb.getUserData();&#xA;    if (pxy2.name.equals(&apos;ball&apos;)) {&#xA;        tmp=pxy2;&#xA;        pxy2=pxy1;&#xA;        pxy1=tmp;&#xA;    }&#xA;    // now pxy1 is always the ball&#xA;    if (pxy1.name.equals(&apos;ball&apos;)) {&#xA;        if (pxy2.name.equals(&apos;buffer&apos;)) {&#xA;            ball=pxy1;&#xA;            moveBall=true;&#xA;        }&#xA;    }&#xA;&#xA;}&#xA;&#xA;function endContact(contact) {&#xA;&#xA;}&#xA;&#xA;function afterRender() {&#xA;    if (moveBall) {&#xA;        moveBall=false;&#xA;        ball.setX(-48.0);&#xA;        ball.setY(168.0);&#xA;    }&#xA;}&#xA;">
+    <pixy name="new" uid="1412422658144" x="-59.0" y="-289.0" ox="0" oy="0" texture="data/missing.png" angle="0.0" width="256" height="32" xwrap="2" ywrap="0" twidth="256" theight="32" >
         <body type="static" >
             <shape type="box" x="0.0" y="0.0" width="256.0" height="32.0" restitution="0.1" density="0.2" friction="0.1"  />
         </body>
     </pixy>
-    <pixy name="ball" uid="1412422658153" x="-34.0" y="325.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+    <pixy name="ball" uid="1412422658153" x="-48.0" y="168.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
         <body type="dynamic" >
             <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.6" density="0.2" friction="0.1"  />
         </body>
     </pixy>
-    <pixy name="new" uid="1426288568910" x="180.0" y="1.0" ox="0" oy="0" texture="data/gantry.png" angle="45.0" width="256" height="64" xwrap="2" ywrap="0" twidth="256" theight="64" >
+    <pixy name="new" uid="1426288568910" x="187.0" y="-181.0" ox="0" oy="0" texture="data/gantry.png" angle="45.0" width="256" height="64" xwrap="2" ywrap="0" twidth="256" theight="64" >
         <body type="static" >
             <shape type="box" x="0.0" y="0.0" width="256.0" height="64.0" restitution="0.1" density="0.1" friction="0.1"  />
         </body>
     </pixy>
-    <pixy name="new_clone" uid="1426288678652" x="-4.0" y="204.0" ox="0" oy="0" texture="data/gantry.png" angle="-45.0" width="256" height="64" xwrap="2" ywrap="0" twidth="256" theight="64" >
+    <pixy name="new_clone" uid="1426288678652" x="-87.0" y="107.0" ox="0" oy="0" texture="data/gantry.png" angle="-45.0" width="384" height="64" xwrap="2" ywrap="0" twidth="256" theight="64" >
         <body type="static" >
-            <shape type="box" x="0.0" y="0.0" width="256.0" height="64.0" restitution="0.1" density="0.1" friction="0.1"  />
+            <shape type="box" x="0.0" y="0.0" width="384.0" height="64.0" restitution="0.1" density="0.1" friction="0.1"  />
         </body>
     </pixy>
-    <pixy name="buffer" uid="1426288839380" x="-165.0" y="31.0" ox="0" oy="0" texture="data/missing.png" angle="90.0" width="256" height="32" xwrap="2" ywrap="0" twidth="256" theight="32" >
+    <pixy name="new" uid="1426288839380" x="-171.0" y="-151.0" ox="0" oy="0" texture="data/missing.png" angle="90.0" width="256" height="32" xwrap="2" ywrap="0" twidth="256" theight="32" >
         <body type="static" >
             <shape type="box" x="0.0" y="0.0" width="256.0" height="32.0" restitution="0.1" density="0.1" friction="0.4"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1426507540314" x="71.0" y="70.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1426507557583" x="172.0" y="-31.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="new_clone" uid="1426683624796" x="269.0" y="100.0" ox="0" oy="0" texture="data/gantry.png" angle="90.0" width="384" height="32" xwrap="2" ywrap="0" twidth="384" theight="64" >
+        <body type="static" >
+            <shape type="box" x="0.0" y="0.0" width="384.0" height="32.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="buffer" uid="1426690206907" x="-155.0" y="-289.0" ox="0" oy="0" texture="data/missing.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="32" theight="32" >
+        <body type="static" >
+            <shape type="box" x="0.0" y="48.0" width="32.0" height="64.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1426690403210" x="-2.0" y="133.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1426690434113" x="100.0" y="33.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1426690459673" x="127.0" y="-97.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="new_clone_clone" uid="1426691729334" x="-1.0" y="275.0" ox="0" oy="0" texture="data/gantry.png" angle="0.0" width="512" height="32" xwrap="2" ywrap="0" twidth="512" theight="64"     />
+    <pixy name="ball" uid="1426691805511" x="34.0" y="101.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1426691824119" x="135.0" y="3.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1426691866378" x="153.0" y="-67.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1426691893445" x="96.0" y="-133.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1426695455732" x="32.0" y="176.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1426695482213" x="72.0" y="143.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1426695504155" x="107.0" y="112.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
         </body>
     </pixy>
 </level>

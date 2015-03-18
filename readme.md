@@ -18,6 +18,8 @@ Unless required by applicable law or agreed to in writing, Licensor provides thi
 
 --- end of licence ---
 
+TODO - issue with sensor setting immediatly after loading a level
+
 Allows the following manipulations on individual sprites
 
 * Name – a textual name that can be used for a sprite, has no functional use in the editor, could be used for user defined data...
