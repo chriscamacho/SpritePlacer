@@ -18,7 +18,6 @@ Unless required by applicable law or agreed to in writing, Licensor provides thi
 
 --- end of licence ---
 
-TODO - issue with sensor setting immediatly after loading a level
 
 Allows the following manipulations on individual sprites
 
@@ -30,6 +29,7 @@ Allows the following manipulations on individual sprites
 * texture – the file name of the texture to use.
 * Xwrap Ywrap – effects how the texture wraps if it is not big enough to cover the sprite.
 * various physics properties (multiple physics shapes per sprite)
+* scripting - ability to run functions each frame and when sprites collide etc
 
 The current sprite is selected with the mouse (or touch) 
 
