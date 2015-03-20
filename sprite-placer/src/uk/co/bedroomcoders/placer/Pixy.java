@@ -167,6 +167,10 @@ public class Pixy
                 s+="density=\""+fx.getDensity()+"\" ";
                 s+="friction=\""+fx.getFriction()+"\" ";
                 
+                if (fx.isSensor()) {
+					s+="sensor=\"true\" ";
+				}
+                
                 s+=" />\n";
             }
             s+="        </body>\n";
