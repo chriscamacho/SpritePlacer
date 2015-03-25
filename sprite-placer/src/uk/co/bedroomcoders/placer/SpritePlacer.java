@@ -13,18 +13,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-
-import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.InputMultiplexer;
 
 import com.badlogic.gdx.utils.Array;
@@ -46,8 +34,11 @@ import com.badlogic.gdx.math.Vector2;
 import java.lang.Throwable;
 import java.lang.Exception;
 
-
 import javax.script.*;
+
+
+import javax.swing.JLabel;
+
 
 public class SpritePlacer implements ApplicationListener { 
 
@@ -78,6 +69,7 @@ public class SpritePlacer implements ApplicationListener {
     protected static ScriptEngine scriptEng = scriptMan.getEngineByName("JavaScript");
     protected static String levelScript="";
     protected static Invocable scriptInvoker;
+    protected static String levelToLoad=null;
 
     protected static ContactListener scl = new ScriptContactListener();
 
@@ -105,7 +97,7 @@ public class SpritePlacer implements ApplicationListener {
         clearBodyGui();
 
 		InputMultiplexer multiplexer = new InputMultiplexer();
-		multiplexer.addProcessor(UI.stage);
+		//multiplexer.addProcessor(UI.stage);
 		multiplexer.addProcessor(Events.handler);
 		Gdx.input.setInputProcessor(multiplexer);
 
@@ -122,151 +114,6 @@ public class SpritePlacer implements ApplicationListener {
 		batch.dispose();
 	}
 	
-	// converts an input string to a float, if the conversion fails the string
-	// is replaced with a string of the existing property value.
-	protected static float parseFloatString(TextField tf, float v)
-	{
-		float f;
-		try {
-			f = Float.parseFloat(tf.getText());
-		} catch (Exception e) {
-			f = v;
-			tf.setText(Float.toString(v));
-		}
-		return f;
-	}
-
-	// updates pixy properties depending on current UI widget
-	protected static void updateProperty( Event event)
-	{
-		if (selected!=null) { // only if selected
-            Actor target = event.getTarget();
-			if (target == UI.props.name)
-                    selected.setName(UI.props.name.getText());
-			if (target == UI.props.twidth)
-                    selected.setTextureWidth((int)parseFloatString(UI.props.twidth,selected.getTextureWidth()));
-			if (target == UI.props.theight)
-                    selected.setTextureHeight((int)parseFloatString(UI.props.theight,selected.getTextureHeight()));
-			if (target == UI.props.x)
-                    selected.setX(parseFloatString(UI.props.x,selected.getX()));
-			if (target == UI.props.y)
-                    selected.setY(parseFloatString(UI.props.y,selected.getY()));
-			if (target == UI.props.ang)
-                    selected.setAngle(parseFloatString(UI.props.ang,selected.getAngle()));
-			if (target == UI.props.width) {
-				selected.setWidth((int)parseFloatString(UI.props.width,selected.getWidth()));
-				selected.setOriginX(selected.getWidth() / 2);
-			}
-			if (target == UI.props.height) {
-				selected.setHeight((int)parseFloatString(UI.props.height,selected.getHeight()));
-				selected.setOriginY(selected.getHeight() / 2);
-			}
-			if (target == UI.props.offx) {
-				selected.setTextureOffsetX((int)parseFloatString(UI.props.offx,selected.getTextureOffsetX()));
-            }
-			if (target == UI.props.offy) {
-				selected.setTextureOffsetY((int)parseFloatString(UI.props.offy,selected.getTextureOffsetX()));
-            }
-			if (target == UI.props.texture) {
-				selected.setTextureFileName(UI.props.texture.getText());
-				try
-				{
-                    selected.setTexture(new Texture(Gdx.files.internal(selected.getTextureFileName())));
-				} 
-				catch (Exception e)
-				{
-					selected.setTexture(Pixy.getBrokenTexture());
-					UI.props.texture.setText("missing!");
-				}
-			}
-			if (target == UI.props.xwrap)
-			{
-				int s = UI.props.xwrap.getSelectedIndex();
-				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
-						selected.setxWrap(Texture.TextureWrap.ClampToEdge.ordinal()); 
-				if ( s == Texture.TextureWrap.Repeat.ordinal() )
-						selected.setxWrap(Texture.TextureWrap.Repeat.ordinal()); 
-				if ( s == Texture.TextureWrap.MirroredRepeat.ordinal() )
-						selected.setxWrap(Texture.TextureWrap.MirroredRepeat.ordinal()); 
-			}
-			
-			if (target == UI.props.ywrap)
-			{
-				int s = UI.props.ywrap.getSelectedIndex();
-				if ( s == Texture.TextureWrap.ClampToEdge.ordinal() )
-						selected.setyWrap(Texture.TextureWrap.ClampToEdge.ordinal()); 
-				if ( s == Texture.TextureWrap.Repeat.ordinal() )
-						selected.setyWrap(Texture.TextureWrap.Repeat.ordinal()); 
-				if ( s == Texture.TextureWrap.MirroredRepeat.ordinal() )
-						selected.setyWrap(Texture.TextureWrap.MirroredRepeat.ordinal()); 
-			}
-			
-			if (target == UI.props.xwrap ||
-                target == UI.props.ywrap)
-			{
-				selected.getTexture().setWrap(
-						Texture.TextureWrap.values()[selected.getxWrap()],
-						Texture.TextureWrap.values()[selected.getyWrap()]
-					);
-			}
-
-            
-            if (target == UI.body.offsetX || target == UI.body.offsetY) {
-                tmpV2.set(parseFloatString(UI.body.offsetX,0)*Const.WORLD2BOX,
-                            parseFloatString(UI.body.offsetY,0)*Const.WORLD2BOX);
-                Shape shp = selectedFixture.getShape();
-                if (shp.getClass() == CircleShape.class) {
-                    ((CircleShape)shp).setPosition(tmpV2);
-                }
-
-                if (shp.getClass() == PolygonShape.class) {
-                    BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
-                    bs.setPosition(tmpV2);
-                    bs.update();
-                }
-            }
-
-            if (selectedFixture!=null && selected!=null) {
-                Shape shp = selectedFixture.getShape();
-				
-				if (target == UI.body.isSensor) {
-					if (UI.body.isSensor.getSelectedIndex()==0) {
-						selectedFixture.setSensor(false);
-					} else {
-						selectedFixture.setSensor(true);
-					}
-				}
-				
-                if (target == UI.body.width || target == UI.body.height) {
-                    tmpV2.set(parseFloatString(UI.body.width,0)*Const.WORLD2BOX/2f,
-                                parseFloatString(UI.body.height,0)*Const.WORLD2BOX/2f);
-                    if (shp.getClass() == CircleShape.class) {
-                        ((CircleShape)shp).setRadius(tmpV2.x*2f); // radius not width so undo /2 correction
-                        //System.out.println("radius update prop "+(tmpV2.x*2f));
-                    }
-                    if (shp.getClass() == PolygonShape.class) {
-                        BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
-                        bs.setSize(tmpV2);
-                        bs.update();
-                    }
-                }
-
-                if (target == UI.body.restitution) {
-                    selectedFixture.setRestitution(parseFloatString(UI.body.restitution,0));
-                }
-
-                if (target == UI.body.friction) {
-                    selectedFixture.setFriction(parseFloatString(UI.body.friction,0));
-                }
-
-                if (target == UI.body.density) {
-                    selectedFixture.setDensity(parseFloatString(UI.body.density,0));
-                    selected.body.resetMassData();
-                }
-            }
-		}
-	}
-
 
     // iterate all pixies making them dump themselves to xml
 	protected static void saveLevel(String fname)
@@ -286,15 +133,7 @@ public class SpritePlacer implements ApplicationListener {
 				l = l.replace("'","&apos;");
 				l = l.replace("\"","&quot;");
 				l = " script=\""+l;
-/*
-				byte[] cb = l.getBytes();
-				for (byte b : cb) {
-					if (b<32) {
-						System.out.print("b="+b+" ");
-					}
-				}
-				System.out.println("");
-*/
+
                 os.write(l.getBytes());
             }
             os.write("\">\n".getBytes());
@@ -316,35 +155,39 @@ public class SpritePlacer implements ApplicationListener {
 
     // updates the gui controls from a pixy
 	protected static void updatePropGui() {
-		UI.props.name.setText(selected.getName());
-		UI.props.x.setText(""+selected.getX());
-		UI.props.y.setText(""+selected.getY());
-		UI.props.ang.setText(""+selected.getAngle());
-		UI.props.offx.setText(""+selected.getTextureOffsetX());
-		UI.props.offy.setText(""+selected.getTextureOffsetY());
-		UI.props.width.setText(""+selected.getWidth());
-		UI.props.height.setText(""+selected.getHeight());
-		UI.props.twidth.setText(""+selected.getTextureWidth());
-		UI.props.theight.setText(""+selected.getTextureHeight());
-		UI.props.texture.setText(selected.getTextureFileName());
-		UI.props.xwrap.setSelectedIndex(selected.getxWrap());
-		UI.props.ywrap.setSelectedIndex(selected.getyWrap());		
+        
+        UI.props.Name.setText(selected.getName());
+        UI.props.xpos.setText(""+selected.getX());
+        UI.props.ypos.setText(""+selected.getY());
+        UI.props.Ang.setText(""+selected.getAngle());
+        UI.props.Offx.setText(""+selected.getTextureOffsetX());
+        UI.props.Offy.setText(""+selected.getTextureOffsetY());
+        UI.props.Width.setText(""+selected.getWidth());
+        UI.props.Height.setText(""+selected.getHeight());
+        UI.props.Twidth.setText(""+selected.getTextureWidth());
+        UI.props.Theight.setText(""+selected.getTextureHeight());
+        UI.props.Texture.setText(""+selected.getTextureFileName());
+        UI.props.Xwrap.setSelectedIndex(selected.getxWrap());
+        UI.props.Ywrap.setSelectedIndex(selected.getyWrap());			
+        
 	}
 
     protected static void clearPropsGui() {
-        UI.props.name.setText("");
-        UI.props.x.setText("");
-        UI.props.y.setText("");
-        UI.props.ang.setText("");
-        UI.props.offx.setText("");
-        UI.props.offy.setText("");
-        UI.props.width.setText("");
-        UI.props.height.setText("");
-        UI.props.twidth.setText("");
-        UI.props.theight.setText("");
-        UI.props.texture.setText("");
-        UI.props.xwrap.setSelectedIndex(0);
-        UI.props.ywrap.setSelectedIndex(0);
+        
+        UI.props.Name.setText("");
+        UI.props.xpos.setText("");
+        UI.props.ypos.setText("");
+        UI.props.Ang.setText("");
+        UI.props.Offx.setText("");
+        UI.props.Offy.setText("");
+        UI.props.Width.setText("");
+        UI.props.Height.setText("");
+        UI.props.Twidth.setText("");
+        UI.props.Theight.setText("");
+        UI.props.Texture.setText("");
+        UI.props.Xwrap.setSelectedIndex(0);
+        UI.props.Ywrap.setSelectedIndex(0);
+      
     }
 
 
@@ -353,60 +196,66 @@ public class SpritePlacer implements ApplicationListener {
         clearBodyGui();
         if (selected!=null ) {
             if (selected.body!=null) {
-                UI.body.bodyType.setVisible(true);
-                UI.body.shapeIndex.setVisible(true);
-                UI.body.bodyType.setSelectedIndex(SpritePlacer.selected.body.getType().getValue());
-
-                if (UI.body.shapeIndex.getItems().size!=selected.body.getFixtureList().size) {
-                    int i=0;
-                    Array<String> lst=new Array<String>();
-                    for(Fixture f : selected.body.getFixtureList()) {
-                        lst.add("shape "+i);
-                        i++;
-                    }
-                    UI.body.shapeIndex.setItems(lst); 
-                }
-                selectedFixture=selected.body.getFixtureList().get(UI.body.shapeIndex.getSelectedIndex());
-                String sn=new String();
-                
-
-				if (selectedFixture!=null) {
-					System.out.println("sf="+selectedFixture.isSensor());
-					if (selectedFixture.isSensor()) {
-						UI.body.isSensor.setSelectedIndex(1);
-					} else {
-						UI.body.isSensor.setSelectedIndex(0);
-					}
-				}
                 
                 Vector2 p=null;
+                
+                UI.body.BodyType.setVisible(true);
+                UI.body.ShapeIndex.setVisible(true);
+                
+                UI.body.BodyType.setSelectedIndex(SpritePlacer.selected.body.getType().getValue());
+
+                if (UI.body.ShapeIndex.getItemCount()!=selected.body.getFixtureList().size) {
+					UI.body.ShapeIndex.removeActionListener(Events.handler);
+                    int i=0;
+                    UI.body.ShapeIndex.removeAllItems();
+                    for(Fixture f : selected.body.getFixtureList()) {
+						//System.out.println("i="+i);
+						UI.body.ShapeIndex.addItem("Shape "+i);
+                        i++;
+                    }
+                    UI.body.ShapeIndex.addActionListener(Events.handler);
+                }
+                
+                                
+                selectedFixture=selected.body.getFixtureList().get(UI.body.ShapeIndex.getSelectedIndex());
                 Shape shp = SpritePlacer.selectedFixture.getShape();
                 
+				if (selectedFixture!=null) {
+					if (selectedFixture.isSensor()) {
+						UI.body.IsSensor.setSelectedIndex(1);
+					} else {
+						UI.body.IsSensor.setSelectedIndex(0);
+					}
+				}
+				
                 if (shp.getClass() == CircleShape.class) {
                     p=((CircleShape)shp).getPosition();
-                    UI.body.shapeType.setText("Circle");
-                    UI.body.height.setVisible(false);
-                    ((Label)UI.body.width.getUserObject()).setText("Radius");
-                    UI.body.width.setText(""+(((CircleShape)shp).getRadius()*Const.BOX2WORLD));
+                    UI.body.ShapeType.setText("Circle");
+                    UI.body.Height.setVisible(false);
+                    UI.body.radiusLabel.setText("Radius");
+                    UI.body.Width.setText(""+(((CircleShape)shp).getRadius()*Const.BOX2WORLD));
                     //System.out.println("set text from getRadius "+(((CircleShape)shp).getRadius()*Const.BOX2WORLD));
                 }
 
                 if (shp.getClass() == PolygonShape.class) {
                     p=BoxShape.fauxCast((PolygonShape)shp).getPosition();
-                    UI.body.shapeType.setText("Box");
-                    UI.body.height.setVisible(true);
-                    ((Label)UI.body.width.getUserObject()).setText("Width");
+                    UI.body.ShapeType.setText("Box");
+                    UI.body.Height.setVisible(true);
+                    UI.body.radiusLabel.setText("Width");
                     tmpV2.set(BoxShape.fauxCast((PolygonShape)shp).getSize());
-                    UI.body.width.setText(""+(tmpV2.x*Const.BOX2WORLD*2));
-                    UI.body.height.setText(""+(tmpV2.y*Const.BOX2WORLD*2));
+                    UI.body.Width.setText(""+(tmpV2.x*Const.BOX2WORLD*2));
+                    UI.body.Height.setText(""+(tmpV2.y*Const.BOX2WORLD*2));
                 }
+                 
+                 
                 if (p!=null) {
-                    UI.body.offsetX.setText(""+(p.x*Const.BOX2WORLD));
-                    UI.body.offsetY.setText(""+(p.y*Const.BOX2WORLD));
+                    UI.body.OffsetX.setText(""+(p.x*Const.BOX2WORLD));
+                    UI.body.OffsetY.setText(""+(p.y*Const.BOX2WORLD));
                 }
-                UI.body.restitution.setText(""+selectedFixture.getRestitution());
-                UI.body.density.setText(""+selectedFixture.getDensity());
-                UI.body.friction.setText(""+selectedFixture.getFriction());
+                UI.body.Restitution.setText(""+selectedFixture.getRestitution());
+                UI.body.Density.setText(""+selectedFixture.getDensity());
+                UI.body.Friction.setText(""+selectedFixture.getFriction());								
+                
             }  
         } 
          
@@ -414,13 +263,14 @@ public class SpritePlacer implements ApplicationListener {
 
 
     protected static void clearBodyGui() {
-        UI.body.bodyType.setVisible(false);
-        UI.body.shapeIndex.setVisible(false);
-        UI.body.shapeType.setText("");
-        UI.body.offsetX.setText("");
-        UI.body.offsetY.setText("");
-        UI.body.width.setText("");
-        UI.body.height.setText("");
+        
+        UI.body.BodyType.setVisible(false);
+        UI.body.ShapeIndex.setVisible(false);
+        UI.body.ShapeType.setText("");
+        UI.body.OffsetX.setText("");
+        UI.body.OffsetY.setText("");
+        UI.body.Width.setText("");
+        UI.body.Height.setText("");  
     }
 
     float accumulator;
@@ -429,7 +279,22 @@ public class SpritePlacer implements ApplicationListener {
 	@Override
 	public void render() {
 		
-		
+		if (levelToLoad!=null) { // because swing thread doesn't have the GL context...
+			LevelLoader ll = new LevelLoader(levelToLoad);
+			if (SpritePlacer.levelScript!=null) {
+				try {
+					SpritePlacer.scriptEng.put("engine", SpritePlacer.engine);
+					SpritePlacer.scriptEng.eval(SpritePlacer.levelScript);
+					SpritePlacer.scriptInvoker.invokeFunction("levelLoaded");                                    
+				} catch (javax.script.ScriptException ex) {
+					System.out.println(ex.getMessage());
+				} catch (NoSuchMethodException ex) {
+					System.out.println("[Warning] levelLoaded missing");
+				}
+			}
+			UI.script.textArea.setText(SpritePlacer.levelScript);	
+			levelToLoad=null;
+		}
 
         try {
             SpritePlacer.scriptInvoker.invokeFunction("beforeRender");                                    
@@ -498,9 +363,6 @@ public class SpritePlacer implements ApplicationListener {
             }
 
         }
-
-		UI.stage.act();
-		UI.stage.draw();
 
         try {
             SpritePlacer.scriptInvoker.invokeFunction("afterRender");                                    

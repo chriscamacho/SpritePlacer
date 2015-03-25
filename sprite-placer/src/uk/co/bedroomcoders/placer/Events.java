@@ -1,16 +1,8 @@
 package uk.co.bedroomcoders.placer;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.FocusListener.FocusEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
+import com.badlogic.gdx.graphics.Texture;
+
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.math.Vector2;
@@ -26,313 +18,291 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 
 import uk.co.bedroomcoders.fileDialog.fileDialog;
 
-
+import java.awt.event.KeyListener;
+import java.awt.event.FocusListener;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.ActionEvent;
+import java.awt.Component;
+import javax.swing.JTextField;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import java.io.File;
 
 /*
  *  handles events
  *
  *  really part of the SpritePlacer class but moved to its own
  *  class just to make for more managable sized sources
- *                      
+ *
+ *  also keeps all the event handling stuff in one place!                      
  */
 
-public class Events implements EventListener, InputProcessor {
+public class Events implements InputProcessor, KeyListener, FocusListener, ActionListener {
 
     protected static Events handler;
-
-    private fileDialog fd=null;
-    private Dialog sd;
-    private enum dialogModes { LEVLOAD, LEVSAVE, TEXLOAD };
-    private dialogModes dialogMode;
-    private TextButton butCircle,butBox,butCancel;
 
     private Vector2 tmpV2 = new Vector2();
     private Vector3 tmpV3 = new Vector3();
         
     Events() {
-        butCircle=new TextButton("Circle",UI.skin);
-        butBox=new TextButton("Box",UI.skin);
-        butCancel=new TextButton("Cancel",UI.skin);
+
     }
+    
 
-    public boolean handle(Event event) {
-        
-        //System.out.println(event+" "+event.getTarget().toString());
+	public void keyPressed(KeyEvent keyEvent) {
+		//System.out.println("Pressed "+keyEvent);
+	}
+	
+	public void keyReleased(KeyEvent keyEvent) {
+		//System.out.println("Released "+keyEvent);
+	}
+	
+	// if enter pressed pretend we lost focus so an update happens
+	public void keyTyped(KeyEvent keyEvent) {
+		if (keyEvent.getKeyChar() == KeyEvent.VK_ENTER) {
+			FocusEvent fe = new FocusEvent((Component)(keyEvent.getSource()),0);
+			focusLost(fe);
+		}
+	}   
 
-        FocusEvent FE=null;  // rather than lots of casts...
-        InputEvent IE=null;
-        ChangeEvent CE=null;
-        Actor target=event.getTarget();
 
 	
-
-        if (event.getClass().equals(FocusEvent.class)) {
-            FE=(FocusEvent)event;
-        }
-        
-        if (event.getClass().equals(InputEvent.class)) {
-            IE=(InputEvent)event;
-
-        }
-        
-        if (event.getClass().equals(ChangeEvent.class)) {
-            CE=(ChangeEvent)event;
-        }
-        
-        
-        if (target==UI.script.levelScript) {
-			if (IE!=null) {
-				if (IE.getType()==InputEvent.Type.keyTyped) {
-					SpritePlacer.levelScript=UI.script.levelScript.getText();
-					
+	public void actionPerformed(ActionEvent e) {
+		//System.out.println("e="+e);
+		if (SpritePlacer.selected!=null) {
+			
+			if (e.getSource()==UI.props.Xwrap) SpritePlacer.selected.setxWrap(UI.props.Xwrap.getSelectedIndex()); 
+			if (e.getSource()==UI.props.Ywrap) SpritePlacer.selected.setyWrap(UI.props.Ywrap.getSelectedIndex()); 
+			if (e.getSource()==UI.props.Texture) {
+				UI.setImgFilter();
+				int returnVal = UI.fileChooser.showOpenDialog(null);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = UI.fileChooser.getSelectedFile();
+					//System.out.println("file="+file.getName());
+					UI.props.Texture.setText("data/"+file.getName());
+					SpritePlacer.selected.textureDirty = true;
 				}
 			}
-		}
-		
-        
-        // selection of texture
-        if (FE!=null) {
-            // using a textField as if its a button
-            // TODO fix!
-            if (target == UI.props.texture && FE.isFocused()) {
-                fd = new fileDialog("Select texture", "data/", UI.stage, UI.skin, ".\\.jpg|.\\.png" );
-                UI.stage.addActor(fd);
-                fd.addListener(this);
-                dialogMode = dialogModes.TEXLOAD;
-            }
-        }
-
-        // pressing enter updates an edited property
-		if (SpritePlacer.selected!=null) {
-            // no event object in keyup method..... need target and
-            // whole event for update property
-            if (IE!=null) {
-                if ( IE.getType()==InputEvent.Type.keyUp ) {  // enter key updates pixy property
-                    if (IE.getKeyCode() == Keys.ENTER) {
-                        SpritePlacer.updateProperty(event);
-                    }
-                }
-            }
-		}
-
-        if (CE!=null) { // deal with change event
-
-            if (target==UI.body.shapeIndex) {
-                SpritePlacer.updateBodyGui();
-            }
-
-			if (target==UI.body.isSensor) {
-				//boolean v;
-				//System.out.println("isSensor="+UI.body.isSensor.getSelectedIndex());
-				SpritePlacer.updateProperty(event);
+			if (e.getSource()==UI.body.BodyType) {
+				SpritePlacer.selected.body.setType(
+					BodyDef.BodyType.values()[UI.body.BodyType.getSelectedIndex()]
+				);				
 			}
-            
-            // new shape type selected
-            if (sd!=null) {
-                if (target==butCircle) {
+			if (e.getSource()==UI.body.ShapeIndex) {
+				SpritePlacer.updateBodyGui();
+			}
+			if (e.getSource()==UI.body.IsSensor) {
+				if (SpritePlacer.selectedFixture!=null && SpritePlacer.selected!=null) {
+					if (UI.body.IsSensor.getSelectedIndex()==1) SpritePlacer.selectedFixture.setSensor(true);
+					if (UI.body.IsSensor.getSelectedIndex()==0) SpritePlacer.selectedFixture.setSensor(false);
+				}
+			}
+			if (e.getSource()==UI.func.Remove) {
+				Pixy.getPixies().remove(SpritePlacer.selected);
+				SpritePlacer.selected=null;
+				SpritePlacer.clearPropsGui();
+				SpritePlacer.clearBodyGui();				
+			}
+			if (e.getSource()==UI.func.Clone) {
+				// TODO clone physics as well
+				Pixy c = SpritePlacer.selected;
+				Pixy p = new Pixy(c.getX()+8f,c.getY()+8f,
+									c.getTextureOffsetX(), c.getTextureOffsetY(),
+									c.getWidth(),c.getHeight(),
+									c.getAngle(), c.getTextureFileName(),
+									c.getName()+"_clone", c.getxWrap(),c.getyWrap(),
+									c.getTextureWidth(),c.getTextureHeight());
+				SpritePlacer.selected = p;
+				SpritePlacer.updatePropGui();
+			}
+			if (e.getSource()==UI.func.Fixture) {
+				String[] buttons = { "Circle", "Box", "Cancel" };
+				int rc = JOptionPane.showOptionDialog(null, "Select physics shape to add", "Sprite-Placer",
+					JOptionPane.PLAIN_MESSAGE, 0, null, buttons, buttons[2]);
+
+                if (rc==0) {
                     SpritePlacer.selected.addCircleShape();
                     SpritePlacer.updateBodyGui();
                 }
                 
-                if (target==butBox) {
+                if (rc==1) {
                     SpritePlacer.selected.addBoxShape();
                     SpritePlacer.updateBodyGui();
                 }
-                
-                sd=null;
-            }
-            
-            // file dialog return for save/load level and load texture
-            if (fd!=null) {
-                if (target == fd.ok) {
-                    switch(dialogMode) {
-                        case LEVLOAD:
-                            Pixy.getPixies().clear();
-                            Array<Body> bodies = new Array<Body>();
-                            SpritePlacer.world.getBodies(bodies);
-                            for (Body b : bodies) {
-                                SpritePlacer.world.destroyBody(b);
-                                // TODO double check GC will catch BoxShape wrapper
-                            }
-                            SpritePlacer.selected=null;
-                            SpritePlacer.levelScript=null;
-                            LevelLoader ll = new LevelLoader(fd.getChosen());
-
-                            if (SpritePlacer.levelScript!=null) {
-                                try {
-                                    SpritePlacer.scriptEng.put("engine", SpritePlacer.engine);
-                                    SpritePlacer.scriptEng.eval(SpritePlacer.levelScript);
-                                    SpritePlacer.scriptInvoker.invokeFunction("levelLoaded");                                    
-                                } catch (javax.script.ScriptException e) {
-                                    System.out.println(e.getMessage());
-                                } catch (NoSuchMethodException e) {
-                                    System.out.println("[Warning] levelLoaded missing");
-                                }
-                                
-                            }
-                            UI.script.levelScript.setText(SpritePlacer.levelScript);
-                            break;
-                        case LEVSAVE:
-                            SpritePlacer.saveLevel(fd.getChosen());
-                            break;
-                        case TEXLOAD:
-                            UI.props.texture.setText(fd.getChosen());
-                            event.setTarget(UI.props.texture);
-                            SpritePlacer.updateProperty(event);
-                            break;
-                    } 
-                }
-                fd=null; 
-            }
-
-            if (target == UI.func.run) {
-                if (SpritePlacer.runMode) {
-                    SpritePlacer.runMode=false;
-                    UI.func.run.setText("Run");
-                    // restore position and rotation clear velocities and forces
-                    Iterator<Pixy> itr = Pixy.getPixies().iterator();
-                    while(itr.hasNext()) {
-                        Pixy p = itr.next();
-                        p.restoreSavedTransform();
-                        if (p.body!=null) {
-                            p.body.setAngularVelocity(0);
-                            p.body.setLinearVelocity(0,0);
-                        }
-                    }                   
-                    SpritePlacer.world.clearForces();
-                    UI.body.win.setVisible(true);
-                    UI.props.win.setVisible(true);
-                    UI.script.win.setVisible(true);
-                } else {
-                    SpritePlacer.runMode=true;
-                    UI.func.run.setText("Edit");
-
-                    // save position and rotation for restore
-                    Iterator<Pixy> itr = Pixy.getPixies().iterator();
-                    while(itr.hasNext()) {
-                        Pixy p = itr.next();
-                        p.saveTransform();
-                    }
-                    
-					if (SpritePlacer.levelScript!=null) {
-						try {
-							SpritePlacer.scriptEng.put("engine", SpritePlacer.engine);
-							SpritePlacer.scriptEng.eval(SpritePlacer.levelScript);
-							//SpritePlacer.scriptInvoker.invokeFunction("levelLoaded");                                    
-						} catch (javax.script.ScriptException e) {
-							System.out.println(e.getMessage());
-						}
-					}
-					
-                    UI.body.win.setVisible(false);
-                    UI.props.win.setVisible(false);
-                    UI.script.win.setVisible(false);
-                }
-            }
-
-            // new pixy
-            if (target == UI.func.add) { // create a new pixy with default values
-				SpritePlacer.selected = new Pixy(0,0,0,0,32,32,0,
-                                            "data/missing.png","new",
-                                            0,0,32,32);
-                SpritePlacer.updatePropGui();
-                SpritePlacer.updateBodyGui();
 			}
+			
+		}
 
-            // copy an existing pixy
-            if (target == UI.func.clone) {
-                if (SpritePlacer.selected!=null) {
-                    Pixy c = SpritePlacer.selected;
-                    Pixy p = new Pixy(c.getX()+8f,c.getY()+8f,
-                                        c.getTextureOffsetX(), c.getTextureOffsetY(),
-                                        c.getWidth(),c.getHeight(),
-                                        c.getAngle(), c.getTextureFileName(),
-                                        c.getName()+"_clone", c.getxWrap(),c.getyWrap(),
-                                        c.getTextureWidth(),c.getTextureHeight());
-                    SpritePlacer.selected = p;
-                    UI.props.x.setText(""+SpritePlacer.selected.getX());
-                    UI.props.y.setText(""+SpritePlacer.selected.getY());
-                }               
-            }
+		if (e.getSource()==UI.func.Load) {
+			UI.setLevelFilter();
+			int returnVal = UI.fileChooser.showOpenDialog(null);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = UI.fileChooser.getSelectedFile();
+				Pixy.getPixies().clear();
+				Array<Body> bodies = new Array<Body>();
+				SpritePlacer.world.getBodies(bodies);
+				for (Body b : bodies) {
+					SpritePlacer.world.destroyBody(b);
+					// TODO double check GC will catch BoxShape wrapper
+				}
+				SpritePlacer.selected=null;
+				SpritePlacer.levelScript=null;
+				
+				SpritePlacer.levelToLoad="data/"+file.getName();			
+			}			
+		}
+		if (e.getSource()==UI.func.Save) {
+			UI.setLevelFilter();
+			int returnVal = UI.fileChooser.showOpenDialog(null);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = UI.fileChooser.getSelectedFile();
+				SpritePlacer.levelScript=UI.script.textArea.getText();
+				SpritePlacer.saveLevel("data/"+file.getName());
+			}			
+		}
 
-			if (target == UI.func.save) {
-                fd = new fileDialog("Select file to save", "data/", UI.stage, UI.skin, ".\\.xml");
-                UI.stage.addActor(fd);
-                fd.addListener(this);
-                dialogMode = dialogModes.LEVSAVE;
+		if (e.getSource()==UI.func.Run) {
+			SpritePlacer.runMode=true;
+			SpritePlacer.levelScript=UI.script.textArea.getText();
+
+			// save position and rotation for restore
+			Iterator<Pixy> itr = Pixy.getPixies().iterator();
+			while(itr.hasNext()) {
+				Pixy p = itr.next();
+				p.saveTransform();
 			}
-            
-            if (target == UI.func.load) {
-                fd = new fileDialog("Select file to load", "data/", UI.stage, UI.skin, ".\\.xml");
-                UI.stage.addActor(fd);
-                fd.addListener(this);
-                dialogMode = dialogModes.LEVLOAD;
-            }
-
-            // adding a new fixture to a body
-            if (target == UI.func.fixture && SpritePlacer.selected!=null) {
-                sd = new Dialog("Shape type",UI.skin);
-                sd.button(butCircle);
-                sd.button(butBox);
-                sd.button(butCancel);
-                sd.getContentTable().add(new Label("Select a shape type",UI.skin));
-                sd.pack();
-                UI.stage.addActor(sd);
-                sd.addListener(this);
-                sd.setPosition((UI.stage.getWidth()/2)-(sd.getWidth()/2),
-                                (UI.stage.getHeight()/2)-(sd.getHeight()/2));
-
-            }
-            
-            // texture wrap mode
-            if (target == UI.props.xwrap ||
-                target == UI.props.ywrap) {
-				SpritePlacer.updateProperty(event);
-            }
-
-            // remove an existing pixy
-			if (target == UI.func.remove) {
-				if (SpritePlacer.selected!=null) {
-					Pixy.getPixies().remove(SpritePlacer.selected);
-					SpritePlacer.selected=null;
-                    SpritePlacer.clearPropsGui();
-                    SpritePlacer.clearBodyGui();
+			
+			// re-evaluate any possibly changed functions
+			if (SpritePlacer.levelScript!=null) {
+				try {
+					SpritePlacer.scriptEng.put("engine", SpritePlacer.engine);
+					SpritePlacer.scriptEng.eval(SpritePlacer.levelScript);
+				} catch (javax.script.ScriptException ex) {
+					System.out.println(ex.getMessage());
 				}
 			}
-
-            if (target == UI.body.bodyType) {
-                if (SpritePlacer.selected!=null) {
-                    if (SpritePlacer.selected.body!=null) {
-                        SpritePlacer.selected.body.setType(
-                            BodyDef.BodyType.values()[UI.body.bodyType.getSelectedIndex()]
-                            );
-                    }
-                }
-            }
 			
-			return true;
+			UI.script.scriptWindow.setVisible(false);
+			UI.body.bodyWindow.setVisible(false);
+			UI.props.propsWindow.setVisible(false);
+			UI.func.FuncWin.setVisible(false);			
 		}
-				
-		if (event.getClass().equals(FocusEvent.class)) {
-			SpritePlacer.updateProperty(event);
-			return true;
+
+		if (e.getSource()==UI.func.Add) {
+			SpritePlacer.selected = new Pixy(0,0,0,0,32,32,0,
+										"data/missing.png","new",
+										0,0,32,32);
+			SpritePlacer.updatePropGui();
+			SpritePlacer.updateBodyGui();			
 		}
+
+	}
+
+    public void focusGained(FocusEvent e) {
 		
-		return true;
     }
 
-    public boolean scrolled(int amount) {
 
-        return false;
-    }
+	public float textField2float(JTextField tf) {
+		float val;
+		try {
+			val = Float.parseFloat(tf.getText());
+		} catch (Exception ex) {
+			SpritePlacer.updatePropGui();
+			return 0;
+		}
+		return val;
+	}
 
-    public boolean mouseMoved(int x, int y) {
+	// update the actual properties when a UI component looses the focus
+	public void focusLost(FocusEvent e) {
 
-        return false;
-    }
+		if (SpritePlacer.selected!=null) {
+
+			if (e.getSource()==UI.props.Name) {SpritePlacer.selected.setName(UI.props.Name.getText());return;}
+				
+			if ((JTextField)e.getSource()!=null) {
+				float val;
+				try {
+					val = Float.parseFloat(((JTextField)(e.getSource())).getText());
+				} catch (Exception ex) {
+					SpritePlacer.updatePropGui();
+					return;
+				}
+				
+				if (e.getSource()==UI.props.xpos) {SpritePlacer.selected.setX(val);return;}
+				if (e.getSource()==UI.props.ypos) {SpritePlacer.selected.setY(val);return;}
+				if (e.getSource()==UI.props.Ang) {SpritePlacer.selected.setAngle(val);return;}
+				if (e.getSource()==UI.props.Offx) {SpritePlacer.selected.setTextureOffsetX((int)val);return;}
+				if (e.getSource()==UI.props.Offy) {SpritePlacer.selected.setTextureOffsetY((int)val);return;}
+				if (e.getSource()==UI.props.Width) {SpritePlacer.selected.setWidth((int)val);return;}
+				if (e.getSource()==UI.props.Height) {SpritePlacer.selected.setHeight((int)val);return;}
+				if (e.getSource()==UI.props.Twidth) {SpritePlacer.selected.setTextureWidth((int)val);return;}
+				if (e.getSource()==UI.props.Theight) {SpritePlacer.selected.setTextureHeight((int)val);return;}
+				
+				if (SpritePlacer.selectedFixture!=null) {
+
+					Shape shp = SpritePlacer.selectedFixture.getShape();
+
+					if (e.getSource() == UI.body.OffsetX || e.getSource() == UI.body.OffsetY) {
+						tmpV2.set(textField2float(UI.body.OffsetX)*Const.WORLD2BOX,
+									textField2float(UI.body.OffsetY)*Const.WORLD2BOX);
+						if (shp.getClass() == CircleShape.class) {
+							((CircleShape)shp).setPosition(tmpV2);
+						}
+
+						if (shp.getClass() == PolygonShape.class) {
+							BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
+							bs.setPosition(tmpV2);
+							bs.update();
+						}
+						return;
+					}
+					
+										
+					if (e.getSource() == UI.body.Width || e.getSource() == UI.body.Height) {
+						tmpV2.set(textField2float(UI.body.Width)*Const.WORLD2BOX/2f,
+									textField2float(UI.body.Height)*Const.WORLD2BOX/2f);
+						if (shp.getClass() == CircleShape.class) {
+							((CircleShape)shp).setRadius(tmpV2.x*2f); // radius not width so undo /2 correction
+						}
+						if (shp.getClass() == PolygonShape.class) {
+							BoxShape bs=BoxShape.fauxCast((PolygonShape)shp);
+							bs.setSize(tmpV2);
+							bs.update();
+						}
+						return;
+					}
+
+					if (e.getSource() == UI.body.Restitution) {
+						SpritePlacer.selectedFixture.setRestitution(textField2float(UI.body.Restitution));
+						return;
+					}
+
+					if (e.getSource() == UI.body.Friction) {
+						SpritePlacer.selectedFixture.setFriction(textField2float(UI.body.Friction));
+						return;
+					}
+
+					if (e.getSource() == UI.body.Density) {
+						SpritePlacer.selectedFixture.setDensity(textField2float(UI.body.Density));
+						SpritePlacer.selected.body.resetMassData();
+						return;
+					}
+				}	
+			}	
+		}
+	}
+      
+    public boolean scrolled(int amount) { return false; }
+
+    public boolean mouseMoved(int x, int y) { return false; }
 
 
 	Vector2 dragDelta=new Vector2();
@@ -421,9 +391,6 @@ public class Events implements EventListener, InputProcessor {
             SpritePlacer.clearBodyGui();
 
 		}
-
-
-
 		return true;
     }
     
@@ -438,20 +405,37 @@ public class Events implements EventListener, InputProcessor {
 		} else {
 			screenDragStart.x=SpritePlacer.selected.getX();
             screenDragStart.y=SpritePlacer.selected.getY();
-		}
-
-
-        
+		}      
 		return true;
     }
 
     public boolean keyTyped(char c) {
-System.out.println("char="+c);
+//System.out.println("char="+c);
         return true;
     }
 
     public boolean keyUp(int keycode) {
+//System.out.println("key up"+keycode+" "+Keys.ESCAPE);
+		if (keycode==Keys.ESCAPE && SpritePlacer.runMode==true) {
 
+			// restore position and rotation clear velocities and forces
+			Iterator<Pixy> itr = Pixy.getPixies().iterator();
+			while(itr.hasNext()) {
+				Pixy p = itr.next();
+				p.restoreSavedTransform();
+				if (p.body!=null) {
+					p.body.setAngularVelocity(0);
+					p.body.setLinearVelocity(0,0);
+				}
+			}                   
+			SpritePlacer.world.clearForces();
+
+			UI.body.bodyWindow.setVisible(true);
+			UI.props.propsWindow.setVisible(true);
+			UI.script.scriptWindow.setVisible(true);			
+			UI.func.FuncWin.setVisible(true);
+			SpritePlacer.runMode=false;
+		}
         return true;
     }
 

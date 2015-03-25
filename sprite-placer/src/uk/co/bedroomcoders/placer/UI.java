@@ -1,15 +1,6 @@
 package uk.co.bedroomcoders.placer;
 
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
-import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.Gdx;
 
@@ -18,57 +9,76 @@ import java.util.Arrays;
 
 import com.badlogic.gdx.math.Vector2;
 
-// STATIC class for holding UI items and intitalising them
+import javax.swing.*;
+import java.awt.*;
+import javax.swing.filechooser.FileSystemView;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+
+// "STATIC" class for holding UI items and intitalising them
 
 public class UI {
 
-    protected static Stage stage;
-    protected static Skin skin;
-    private static String wraps[] = new String[3];
+    public static String wraps[] = new String[3];
     private static String bodyTypes[] = new String[3];
+    private static JLabel lastLabel;
+
+	static String p = new java.io.File("").getAbsolutePath();
+	static FileSystemView fsv = new DirectoryRestrictedFileSystemView(new File(p+"/data/"));
+	static FileNameExtensionFilter imgfilter = new FileNameExtensionFilter("Images", "jpg", "png");
+	static FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter("Levels", "xml");
+	public static JFileChooser fileChooser = new JFileChooser(p+"/data/",fsv);
+	
 
     protected static class func {
-        protected static Window win;
-        protected static TextButton load,save,remove,
-                            add,fixture,clone,run;
+		                            
+        protected static JFrame FuncWin;
+        protected static JPanel content;
+        protected static JButton Load, Save, Run, Remove, Add, Clone, Fixture;
     }
     
     protected static class script {
-		protected static Window win;
-        protected static Table table;
-        protected static ScrollPane pane;
-        
-        protected static TextArea levelScript;	
+
+        protected static JFrame scriptWindow;
+        protected static JScrollPane scrollingArea;
+        protected static JPanel content;
+        protected static JTextArea textArea;
 	}
     
     protected static class props {
-        protected static Window win;
-        protected static Table table;
-        protected static ScrollPane pane;
-        
-        protected static TextField name,x,y,ang,offx,offy,width,height;
-        protected static TextField texture,twidth,theight;
-        protected static SelectBox<String> xwrap,ywrap;
+
+        protected static JFrame propsWindow;
+        protected static JScrollPane scroll;
+        protected static JPanel content;
+        protected static JTextField Name,xpos,ypos,Ang,Offx,Offy,Width,Height,Twidth,Theight;
+        protected static JComboBox<String> Xwrap,Ywrap;
+        protected static JButton Texture;
 
     }
 
     protected static class body {
-        protected static Window win;
-        protected static Table table;
-        protected static ScrollPane pane;
 
-        protected static SelectBox<String> bodyType;
-        protected static SelectBox<String> shapeIndex;
-        protected static SelectBox<String> isSensor;
-        protected static TextField shapeType;
-        protected static TextField offsetX;
-        protected static TextField offsetY;
-        protected static TextField width;
-        protected static TextField height;
-        protected static TextField friction;
-        protected static TextField restitution;
-        protected static TextField density;
+        protected static JFrame bodyWindow;
+        protected static JScrollPane scroll;
+        protected static JPanel content;
+        protected static JComboBox<String> BodyType,ShapeIndex,IsSensor;
+        protected static JTextField ShapeType,OffsetX,OffsetY,Width,Height,Friction,Restitution,Density;
+        protected static JLabel radiusLabel;
     }
+    
+    protected static void setImgFilter() {
+		fileChooser.resetChoosableFileFilters();
+		fileChooser.addChoosableFileFilter(imgfilter);
+		fileChooser.setAcceptAllFileFilterUsed(false);
+		fileChooser.setFileFilter(imgfilter);		
+	}
+	
+	protected static void setLevelFilter() {
+		fileChooser.resetChoosableFileFilters();
+		fileChooser.addChoosableFileFilter(xmlfilter);
+		fileChooser.setAcceptAllFileFilterUsed(false);
+		fileChooser.setFileFilter(xmlfilter);		
+	}
 
     protected static void initialise() {
 
@@ -78,153 +88,202 @@ public class UI {
         bodyTypes[2] = new String("Dynamic");
          
         wraps[Texture.TextureWrap.MirroredRepeat.ordinal()]="Mirror";
-        wraps[Texture.TextureWrap.Repeat.ordinal()]="Repeat";
         wraps[Texture.TextureWrap.ClampToEdge.ordinal()]="Clamp";
+        wraps[Texture.TextureWrap.Repeat.ordinal()]="Repeat";
 
 		
-		skin = new Skin(Gdx.files.internal("data/uiskin.json"));
-		stage = new Stage();
 		Events.handler = new Events();
 
-        func.win = new Window("Functions",skin);
 
-		func.add = addButton(func.win,false,"New");
-        func.clone = addButton(func.win,false,"Clone");
-		func.remove = addButton(func.win,true,"Remove");
-		func.load = addButton(func.win,false,"Load");
-		func.save = addButton(func.win,true,"Save");
-        func.fixture = addButton(func.win,false,"+Shape");
-        func.run = addButton(func.win,false,"Run");
-        func.win.pack();
-        func.win.setResizable(false);
-        		
-		props.win = new Window("Properties",skin);
-        props.win.setWidth(190);
-		props.win.setResizeBorder(8);
-        props.table = new Table(skin);
-		props.pane = new ScrollPane(props.table);
-        props.pane.setFillParent(true);
-        props.win.add(props.pane).fill().expand();
-        
-        
-        script.win = new Window("Script",skin);
-        script.win.setWidth(400);
-        script.win.setHeight(100);
-        script.win.setResizeBorder(16);
-        
-        script.table = new Table(skin);
-        
-		script.levelScript = new TextArea("",skin);
-        script.levelScript.addListener(Events.handler);
-		script.levelScript.setUserObject("script");        
-		script.levelScript.setX(10);
-		script.levelScript.setY(10);
-		script.levelScript.setWidth(380);
-		script.levelScript.setHeight(360);
 
-        script.win.add(script.table);
-        script.table.addActor(script.levelScript);        
-        script.win.setResizable(true);
+        script.textArea = new JTextArea(12,40);
+        script.scrollingArea = new JScrollPane(script.textArea);
         
-        //script.win.debug();
-        //script.levelScript.debug();
-        //script.table.debug();
+        script.content = new JPanel();
+        script.content.setLayout(new BorderLayout());
+        script.content.add(script.scrollingArea, BorderLayout.CENTER);
 
-        script.levelScript.setPosition(-195f,-180f);
+
+		script.scriptWindow = new JFrame();
+		script.scriptWindow.setContentPane(script.content);
+        script.scriptWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        script.scriptWindow.pack();
+        script.scriptWindow.setVisible(true);
+
+
+
+        func.FuncWin = new JFrame("");
+        func.content = new JPanel(new SpringLayout());
+        func.FuncWin.setContentPane(func.content);
+        func.Load = addUnlabeledButton(func.content,"Load");
+        func.Save = addUnlabeledButton(func.content,"Save");
+        func.Run = addUnlabeledButton(func.content,"Run");
+        func.Remove = addUnlabeledButton(func.content,"Remove");
+        func.Add = addUnlabeledButton(func.content,"Add");
+        func.Clone = addUnlabeledButton(func.content,"Clone");
+        func.Fixture = addUnlabeledButton(func.content,"+Shape");
+ 
+ // 2 dummy items to make a "square" grid       
+        func.content.add(new JLabel(""));func.content.add(new JLabel(""));
+
+ 
+ 
+		func.FuncWin.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        func.FuncWin.pack();
+        func.FuncWin.setSize(260,128);
+
+		SpringUtilities.makeCompactGrid(func.content,
+						3, 3, 		//rows, cols
+						6, 6,        //initX, initY
+						6, 6);       //xPad, yPad
+               		
+        func.FuncWin.setVisible(true);
+
+     
+
         
+        props.content = new JPanel(new SpringLayout());
+        props.scroll = new JScrollPane(props.content);
 
+		props.propsWindow = new JFrame();
+		props.propsWindow.setContentPane(props.scroll);
+        props.propsWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+		props.Name = addTextField(props.content, "Name");
+		props.xpos = addTextField(props.content, "X");
+		props.ypos = addTextField(props.content, "Y");
+		props.Ang = addTextField(props.content, "Angle");
+		props.Offx = addTextField(props.content, "Off X");
+		props.Offy = addTextField(props.content, "Off Y");
+		props.Width = addTextField(props.content, "Width");
+		props.Height = addTextField(props.content, "Height");
+		props.Texture = addJButton(props.content, "Texture");
+		props.Twidth = addTextField(props.content, "T width");
+		props.Theight = addTextField(props.content, "T height");
 		
-		props.table.add(new Label("drag to scroll",skin)).colspan(2);
-		props.table.row();
-		props.name = addTextCell(props.table, new TextField("",skin),"Name");
-		props.x = addTextCell(props.table, new TextField("",skin),"Xpos");
-		props.y = addTextCell(props.table, new TextField("",skin),"Ypos");
-		props.width = addTextCell(props.table, new TextField("",skin),"width");
-		props.height = addTextCell(props.table, new TextField("",skin),"height");
-		props.ang = addTextCell(props.table, new TextField("",skin),"angle");
-		props.offx = addTextCell(props.table, new TextField("",skin),"offsetX");
-		props.offy = addTextCell(props.table, new TextField("",skin),"offsetY");
-		props.twidth = addTextCell(props.table, new TextField("",skin), "tex width");
-		props.theight = addTextCell(props.table, new TextField("",skin), "tex Height");
-		props.texture = addTextCell(props.table, new TextField("",skin),"texure");
+		props.Xwrap = addComboBox(props.content,"X wrap",wraps);
+		props.Ywrap = addComboBox(props.content,"Y wrap",wraps);
 
-		props.xwrap = addSelect(props.table, new SelectBox<String>(skin), wraps, "Xwrap");
-		props.ywrap = addSelect(props.table, new SelectBox<String>(skin), wraps, "Ywrap");
+		SpringUtilities.makeCompactGrid(props.content,
+                                13, 2, 		//rows, cols
+                                6, 6,        //initX, initY
+                                6, 6);       //xPad, yPad
 
-        props.table.padTop(24);
-        props.win.setResizable(true);
-
-        body.win = new Window("Body",skin);
-        body.win.setWidth(190);
-        body.win.setResizeBorder(8);
-        body.table = new Table(skin);
-        body.pane = new ScrollPane(body.table);
-        body.pane.setFillParent(true);
-        body.win.add(body.pane).fill().expand();
-
+		props.propsWindow.setSize(240,240);
+        props.propsWindow.setVisible(true);
         
-        body.bodyType = addSelect(body.table, new SelectBox<String>(skin), bodyTypes, "type");
-        body.shapeIndex = addSelect(body.table, new SelectBox<String>(skin), null, "EDIT: ");
-        body.shapeType = addTextCell(body.table, new TextField("",skin),"shape");
-        body.shapeType.setDisabled(true);
-        body.isSensor = addSelect(body.table, new SelectBox<String>(skin), new String[]{"false","true"}, "sensor");
-        body.offsetX = addTextCell(body.table, new TextField("",skin),"Offset X");
-        body.offsetY = addTextCell(body.table, new TextField("",skin),"Offset Y");
-        body.width = addTextCell(body.table, new TextField("",skin),"width");
-        body.height = addTextCell(body.table, new TextField("",skin),"height");
-        body.restitution = addTextCell(body.table, new TextField("",skin),"bounce");
-        body.friction = addTextCell(body.table, new TextField("",skin),"friction");
-        body.density = addTextCell(body.table, new TextField("",skin),"density");
-        body.table.padTop(24);
-        		
-		stage.addActor(props.win);
-		props.win.setPosition(8,110);
+
+
+        body.content = new JPanel(new SpringLayout());
+        body.scroll = new JScrollPane(body.content);
+
+		body.bodyWindow = new JFrame();
+		body.bodyWindow.setContentPane(body.scroll);
+        body.bodyWindow.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+     
+		body.BodyType = addComboBox(body.content, "Body type", bodyTypes);
+		body.ShapeIndex = addComboBox(body.content, "Shape", new String[]{});
+		body.IsSensor = addComboBox(body.content, "Sensor", new String[]{"false","true"});
+		body.ShapeType = addTextField(body.content,"Shape type"); body.ShapeType.setEditable(false);
+		body.OffsetX = addTextField(body.content,"Offset X");
+		body.OffsetY = addTextField(body.content,"Offset Y");
+		body.Width = addTextField(body.content,"Width");
+		body.radiusLabel = lastLabel;
+		body.Height = addTextField(body.content,"Height");
+		body.Friction = addTextField(body.content,"Friction");
+		body.Restitution = addTextField(body.content,"Restitution");
+		body.Density = addTextField(body.content,"Density");
+
+		SpringUtilities.makeCompactGrid(body.content,
+                                11, 2, 		//rows, cols
+                                6, 6,        //initX, initY
+                                6, 6);       //xPad, yPad
 		
-		stage.addActor(func.win);
-		func.win.setPosition(8,8);
+		body.bodyWindow.setSize(240,240);
+        body.bodyWindow.setVisible(true);
+      
+
+        body.bodyWindow.setIconImage(new ImageIcon("icons/phys.png").getImage());
+        func.FuncWin.setIconImage(new ImageIcon("icons/funcs.png").getImage());
+        props.propsWindow.setIconImage(new ImageIcon("icons/props.png").getImage());
+        script.scriptWindow.setIconImage(new ImageIcon("icons/script.png").getImage());
         
-        stage.addActor(body.win);
-        body.win.setPosition(8,280);
-        
-        stage.addActor(script.win);
-        script.win.setPosition(8,480);
+        props.propsWindow.setLocation(
+					props.propsWindow.getLocation().x,
+					func.FuncWin.getHeight()+func.FuncWin.getLocation().y+8);
+        body.bodyWindow.setLocation(
+					props.propsWindow.getLocation().x,
+					props.propsWindow.getHeight()+props.propsWindow.getLocation().y+8);
     }
 
 
-	private static SelectBox<String> addSelect(Table parent, SelectBox<String> w, String[] list,String label)
-	{
-		Label nameLabel = new Label(label, UI.skin);
-		parent.add(nameLabel).width(60);
-		parent.add(w).width(120);
-        w.addListener(Events.handler);
-        if (list!=null) w.setItems(list);
-		parent.row();
-		return w;
+	private static JTextField addTextField(JPanel parent, String labelText) {
+		JLabel l = new JLabel(labelText,JLabel.TRAILING);
+		lastLabel=l;
+		parent.add(l);
+		JTextField textField = new JTextField(4);
+		l.setLabelFor(textField); // can't reverse look up this (ie from textField get label?)
+		parent.add(textField);
+		textField.addKeyListener(Events.handler);
+		textField.addFocusListener(Events.handler);
+		return textField;		
+	}
+	
+	private static JComboBox<String> addComboBox(JPanel parent, String labelText, String[] items) {
+		JLabel l = new JLabel(labelText, JLabel.TRAILING);
+		parent.add(l);
+		JComboBox<String> jcb = new JComboBox<String>(items);
+		l.setLabelFor(jcb);
+		parent.add(jcb);
+		jcb.setEditable(false);
+		jcb.addActionListener(Events.handler);
+		return jcb;
+	}
+	
+	private static JButton addJButton(JPanel parent, String labelText) {
+		JLabel l = new JLabel(labelText, JLabel.TRAILING);
+		parent.add(l);
+		JButton jb = new JButton(labelText);
+		l.setLabelFor(jb);
+		parent.add(jb);
+		jb.addActionListener(Events.handler);
+		return jb;
 	}
 
-	private static TextField addTextCell(Table parent, TextField w,String label)
-	{
-		Label nameLabel = new Label(label, UI.skin);
-		parent.add(nameLabel).width(60);
-		parent.add(w).width(120);
-        w.addListener(Events.handler);
-		parent.row();
-        w.setUserObject(nameLabel);
-		return w;
+	private static JButton addUnlabeledButton(JPanel parent, String labelText) {
+		JButton jb = new JButton(labelText);
+		parent.add(jb);
+		jb.addActionListener(Events.handler);
+		return jb;
 	}
+	
+	public static class DirectoryRestrictedFileSystemView extends FileSystemView {
+		private final File[] rootDirectories;
 
-    /*
-     *	add a text button to a table/window used for the function button window
-     */
-    private static TextButton addButton(Table parent, boolean row, String text) {
-        TextButton button = new TextButton(text, UI.skin);
-        parent.add(button).width(60);
-        if (row) parent.row();
-        button.addListener(Events.handler);
-        return button;
-    }
+		DirectoryRestrictedFileSystemView(File rootDirectory) { this.rootDirectories = new File[] {rootDirectory}; }
+		DirectoryRestrictedFileSystemView(File[] rootDirectories) { this.rootDirectories = rootDirectories; }
 
+		@Override
+		public File createNewFolder(File containingDir) //throws IOException
+		{       
+			//throw new UnsupportedOperationException("Unable to create directory");
+			return null;
+		}
 
+		@Override
+		public File[] getRoots() { return rootDirectories; }
+		
 
-        
+		@Override
+		public boolean isRoot(File file) {
+			for (File root : rootDirectories) if (root.equals(file)) return true;
+			return false;
+		}
+		
+		// only allow access to the roots
+		@Override
+		public Boolean isTraversable(File file) { return (Boolean)isRoot(file); }
+	}
+	
+
 }

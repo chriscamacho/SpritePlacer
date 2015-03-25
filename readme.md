@@ -2,6 +2,8 @@ SpritePlacer
 
 an editor for arbitrarily placing a collection of sprites - loads and saves to xml.
 
+Includes physics and scripting...
+
 (see below for longer description)
 
 --- beginning of licence ---
@@ -19,26 +21,13 @@ Unless required by applicable law or agreed to in writing, Licensor provides thi
 --- end of licence ---
 
 
-Allows the following manipulations on individual sprites
+Allows sprites to be positioned and textured in a number of ways and to attach physics objects to the sprite as well as effecting their behaviour with scripting
 
-* Name – a textual name that can be used for a sprite, has no functional use in the editor, could be used for user defined data...
-* Xpos Ypos – the coordinates the centre of the sprite is placed.
-* width height – the size of the sprite also used in conjunction with scale and wrap for texture effects
-* angle – the rotation of the sprite (in degrees)
-* offsetX offsetY – texture offset in pixels
-* texture – the file name of the texture to use.
-* Xwrap Ywrap – effects how the texture wraps if it is not big enough to cover the sprite.
-* various physics properties (multiple physics shapes per sprite)
-* scripting - ability to run functions each frame and when sprites collide etc
-
-The current sprite is selected with the mouse (or touch) 
+The current sprite is selected with the mouse
 
 In addition to manipulating individual sprites where the camera is looking can be moved by "dragging"
 
-There is a (somewhat rudimentry) file dialog to assist with loading and saving "levels"
-
-New sprites can be added with the “add” button, they can be deleted with the remove button once selected
-
+After "running" a level to return to edditing press the escape key.
 
 event driven script functions
 
@@ -61,6 +50,7 @@ TODO
 * more physics properties - ongoing
 * allow deletion of physics shapes
 * add scrpting - done but ongoing
+* add physics joints
 * add button to create box office smash game. - awaiting pull request
 
 I'm open to sensible suggestions, but do contact me before diving into massive code changes, as depending on what I'm doing next I might not be able to use them...

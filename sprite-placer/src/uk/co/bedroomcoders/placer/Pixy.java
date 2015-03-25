@@ -46,6 +46,8 @@ public class Pixy
 	private int textureHeight;
     private static final Vector2 tmpV2 = new Vector2();
     private long uid=-1;
+    private boolean wrapDirty = false;
+    protected boolean textureDirty = false;
 
     private Vector2 savedPosition = new Vector2();
     private float savedAngle;
@@ -101,6 +103,26 @@ public class Pixy
     }
 
 	public void draw(SpriteBatch sb) {
+		
+		if (textureDirty) {
+			setTextureFileName(UI.props.Texture.getText());
+			try
+			{
+				setTexture(new Texture(Gdx.files.internal(getTextureFileName())));
+			} 
+			catch (Exception e)
+			{
+				setTexture(Pixy.getBrokenTexture());
+				UI.props.Texture.setText("missing!");
+			}
+			textureDirty=false;
+			wrapDirty=true; // new texture so wrap is dirty!
+		}
+		if (wrapDirty) {
+			getTexture().setWrap(Texture.TextureWrap.values()[this.xWrap], Texture.TextureWrap.values()[this.yWrap]);
+			wrapDirty = false;
+		}
+		
 		sb.draw(getTexture(), getX()-getOriginX(), getY()-getOriginY(), getOriginX(), getOriginY(), getWidth(), getHeight(),
 					1f,1f, getAngle(), getTextureOffsetX(), getTextureOffsetY(), getTextureWidth(), getTextureHeight(), false, false);
 					
@@ -330,6 +352,7 @@ public class Pixy
 
 	public void setxWrap(int xWrap) {
 		this.xWrap = xWrap;
+		wrapDirty=true;
 	}
 
 	public int getyWrap() {
@@ -338,6 +361,7 @@ public class Pixy
 
 	public void setyWrap(int yWrap) {
 		this.yWrap = yWrap;
+		wrapDirty=true;
 	}
 
 	public int getTextureWidth() {
@@ -369,6 +393,7 @@ public class Pixy
 		return pixies;
 	}
 
+	// probably not a good idea...
 	//public static void setPixies(ArrayList<Pixy> pixies) {
 	//	Pixy.pixies = pixies;
 	//}
