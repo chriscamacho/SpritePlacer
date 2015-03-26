@@ -1,6 +1,7 @@
 package uk.co.bedroomcoders.placer;
 
 import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -74,6 +75,9 @@ public class SpritePlacer implements ApplicationListener {
     protected static ContactListener scl = new ScriptContactListener();
 
     public static SpritePlacer engine = null;
+    
+    protected static boolean doClone = false;
+    protected static boolean stopForError = false;
     
 	@Override
 	public void create() {
@@ -279,6 +283,11 @@ public class SpritePlacer implements ApplicationListener {
 	@Override
 	public void render() {
 		
+		if (stopForError) {  // can't stop part way through collision callback
+			stopForError=false;
+			if (runMode) Events.handler.keyUp(Keys.ESCAPE);
+		}
+		
 		if (levelToLoad!=null) { // because swing thread doesn't have the GL context...
 			LevelLoader ll = new LevelLoader(levelToLoad);
 			if (SpritePlacer.levelScript!=null) {
@@ -295,12 +304,28 @@ public class SpritePlacer implements ApplicationListener {
 			UI.script.textArea.setText(SpritePlacer.levelScript);	
 			levelToLoad=null;
 		}
+		
+		if (doClone) {
+			doClone=false;
+			Pixy c = SpritePlacer.selected;
+			Pixy p = new Pixy(c.getX()+8f,c.getY()+8f,
+								c.getTextureOffsetX(), c.getTextureOffsetY(),
+								c.getWidth(),c.getHeight(),
+								c.getAngle(), c.getTextureFileName(),
+								c.getName()+"_clone", c.getxWrap(),c.getyWrap(),
+								c.getTextureWidth(),c.getTextureHeight());
+			SpritePlacer.selected = p;
+			SpritePlacer.updatePropGui();
+		}
+		
 
         try {
             SpritePlacer.scriptInvoker.invokeFunction("beforeRender");                                    
         } catch (Exception e) {
-            if (!(e instanceof java.lang.NoSuchMethodException))
+            if (!(e instanceof java.lang.NoSuchMethodException)) {
                     e.printStackTrace();
+                    if (runMode) Events.handler.keyUp(Keys.ESCAPE);
+			}
         }
         
 		Gdx.gl.glClearColor(1, .5f, .25f, 1);
@@ -367,8 +392,10 @@ public class SpritePlacer implements ApplicationListener {
         try {
             SpritePlacer.scriptInvoker.invokeFunction("afterRender");                                    
         } catch (Exception e) {
-            if (!(e instanceof java.lang.NoSuchMethodException))
+            if (!(e instanceof java.lang.NoSuchMethodException)) {
                     e.printStackTrace();
+					if (runMode) Events.handler.keyUp(Keys.ESCAPE);
+			}
         }
 
 	}

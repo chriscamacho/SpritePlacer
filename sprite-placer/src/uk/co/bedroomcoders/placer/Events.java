@@ -111,15 +111,7 @@ public class Events implements InputProcessor, KeyListener, FocusListener, Actio
 			}
 			if (e.getSource()==UI.func.Clone) {
 				// TODO clone physics as well
-				Pixy c = SpritePlacer.selected;
-				Pixy p = new Pixy(c.getX()+8f,c.getY()+8f,
-									c.getTextureOffsetX(), c.getTextureOffsetY(),
-									c.getWidth(),c.getHeight(),
-									c.getAngle(), c.getTextureFileName(),
-									c.getName()+"_clone", c.getxWrap(),c.getyWrap(),
-									c.getTextureWidth(),c.getTextureHeight());
-				SpritePlacer.selected = p;
-				SpritePlacer.updatePropGui();
+				SpritePlacer.doClone=true;
 			}
 			if (e.getSource()==UI.func.Fixture) {
 				String[] buttons = { "Circle", "Box", "Cancel" };
@@ -411,6 +403,8 @@ public class Events implements InputProcessor, KeyListener, FocusListener, Actio
 
     public boolean keyTyped(char c) {
 //System.out.println("char="+c);
+// WARNING - reminder - gdx bug???
+// constantly spews chars if looses and regains focus during keypress...
         return true;
     }
 
@@ -430,9 +424,9 @@ public class Events implements InputProcessor, KeyListener, FocusListener, Actio
 			}                   
 			SpritePlacer.world.clearForces();
 
+			UI.script.scriptWindow.setVisible(true);			
 			UI.body.bodyWindow.setVisible(true);
 			UI.props.propsWindow.setVisible(true);
-			UI.script.scriptWindow.setVisible(true);			
 			UI.func.FuncWin.setVisible(true);
 			SpritePlacer.runMode=false;
 		}

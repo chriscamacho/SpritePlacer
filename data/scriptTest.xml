@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<level script="ball=null;&#xA;moveBall=false;&#xA;&#xA;function levelLoaded() {&#xA;    print(&apos;Hello level loaded\n&apos;);&#xA;}&#xA; &#xA;function selected(P) {&#xA;    print(&apos;pixy = &apos; + P.getName() +&apos;\n&apos;);&#xA;}&#xA; &#xA;function beginContact(contact) {&#xA;    boda = contact.getFixtureA().getBody();&#xA;    bodb = contact.getFixtureB().getBody();&#xA;    man = contact.getWorldManifold();&#xA;    vel1 = boda.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;    vel2 = bodb.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;    impactVelocity = vel1.sub(vel2);&#xA;    print(&apos;impact speed=&apos;+impactVelocity.len()+&apos;\n&apos;);&#xA;&#xA;    pxy1 = boda.getUserData();&#xA;    pxy2 = bodb.getUserData();&#xA;    if (pxy2.name.equals(&apos;ball&apos;)) {&#xA;        tmp=pxy2;&#xA;        pxy2=pxy1;&#xA;        pxy1=tmp;&#xA;    }&#xA;    // now pxy1 is always the ball&#xA;    if (pxy1.name.equals(&apos;ball&apos;)) {&#xA;        if (pxy2.name.equals(&apos;buffer&apos;)) {&#xA;            ball=pxy1;&#xA;            moveBall=true;&#xA;        }&#xA;    }&#xA;&#xA;}&#xA;&#xA;function endContact(contact) {&#xA;&#xA;}&#xA;&#xA;function afterRender() {&#xA;    if (moveBall) {&#xA;        moveBall=false;&#xA;        ball.setX(-48.0);&#xA;        ball.setY(168.0);&#xA;        print(&quot;pop!\n&quot;);&#xA;    }&#xA;}&#xA;">
+<level script="Placer=Packages.uk.co.bedroomcoders.placer;&#xA;Pixies=Placer.Pixy.pixies;&#xA;Buffer=null;&#xA;&#xA;var moveBall = [];&#xA;&#xA;&#xA;&#xA;function levelLoaded() {&#xA;    print(&apos;Hello level loaded\n&apos;);&#xA;&#xA;    // find by name but should really use numeric uid&#xA;    for (var i=0; i&lt;Pixies.size(); i++) {&#xA;        var p = Pixies.get(i);&#xA;        if (p.getName().equals(&quot;buffer&quot;)) {&#xA;            Buffer=p;&#xA;            break;&#xA;        }&#xA;    }&#xA;&#xA;}&#xA; &#xA;function selected(P) {&#xA;    print(&apos;pixy = &apos; + P.getName() +&apos;  uuid=&apos;+P.getUID()+&apos;\n&apos;);&#xA;}&#xA; &#xA;function beginContact(contact) {&#xA;    boda = contact.getFixtureA().getBody();&#xA;    bodb = contact.getFixtureB().getBody();&#xA;    man = contact.getWorldManifold();&#xA;    vel1 = boda.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;    vel2 = bodb.getLinearVelocityFromWorldPoint( man.points[0] );&#xA;    impactVelocity = vel1.sub(vel2);&#xA;    print(&apos;impact speed=&apos;+impactVelocity.len()+&apos;\n&apos;);&#xA;    &#xA;    pxy1 = boda.getUserData();&#xA;    pxy2 = bodb.getUserData();&#xA;    &#xA;    if (pxy2.name.equals(&apos;ball&apos;)) {&#xA;        tmp=pxy2;&#xA;        pxy2=pxy1;&#xA;        pxy1=tmp;&#xA;    } &#xA;    // now pxy1 is always the ball&#xA;    &#xA;    if (pxy1.name.equals(&apos;ball&apos;)) {&#xA;        if (pxy2.name.equals(&apos;buffer&apos;)) {&#xA;            moveBall.push(pxy1);&#xA;        }&#xA;    }&#xA;}&#xA;&#xA;function endContact(contact) {&#xA;&#xA;}&#xA;&#xA;function postSolve(contact, impulse) {&#xA;&#xA;&#xA;&#xA;&#xA;}&#xA;&#xA;function afterRender() {&#xA;    // cant reposition a physics object in a collision callback&#xA;    while (moveBall.length&gt;0) {&#xA;        ball=moveBall.pop();&#xA;        ball.setX(-48.0);&#xA;        ball.setY(168.0);&#xA;        print(&quot;pop!\n&quot;);&#xA;    }&#xA;&#xA;    &#xA;}&#xA;">
     <pixy name="new" uid="1412422658144" x="-59.0" y="-289.0" ox="0" oy="0" texture="data/missing.png" angle="0.0" width="256" height="32" xwrap="2" ywrap="0" twidth="256" theight="32" >
         <body type="static" >
             <shape type="box" x="0.0" y="0.0" width="256.0" height="32.0" restitution="0.1" density="0.2" friction="0.4"  />
@@ -105,6 +105,56 @@
             <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
             <shape type="box" x="0.0" y="0.0" width="64.0" height="8.0" restitution="0.1" density="0.1" friction="0.8"  />
             <shape type="box" x="0.0" y="0.0" width="8.0" height="64.0" restitution="0.1" density="0.1" friction="0.8"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1427330738503" x="107.0" y="-52.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1427330752238" x="73.0" y="-81.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1427330762907" x="38.0" y="-111.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1427330774129" x="149.0" y="73.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1427330783124" x="184.0" y="32.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1427331100845" x="59.0" y="-171.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1427332854197" x="-17.0" y="-66.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1427332865034" x="-71.0" y="-72.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1427332875904" x="-36.0" y="-122.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
+        </body>
+    </pixy>
+    <pixy name="ball" uid="1427332887462" x="8.0" y="-157.0" ox="64" oy="0" texture="data/libgdx.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="64" theight="64" >
+        <body type="dynamic" >
+            <shape type="circle" x="0.0" y="0.0" radius="16.0" restitution="0.1" density="0.1" friction="0.1"  />
         </body>
     </pixy>
 </level>
