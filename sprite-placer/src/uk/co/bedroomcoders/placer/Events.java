@@ -180,6 +180,15 @@ public class Events implements InputProcessor, KeyListener, FocusListener, Actio
 				}
 			}
 			
+			try {
+				SpritePlacer.scriptInvoker.invokeFunction("levelRun");                                    
+			} catch (Exception ex) {
+				if (!(ex instanceof java.lang.NoSuchMethodException)) {
+						ex.printStackTrace();
+						SpritePlacer.stopForError=true;
+				}
+			}
+				
 			UI.script.scriptWindow.setVisible(false);
 			UI.body.bodyWindow.setVisible(false);
 			UI.props.propsWindow.setVisible(false);

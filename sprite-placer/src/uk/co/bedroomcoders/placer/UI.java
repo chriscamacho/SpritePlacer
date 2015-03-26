@@ -15,6 +15,8 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.io.File;
 
+import org.fife.ui.rtextarea.*;
+import org.fife.ui.rsyntaxtextarea.*;
 // "STATIC" class for holding UI items and intitalising them
 
 public class UI {
@@ -40,9 +42,11 @@ public class UI {
     protected static class script {
 
         protected static JFrame scriptWindow;
-        protected static JScrollPane scrollingArea;
+//        protected static JScrollPane scrollingArea;
+        protected static RTextScrollPane scrollingArea;
         protected static JPanel content;
-        protected static JTextArea textArea;
+//        protected static JTextArea textArea;
+		protected static RSyntaxTextArea textArea;
 	}
     
     protected static class props {
@@ -96,8 +100,14 @@ public class UI {
 
 
 
-        script.textArea = new JTextArea(12,40);
-        script.scrollingArea = new JScrollPane(script.textArea);
+//        script.textArea = new JTextArea(12,40);
+		script.textArea = new RSyntaxTextArea(20, 40);
+		script.textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+		script.textArea.setCodeFoldingEnabled(true);
+		script.textArea.setCloseCurlyBraces(true);
+		script.textArea.setTabSize(4); 
+        script.scrollingArea = new RTextScrollPane(script.textArea);
+        script.scrollingArea.setLineNumbersEnabled(true);
         
         script.content = new JPanel();
         script.content.setLayout(new BorderLayout());

@@ -34,6 +34,7 @@ event driven script functions
 |name                |params                  |description                                      |
 |--------------------|------------------------|-------------------------------------------------|
 |levelLoaded         |                        |the level has been loaded                        |
+|levelRun            |                        |The Run button has been pressed                  |
 |selected            |pixy                    |a pixy has been selected in the editor           |
 |beforeRender        |none                    |just about to render a frame                     |
 |afterRender         |none                    |just rendered a frame                            |
