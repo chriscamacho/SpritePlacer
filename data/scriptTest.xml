@@ -40,7 +40,7 @@
             <shape type="box" x="0.0" y="0.0" width="384.0" height="32.0" restitution="0.1" density="0.1" friction="0.1"  />
         </body>
     </pixy>
-    <pixy name="buffer" uid="1426690206907" x="-155.0" y="-289.0" ox="0" oy="0" texture="data/missing.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="32" theight="32" >
+    <pixy name="buffer" uid="1426690206907" x="-155.0" y="-289.0" ox="0" oy="0" texture="data/trigger.png" angle="0.0" width="32" height="32" xwrap="0" ywrap="0" twidth="32" theight="32" >
         <body type="static" >
             <shape type="box" x="0.0" y="48.0" width="32.0" height="64.0" restitution="0.1" density="0.1" friction="0.1" sensor="true"  />
         </body>
