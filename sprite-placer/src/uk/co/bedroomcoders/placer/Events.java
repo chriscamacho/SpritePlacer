@@ -20,8 +20,6 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 
-import uk.co.bedroomcoders.fileDialog.fileDialog;
-
 import java.awt.event.KeyListener;
 import java.awt.event.FocusListener;
 import java.awt.event.ActionListener;
@@ -133,6 +131,8 @@ public class Events implements InputProcessor, KeyListener, FocusListener, Actio
 
 		if (e.getSource()==UI.func.Load) {
 			UI.setLevelFilter();
+			UI.fileChooser.setDialogTitle("Load Level");
+			UI.fileChooser.setApproveButtonText("Load");
 			int returnVal = UI.fileChooser.showOpenDialog(null);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = UI.fileChooser.getSelectedFile();
@@ -151,6 +151,8 @@ public class Events implements InputProcessor, KeyListener, FocusListener, Actio
 		}
 		if (e.getSource()==UI.func.Save) {
 			UI.setLevelFilter();
+			UI.fileChooser.setDialogTitle("Save Level");
+			UI.fileChooser.setApproveButtonText("Save");
 			int returnVal = UI.fileChooser.showOpenDialog(null);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = UI.fileChooser.getSelectedFile();

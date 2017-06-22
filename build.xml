@@ -29,7 +29,6 @@
         >
 			<src path="sprite-placer-desktop/src" />
 			<src path="sprite-placer/src" />
-			<src path="file-dialog/src" />
 			
             <compilerarg value="-Xlint:all" />
             <compilerarg value="-Werror" />
